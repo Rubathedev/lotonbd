@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LottoBD - Withdraw</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
+        .glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-green-400">💸 Withdraw Money</h1>
+                <a href="profile.html" class="bg-gray-700 text-white px-4 py-2 rounded">Back</a>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+            <div class="flex justify-between items-center">
+                <span class="text-green-400">Available Balance:</span>
+                <span class="text-3xl font-bold text-white" id="balance">৳0</span>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+            <h2 class="text-xl font-bold text-green-400 mb-4">Request Withdrawal</h2>
+            
+            <div class="mb-4">
+                <label class="block text-green-400 mb-2">Amount (Minimum ৳500)</label>
+                <input type="number" id="amount" min="500" placeholder="Enter amount" 
+                    class="w-full px-4 py-3 bg-gray-800 border border-green-500 rounded text-white">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-green-400 mb-2">Payment Method</label>
+                <select id="method" class="w-full px-4 py-3 bg-gray-800 border border-green-500 rounded text-white">
+                    <option>bKash</option>
+                    <option>Nagad</option>
+                    <option>Rocket</option>
+                    <option>Bank Transfer</option>
+                </select>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-green-400 mb-2">Account Number / Phone</label>
+                <input type="text" id="account" placeholder="01XXXXXXXXX" 
+                    class="w-full px-4 py-3 bg-gray-800 border border-green-500 rounded text-white">
+            </div>
+
+            <button onclick="requestWithdrawal()" 
+                class="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-3 rounded glow">
+                Submit Request
+            </button>
+
+            <p class="text-sm text-gray-400 mt-4">* Withdrawals are processed within 24-48 hours</p>
+        </div>
+
+        <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
+            <h2 class="text-xl font-bold text-green-400 mb-4">Withdrawal History</h2>
+            <div id="history" class="space-y-3">
+                <p class="text-gray-400">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubmdubWJmYmticHpoc2Rwc21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzU5MDgsImV4cCI6MjA4ODA1MTkwOH0.vIYdJA3eKajAGQ9Om27P8RkqTIeWUlGx1B-npq3u6u0';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+        let userBalance = 0;
+
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = session.user;
+            const { data: userData } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (userData) {
+                userBalance = userData.balance;
+                document.getElementById('balance').textContent = `৳${userBalance}`;
+            }
+
+            loadHistory();
+        });
+
+        async function requestWithdrawal() {
+            const amount = parseInt(document.getElementById('amount').value);
+            const method = document.getElementById('method').value;
+            const account = document.getElementById('account').value;
+
+            if (!amount || amount < 500) {
+                alert('Minimum withdrawal is ৳500');
+                return;
+            }
+
+            if (amount > userBalance) {
+                alert('Insufficient balance');
+                return;
+            }
+
+            if (!account) {
+                alert('Please enter your account number');
+                return;
+            }
+
+            if (!confirm(`Request withdrawal of ৳${amount}?`)) return;
+
+            try {
+                // Create withdrawal request
+                const { error } = await supabase.from('withdrawals').insert({
+                    user_id: currentUser.id,
+                    amount: amount,
+                    method: method,
+                    account: account,
+                    status: 'pending'
+                });
+
+                if (error) throw error;
+
+                // Deduct from balance
+                await supabase
+                    .from('users')
+                    .update({ balance: userBalance - amount })
+                    .eq('id', currentUser.id);
+
+                alert('Withdrawal request submitted! We will process it within 24-48 hours.');
+                
+                document.getElementById('amount').value = '';
+                document.getElementById('account').value = '';
+                
+                userBalance -= amount;
+                document.getElementById('balance').textContent = `৳${userBalance}`;
+                
+                loadHistory();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function loadHistory() {
+            const { data } = await supabase
+                .from('withdrawals')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            const historyDiv = document.getElementById('history');
+            
+            if (!data || data.length === 0) {
+                historyDiv.innerHTML = '<p class="text-gray-400">No withdrawal requests yet</p>';
+                return;
+            }
+
+            historyDiv.innerHTML = '';
+            data.forEach(w => {
+                const statusColor = w.status === 'pending' ? 'text-yellow-400' : 
+                                   w.status === 'completed' ? 'text-green-400' : 'text-red-400';
+                const date = new Date(w.created_at).toLocaleString();
+                
+                historyDiv.innerHTML += `
+                    <div class="bg-gray-800 p-4 rounded border border-green-500">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xl font-bold text-white">৳${w.amount}</span>
+                            <span class="${statusColor} font-bold">${w.status.toUpperCase()}</span>
+                        </div>
+                        <p class="text-sm text-gray-400">${w.method} - ${w.account}</p>
+                        <p class="text-xs text-gray-500">${date}</p>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
