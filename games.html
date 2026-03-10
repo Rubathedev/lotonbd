@@ -299,7 +299,7 @@
         }
 
         window.logout = async function() {
-            await supabase.auth.signOut();
+           await supabaseClient.auth.signOut();
             window.location.href = 'login.html';
         };
 
