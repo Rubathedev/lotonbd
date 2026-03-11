@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabaseClient/supabase-js@2"></script>
     <style>
         body {
             background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
@@ -99,7 +99,7 @@
     <script>
         const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubmdubWJmYmticHpoc2Rwc21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzU5MDgsImV4cCI6MjA4ODA1MTkwOH0.vIYdJA3eKajAGQ9Om27P8RkqTIeWUlGx1B-npq3u6u0'; // REPLACE
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
         let currentGame = null;
@@ -118,7 +118,7 @@
         });
 
         async function loadUserData() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('users')
                 .select('*')
                 .eq('id', currentUser.id)
@@ -144,7 +144,7 @@
 
         async function loadGames() {
             const today = new Date().toISOString().split('T')[0];
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('games')
                 .select('*')
                 .eq('date', today)
@@ -187,7 +187,7 @@
         }
 
         async function loadTickets() {
-            const { data } = await supabase
+            const { data } = await supabaseClient
                 .from('tickets')
                 .select('*')
                 .eq('game_id', currentGame);
@@ -242,7 +242,7 @@
 
             try {
                 // Deduct balance
-                const { error: balanceError } = await supabase
+                const { error: balanceError } = await supabaseClient
                     .from('users')
                     .update({ balance: userBalance - 100 })
                     .eq('id', currentUser.id);
@@ -250,7 +250,7 @@
                 if (balanceError) throw balanceError;
 
                 // Create ticket
-                const { error: ticketError } = await supabase
+                const { error: ticketError } = await supabaseClient
                     .from('tickets')
                     .insert({
                         game_id: currentGame,
@@ -261,14 +261,14 @@
                 if (ticketError) throw ticketError;
 
                 // Update game count
-                const { data: gameData } = await supabase
+                const { data: gameData } = await supabaseClient
                     .from('games')
                     .select('tickets_sold')
                     .eq('id', currentGame)
                     .single();
 
                 const newCount = (gameData.tickets_sold || 0) + 1;
-                await supabase
+                await supabaseClient
                     .from('games')
                     .update({ tickets_sold: newCount })
                     .eq('id', currentGame);
