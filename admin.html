@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabaseClient/supabase-js@2"></script>
+   
     <style>
         body { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
         .tab-btn { transition: all 0.3s; }
@@ -93,264 +93,248 @@
         </div>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
-        const SUPABASE_KEY ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubmdubWJmYmticHpoc2Rwc21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzU5MDgsImV4cCI6MjA4ODA1MTkwOH0.vIYdJA3eKajAGQ9Om27P8RkqTIeWUlGx1B-npq3u6u0';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+   <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-        let selectedUserId = null;
+    const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
+    const SUPABASE_KEY = 'YOUR_FULL_ANON_KEY_HERE'; // REPLACE WITH YOUR REAL KEY
+    
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
-    if (!session) {
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    // Check if user is admin
-    const { data: adminCheck } = await supabaseClient
-        .from('admins')
-        .select('user_id')
-        .eq('user_id', session.user.id)
-        .single();
-    
-    if (!adminCheck) {
-        alert('Access denied! Admin only.');
-        window.location.href = 'games.html';
-        return;
-    }
-            loadAllUsers();
-            loadTodaysGames();
-            loadWithdrawals();
-            loadFullGames();
+    let selectedUserId = null;
+
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+            window.location.href = 'index.html';
+            return;
+        }
+        loadAllUsers();
+        loadTodaysGames();
+        loadWithdrawals();
+        loadFullGames();
+    });
+
+    window.showTab = function(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(tabName + 'Tab').classList.remove('hidden');
+        event.target.classList.add('active');
+    };
+
+    window.searchUser = async function() {
+        const email = document.getElementById('searchEmail').value;
+        if (!email) return;
+
+        const { data } = await supabaseClient.from('users').select('*').eq('email', email).single();
+        
+        if (!data) {
+            alert('User not found');
+            return;
+        }
+
+        selectedUserId = data.id;
+        document.getElementById('userDetails').classList.remove('hidden');
+        document.getElementById('userInfo').innerHTML = `
+            <p class="text-white"><strong class="text-green-400">Name:</strong> ${data.name}</p>
+            <p class="text-white"><strong class="text-green-400">Email:</strong> ${data.email}</p>
+            <p class="text-white"><strong class="text-green-400">Balance:</strong> ৳${data.balance}</p>
+            <p class="text-white"><strong class="text-green-400">Total Earned:</strong> ৳${data.total_earned}</p>
+        `;
+    };
+
+    window.addBalance = async function() {
+        const amount = parseInt(document.getElementById('addAmount').value);
+        if (!amount || !selectedUserId) return;
+
+        const { data: user } = await supabaseClient.from('users').select('balance').eq('id', selectedUserId).single();
+        
+        await supabaseClient.from('users').update({ balance: user.balance + amount }).eq('id', selectedUserId);
+        await supabaseClient.from('transactions').insert({
+            user_id: selectedUserId,
+            type: 'topup',
+            amount: amount
         });
 
-        window.showTab = function(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabName + 'Tab').classList.remove('hidden');
-            event.target.classList.add('active');
-        };
+        alert('Balance added!');
+        document.getElementById('addAmount').value = '';
+        searchUser();
+    };
 
-        window.searchUser = async function() {
-            const email = document.getElementById('searchEmail').value;
-            if (!email) return;
+    async function loadAllUsers() {
+        const { data } = await supabaseClient.from('users').select('*').order('created_at', { ascending: false });
+        const usersDiv = document.getElementById('usersList');
+        
+        if (!data || data.length === 0) {
+            usersDiv.innerHTML = '<p class="text-gray-400">No users yet</p>';
+            return;
+        }
 
-            const { data } = await supabase.from('users').select('*').eq('email', email).single();
-            
-            if (!data) {
-                alert('User not found');
-                return;
-            }
-
-            selectedUserId = data.id;
-            document.getElementById('userDetails').classList.remove('hidden');
-            document.getElementById('userInfo').innerHTML = `
-                <p class="text-white"><strong class="text-green-400">Name:</strong> ${data.name}</p>
-                <p class="text-white"><strong class="text-green-400">Email:</strong> ${data.email}</p>
-                <p class="text-white"><strong class="text-green-400">Balance:</strong> ৳${data.balance}</p>
-                <p class="text-white"><strong class="text-green-400">Total Earned:</strong> ৳${data.total_earned}</p>
-            `;
-        };
-
-        window.addBalance = async function() {
-            const amount = parseInt(document.getElementById('addAmount').value);
-            if (!amount || !selectedUserId) return;
-
-            const { data: user } = await supabase.from('users').select('balance').eq('id', selectedUserId).single();
-            
-            await supabase.from('users').update({ balance: user.balance + amount }).eq('id', selectedUserId);
-            await supabase.from('transactions').insert({
-                user_id: selectedUserId,
-                type: 'topup',
-                amount: amount
-            });
-
-            alert('Balance added!');
-            document.getElementById('addAmount').value = '';
-            searchUser();
-        };
-
-        async function loadAllUsers() {
-            const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false });
-            const usersDiv = document.getElementById('usersList');
-            
-            if (!data || data.length === 0) {
-                usersDiv.innerHTML = '<p class="text-gray-400">No users yet</p>';
-                return;
-            }
-
-            usersDiv.innerHTML = '';
-            data.forEach(user => {
-                usersDiv.innerHTML += `
-                    <div class="bg-gray-800 p-3 rounded border border-green-500 flex justify-between">
-                        <div>
-                            <p class="text-white font-bold">${user.name}</p>
-                            <p class="text-sm text-gray-400">${user.email}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-green-400">৳${user.balance}</p>
-                            <p class="text-xs text-gray-400">Earned: ৳${user.total_earned}</p>
-                        </div>
+        usersDiv.innerHTML = '';
+        data.forEach(user => {
+            usersDiv.innerHTML += `
+                <div class="bg-gray-800 p-3 rounded border border-green-500 flex justify-between">
+                    <div>
+                        <p class="text-white font-bold">${user.name}</p>
+                        <p class="text-sm text-gray-400">${user.email}</p>
                     </div>
-                `;
+                    <div class="text-right">
+                        <p class="text-green-400">৳${user.balance}</p>
+                        <p class="text-xs text-gray-400">Earned: ৳${user.total_earned}</p>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    window.create20Games = async function() {
+        if (!confirm('Create 20 games for today?')) return;
+
+        const today = new Date().toISOString().split('T')[0];
+        const games = [];
+        
+        for (let i = 1; i <= 20; i++) {
+            games.push({
+                date: today,
+                game_number: i,
+                status: 'active',
+                tickets_sold: 0
             });
         }
 
-        window.create20Games = async function() {
-            if (!confirm('Create 20 games for today?')) return;
+        const { error } = await supabaseClient.from('games').insert(games);
+        
+        if (error) {
+            alert('Error: ' + error.message);
+        } else {
+            alert('20 games created!');
+            loadTodaysGames();
+        }
+    };
 
-            const today = new Date().toISOString().split('T')[0];
-            const games = [];
+    async function loadTodaysGames() {
+        const today = new Date().toISOString().split('T')[0];
+        const { data } = await supabaseClient.from('games').select('*').eq('date', today).order('game_number');
+        
+        const gamesDiv = document.getElementById('gamesList');
+        
+        if (!data || data.length === 0) {
+            gamesDiv.innerHTML = '<p class="text-gray-400">No games today. Click button above to create 20 games.</p>';
+            return;
+        }
+
+        gamesDiv.innerHTML = '';
+        data.forEach(game => {
+            gamesDiv.innerHTML += `
+                <div class="bg-gray-800 p-3 rounded border border-green-500">
+                    <p class="text-white font-bold">Game #${game.game_number}</p>
+                    <p class="text-sm text-gray-400">Tickets: ${game.tickets_sold}/100 - ${game.status}</p>
+                </div>
+            `;
+        });
+    }
+
+    async function loadWithdrawals() {
+        const { data } = await supabaseClient.from('withdrawals').select('*, users(name, email)').eq('status', 'pending');
+        
+        const withdrawalsDiv = document.getElementById('withdrawalsList');
+        
+        if (!data || data.length === 0) {
+            withdrawalsDiv.innerHTML = '<p class="text-gray-400">No pending withdrawals</p>';
+            return;
+        }
+
+        withdrawalsDiv.innerHTML = '';
+        data.forEach(w => {
+            withdrawalsDiv.innerHTML += `
+                <div class="bg-gray-800 p-4 rounded border border-green-500">
+                    <p class="text-white font-bold">${w.users.name} (${w.users.email})</p>
+                    <p class="text-green-400 text-xl">৳${w.amount}</p>
+                    <p class="text-sm text-gray-400">${w.method} - ${w.account}</p>
+                    <button onclick="approveWithdrawal('${w.id}')" class="mt-2 bg-green-500 text-black px-4 py-2 rounded">Approve</button>
+                </div>
+            `;
+        });
+    }
+
+    window.approveWithdrawal = async function(id) {
+        if (!confirm('Mark as paid?')) return;
+
+        await supabaseClient.from('withdrawals').update({ status: 'completed' }).eq('id', id);
+        alert('Marked as completed!');
+        loadWithdrawals();
+    };
+
+    async function loadFullGames() {
+        const { data } = await supabaseClient.from('games').select('*').eq('tickets_sold', 100).eq('status', 'active');
+        
+        const fullGamesDiv = document.getElementById('fullGamesList');
+        
+        if (!data || data.length === 0) {
+            fullGamesDiv.innerHTML = '<p class="text-gray-400">No full games ready for winner selection</p>';
+            return;
+        }
+
+        fullGamesDiv.innerHTML = '';
+        data.forEach(game => {
+            fullGamesDiv.innerHTML += `
+                <div class="bg-gray-800 p-4 rounded border border-green-500">
+                    <p class="text-white font-bold">Game #${game.game_number} - ${game.date}</p>
+                    <p class="text-sm text-gray-400">All 100 tickets sold!</p>
+                    <button onclick="pickWinners('${game.id}')" class="mt-2 bg-green-500 text-black px-4 py-2 rounded font-bold">🎰 Pick 26 Winners</button>
+                </div>
+            `;
+        });
+    }
+
+    window.pickWinners = async function(gameId) {
+        if (!confirm('Pick winners for this game? This cannot be undone!')) return;
+
+        try {
+            const { data: tickets } = await supabaseClient.from('tickets').select('*').eq('game_id', gameId);
             
-            for (let i = 1; i <= 20; i++) {
-                games.push({
-                    date: today,
-                    game_number: i,
-                    status: 'active',
-                    tickets_sold: 0
+            if (tickets.length !== 100) {
+                alert('Error: Game doesn\'t have exactly 100 tickets');
+                return;
+            }
+
+            const shuffled = tickets.sort(() => Math.random() - 0.5);
+            const winners = shuffled.slice(0, 26);
+
+            const prizes = [
+                ...Array(2).fill(1000),
+                ...Array(4).fill(500),
+                ...Array(20).fill(200)
+            ];
+
+            for (let i = 0; i < 26; i++) {
+                const winner = winners[i];
+                const prize = prizes[i];
+
+                const { data: user } = await supabaseClient.from('users').select('balance, total_earned').eq('id', winner.user_id).single();
+                
+                await supabaseClient.from('users').update({
+                    balance: user.balance + prize,
+                    total_earned: user.total_earned + prize
+                }).eq('id', winner.user_id);
+
+                await supabaseClient.from('transactions').insert({
+                    user_id: winner.user_id,
+                    type: 'prize',
+                    amount: prize,
+                    game_id: gameId,
+                    ticket_number: winner.ticket_number
                 });
             }
 
-            const { error } = await supabase.from('games').insert(games);
-            
-            if (error) {
-                alert('Error: ' + error.message);
-            } else {
-                alert('20 games created!');
-                loadTodaysGames();
-            }
-        };
+            await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
 
-        async function loadTodaysGames() {
-            const today = new Date().toISOString().split('T')[0];
-            const { data } = await supabase.from('games').select('*').eq('date', today).order('game_number');
-            
-            const gamesDiv = document.getElementById('gamesList');
-            
-            if (!data || data.length === 0) {
-                gamesDiv.innerHTML = '<p class="text-gray-400">No games today. Click button above to create 20 games.</p>';
-                return;
-            }
-
-            gamesDiv.innerHTML = '';
-            data.forEach(game => {
-                gamesDiv.innerHTML += `
-                    <div class="bg-gray-800 p-3 rounded border border-green-500">
-                        <p class="text-white font-bold">Game #${game.game_number}</p>
-                        <p class="text-sm text-gray-400">Tickets: ${game.tickets_sold}/100 - ${game.status}</p>
-                    </div>
-                `;
-            });
+            alert('Winners selected! 26 users won prizes!');
+            loadFullGames();
+            loadTodaysGames();
+        } catch (error) {
+            alert('Error: ' + error.message);
         }
-
-        async function loadWithdrawals() {
-            const { data } = await supabase.from('withdrawals').select('*, users(name, email)').eq('status', 'pending');
-            
-            const withdrawalsDiv = document.getElementById('withdrawalsList');
-            
-            if (!data || data.length === 0) {
-                withdrawalsDiv.innerHTML = '<p class="text-gray-400">No pending withdrawals</p>';
-                return;
-            }
-
-            withdrawalsDiv.innerHTML = '';
-            data.forEach(w => {
-                withdrawalsDiv.innerHTML += `
-                    <div class="bg-gray-800 p-4 rounded border border-green-500">
-                        <p class="text-white font-bold">${w.users.name} (${w.users.email})</p>
-                        <p class="text-green-400 text-xl">৳${w.amount}</p>
-                        <p class="text-sm text-gray-400">${w.method} - ${w.account}</p>
-                        <button onclick="approveWithdrawal('${w.id}')" class="mt-2 bg-green-500 text-black px-4 py-2 rounded">Approve</button>
-                    </div>
-                `;
-            });
-        }
-
-        window.approveWithdrawal = async function(id) {
-            if (!confirm('Mark as paid?')) return;
-
-            await supabase.from('withdrawals').update({ status: 'completed' }).eq('id', id);
-            alert('Marked as completed!');
-            loadWithdrawals();
-        };
-
-        async function loadFullGames() {
-            const { data } = await supabase.from('games').select('*').eq('tickets_sold', 100).eq('status', 'active');
-            
-            const fullGamesDiv = document.getElementById('fullGamesList');
-            
-            if (!data || data.length === 0) {
-                fullGamesDiv.innerHTML = '<p class="text-gray-400">No full games ready for winner selection</p>';
-                return;
-            }
-
-            fullGamesDiv.innerHTML = '';
-            data.forEach(game => {
-                fullGamesDiv.innerHTML += `
-                    <div class="bg-gray-800 p-4 rounded border border-green-500">
-                        <p class="text-white font-bold">Game #${game.game_number} - ${game.date}</p>
-                        <p class="text-sm text-gray-400">All 100 tickets sold!</p>
-                        <button onclick="pickWinners('${game.id}')" class="mt-2 bg-green-500 text-black px-4 py-2 rounded font-bold">🎰 Pick 26 Winners</button>
-                    </div>
-                `;
-            });
-        }
-
-        window.pickWinners = async function(gameId) {
-            if (!confirm('Pick winners for this game? This cannot be undone!')) return;
-
-            try {
-                // Get all tickets for this game
-                const { data: tickets } = await supabase.from('tickets').select('*').eq('game_id', gameId);
-                
-                if (tickets.length !== 100) {
-                    alert('Error: Game doesnt have exactly 100 tickets');
-                    return;
-                }
-
-                // Shuffle and pick 26 winners
-                const shuffled = tickets.sort(() => Math.random() - 0.5);
-                const winners = shuffled.slice(0, 26);
-
-                // Assign prizes: first 2 get ৳1000, next 4 get ৳500, rest 20 get ৳200
-                const prizes = [
-                    ...Array(2).fill(1000),
-                    ...Array(4).fill(500),
-                    ...Array(20).fill(200)
-                ];
-
-                for (let i = 0; i < 26; i++) {
-                    const winner = winners[i];
-                    const prize = prizes[i];
-
-                    // Update user balance and total earned
-                    const { data: user } = await supabase.from('users').select('balance, total_earned').eq('id', winner.user_id).single();
-                    
-                    await supabase.from('users').update({
-                        balance: user.balance + prize,
-                        total_earned: user.total_earned + prize
-                    }).eq('id', winner.user_id);
-
-                    // Add transaction
-                    await supabase.from('transactions').insert({
-                        user_id: winner.user_id,
-                        type: 'prize',
-                        amount: prize,
-                        game_id: gameId,
-                        ticket_number: winner.ticket_number
-                    });
-                }
-
-                // Mark game as completed
-                await supabase.from('games').update({ status: 'completed' }).eq('id', gameId);
-
-                alert('Winners selected! 26 users won prizes!');
-                loadFullGames();
-                loadTodaysGames();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        };
-    </script>
+    };
+</script>
 </body>
 </html>
