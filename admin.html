@@ -100,11 +100,24 @@
 
         let selectedUserId = null;
 
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (!session) {
-                window.location.href = 'index.html';
-                return;
-            }
+        supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
+    if (!session) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // Check if user is admin
+    const { data: adminCheck } = await supabaseClient
+        .from('admins')
+        .select('user_id')
+        .eq('user_id', session.user.id)
+        .single();
+    
+    if (!adminCheck) {
+        alert('Access denied! Admin only.');
+        window.location.href = 'games.html';
+        return;
+    }
             loadAllUsers();
             loadTodaysGames();
             loadWithdrawals();
