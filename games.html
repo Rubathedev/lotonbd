@@ -228,84 +228,194 @@
         }
 
         async function buyTicket(number) {
-            if (myTickets.length >= 10) {
-                alert('Maximum 10 tickets per game!');
-                return;
-            }
+    if (myTickets.length >= 10) {
+        alert('Maximum 10 tickets per game!');
+        return;
+    }
+    
+    if (userBalance < 100) {
+        alert('Insufficient balance! Please add money.');
+        return;
+    }
+
+    if (!confirm(`Buy ticket #${number} for ৳100?`)) return;
+
+    try {
+        // Deduct balance
+        const { error: balanceError } = await supabaseClient
+            .from('users')
+            .update({ balance: userBalance - 100 })
+            .eq('id', currentUser.id);
+
+        if (balanceError) throw balanceError;
+
+        // Create ticket
+        const { error: ticketError } = await supabaseClient
+            .from('tickets')
+            .insert({
+                game_id: currentGame,
+                user_id: currentUser.id,
+                ticket_number: number
+            });
+
+        if (ticketError) throw ticketError;
+
+        // Update game count
+        const { data: gameData } = await supabaseClient
+            .from('games')
+            .select('tickets_sold')
+            .eq('id', currentGame)
+            .single();
+
+        const newCount = (gameData.tickets_sold || 0) + 1;
+        await supabaseClient
+            .from('games')
+            .update({ tickets_sold: newCount })
+            .eq('id', currentGame);
+
+        // Add transaction
+        await supabaseClient.from('transactions').insert({
+            user_id: currentUser.id,
+            type: 'ticket_purchase',
+            amount: -100,
+            game_id: currentGame,
+            ticket_number: number
+        });
+
+        userBalance -= 100;
+        document.getElementById('userBalance').textContent = `৳${userBalance}`;
+        document.getElementById('soldCount').textContent = `${newCount}/100`;
+        
+        await loadTickets();
+        alert(`Ticket #${number} purchased! Good luck! 🍀`);
+
+        // 🎰 AUTO-SELECT WINNERS when 100 tickets sold!
+        if (newCount === 100) {
+            setTimeout(async () => {
+                alert('🎰 Game is FULL! Selecting winners now...');
+                await autoPickWinners(currentGame);
+            }, 2000);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}     
+        async function autoPickWinners(gameId) {
+    try {
+        // Get all tickets
+        const { data: tickets } = await supabaseClient
+            .from('tickets')
+            .select('*')
+            .eq('game_id', gameId);
+        
+        if (tickets.length !== 100) {
+            console.error('Not exactly 100 tickets!');
+            return;
+        }
+
+        // Shuffle and pick 26 winners
+        const shuffled = tickets.sort(() => Math.random() - 0.5);
+        const winners = shuffled.slice(0, 26);
+
+        // Prize structure: 2×৳1000, 4×৳500, 20×৳200
+        const prizes = [
+            ...Array(2).fill(1000),
+            ...Array(4).fill(500),
+            ...Array(20).fill(200)
+        ];
+
+        // Award prizes to each winner
+        for (let i = 0; i < 26; i++) {
+            const winner = winners[i];
+            const prize = prizes[i];
+
+            // Get current user balance
+            const { data: user } = await supabaseClient
+                .from('users')
+                .select('balance, total_earned')
+                .eq('id', winner.user_id)
+                .single();
             
-            if (userBalance < 100) {
-                alert('Insufficient balance! Please add money.');
-                return;
-            }
+            // Update balance and total earned
+            await supabaseClient.from('users').update({
+                balance: user.balance + prize,
+                total_earned: user.total_earned + prize
+            }).eq('id', winner.user_id);
 
-            if (!confirm(`Buy ticket #${number} for ৳100?`)) return;
-
-            try {
-                // Deduct balance
-                const { error: balanceError } = await supabaseClient
-                    .from('users')
-                    .update({ balance: userBalance - 100 })
-                    .eq('id', currentUser.id);
-
-                if (balanceError) throw balanceError;
-
-                // Create ticket
-                const { error: ticketError } = await supabaseClient
-                    .from('tickets')
-                    .insert({
-                        game_id: currentGame,
-                        user_id: currentUser.id,
-                        ticket_number: number
-                    });
-
-                if (ticketError) throw ticketError;
-
-                // Update game count
-                const { data: gameData } = await supabaseClient
-                    .from('games')
-                    .select('tickets_sold')
-                    .eq('id', currentGame)
-                    .single();
-
-                const newCount = (gameData.tickets_sold || 0) + 1;
-                await supabaseClient
-                    .from('games')
-                    .update({ tickets_sold: newCount })
-                    .eq('id', currentGame);
-
-                // Add transaction
-                await supabase.from('transactions').insert({
-                    user_id: currentUser.id,
-                    type: 'ticket_purchase',
-                    amount: -100,
-                    game_id: currentGame,
-                    ticket_number: number
-                });
-
-                userBalance -= 100;
-                document.getElementById('userBalance').textContent = `৳${userBalance}`;
-                document.getElementById('soldCount').textContent = `${newCount}/100`;
-                
-                await loadTickets();
-                alert(`Ticket #${number} purchased! Good luck! 🍀`);
-
-                // Check if game is full
-                if (newCount === 100) {
-                    setTimeout(() => alert('Game is full! Winners will be drawn soon!'), 1000);
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
+            // Add prize transaction
+            await supabaseClient.from('transactions').insert({
+                user_id: winner.user_id,
+                type: 'prize',
+                amount: prize,
+                game_id: gameId,
+                ticket_number: winner.ticket_number
+            });
         }
 
-        window.logout = async function() {
-           await supabaseClient.auth.signOut();
-            window.location.href = 'login.html';
-        };
+        // Mark game as completed
+        await supabaseClient.from('games').update({ 
+            status: 'completed' 
+        }).eq('id', gameId);
 
-        function closeWinnerModal() {
-            document.getElementById('winnerModal').classList.add('hidden');
-        }
+        // Show results to everyone
+        showWinnerResults(winners, prizes);
+        
+        console.log('Winners selected and prizes distributed!');
+    } catch (error) {
+        console.error('Auto-pick winners error:', error);
+        alert('Error selecting winners: ' + error.message);
+    }
+}
+
+function showWinnerResults(winners, prizes) {
+    const modal = document.getElementById('winnerModal');
+    const resultsDiv = document.getElementById('winnerResults');
+    
+    let html = '<h3 class="text-3xl font-bold text-green-400 mb-6 text-center">🎉 WINNERS ANNOUNCED! 🎉</h3>';
+    
+    // Top 2 winners - ৳1000 each
+    html += '<div class="mb-6 bg-yellow-900 bg-opacity-30 p-4 rounded"><h4 class="text-xl font-bold text-yellow-400 mb-2">🥇 1ST PRIZE - ৳1,000 each:</h4>';
+    for (let i = 0; i < 2; i++) {
+        const isMe = winners[i].user_id === currentUser.id;
+        html += `<p class="${isMe ? 'text-green-400 font-bold text-2xl animate-pulse' : 'text-white text-lg'}">
+            🎫 Ticket #${winners[i].ticket_number} ${isMe ? '← 🎉 YOU WON ৳1,000! 🎉' : ''}
+        </p>`;
+    }
+    html += '</div>';
+    
+    // Next 4 winners - ৳500 each
+    html += '<div class="mb-6 bg-orange-900 bg-opacity-30 p-4 rounded"><h4 class="text-xl font-bold text-orange-400 mb-2">🥈 2ND PRIZE - ৳500 each:</h4>';
+    for (let i = 2; i < 6; i++) {
+        const isMe = winners[i].user_id === currentUser.id;
+        html += `<p class="${isMe ? 'text-green-400 font-bold text-xl animate-pulse' : 'text-white'}">
+            🎫 Ticket #${winners[i].ticket_number} ${isMe ? '← 🎉 YOU WON ৳500! 🎉' : ''}
+        </p>`;
+    }
+    html += '</div>';
+    
+    // Last 20 winners - ৳200 each
+    html += '<div class="mb-6 bg-blue-900 bg-opacity-30 p-4 rounded"><h4 class="text-xl font-bold text-blue-400 mb-2">🥉 3RD PRIZE - ৳200 each:</h4>';
+    html += '<div class="grid grid-cols-2 gap-2">';
+    for (let i = 6; i < 26; i++) {
+        const isMe = winners[i].user_id === currentUser.id;
+        html += `<p class="${isMe ? 'text-green-400 font-bold animate-pulse' : 'text-gray-300'}">
+            🎫 #${winners[i].ticket_number} ${isMe ? '← YOU WON!' : ''}
+        </p>`;
+    }
+    html += '</div></div>';
+    
+    html += '<p class="text-center text-gray-400 mt-6">Prize money has been added to winners\' balances!</p>';
+    html += '<p class="text-center text-green-400 mt-2">Redirecting in 10 seconds...</p>';
+    
+    resultsDiv.innerHTML = html;
+    modal.classList.remove('hidden');
+    
+    // Auto-close and refresh after 10 seconds
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        window.location.reload();
+    }, 10000);
+}
     </script>
 </body>
 </html>
