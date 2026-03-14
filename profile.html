@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabaseClient/supabase-js@2"></script>
     <style>
         body { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
         .glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
@@ -54,12 +53,15 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
         const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubmdubWJmYmticHpoc2Rwc21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzU5MDgsImV4cCI6MjA4ODA1MTkwOH0.vIYdJA3eKajAGQ9Om27P8RkqTIeWUlGx1B-npq3u6u0';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        supabase.auth.getSession().then(async ({ data: { session } }) => {
+        supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
             if (!session) {
                 window.location.href = 'index.html';
                 return;
@@ -78,7 +80,6 @@
                 document.getElementById('userEmail').textContent = userData.email;
             }
 
-            // Load wins
             const { data: wins } = await supabaseClient
                 .from('transactions')
                 .select('*')
