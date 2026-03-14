@@ -12,83 +12,93 @@
     </style>
 </head>
 <body class="min-h-screen p-4">
-    <div class="max-w-7xl mx-auto">
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-green-400">🔧 Admin Panel</h1>
-                <a href="games.html" class="bg-gray-700 text-white px-4 py-2 rounded">Back</a>
-            </div>
+    <div id="accessDenied" class="hidden min-h-screen flex items-center justify-center">
+        <div class="bg-gray-900 p-8 rounded-lg border border-red-500 text-center">
+            <h1 class="text-3xl font-bold text-red-500 mb-4">🚫 ACCESS DENIED</h1>
+            <p class="text-white mb-6">You are not authorized to access this page.</p>
+            <a href="games.html" class="bg-gray-700 text-white px-6 py-3 rounded">Back to Games</a>
         </div>
+    </div>
 
-        <div class="flex flex-wrap gap-2 mb-6">
-            <button onclick="showTab('users')" class="tab-btn active bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-500">Users</button>
-            <button onclick="showTab('games')" class="tab-btn bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-500">Games</button>
-            <button onclick="showTab('withdrawals')" class="tab-btn bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-500">Withdrawals</button>
-            <button onclick="showTab('winners')" class="tab-btn bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-500">Pick Winners</button>
-        </div>
-
-        <!-- Users Tab -->
-        <div id="usersTab" class="tab-content">
+    <div id="adminContent" class="hidden">
+        <div class="max-w-7xl mx-auto">
             <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-                <h2 class="text-xl font-bold text-green-400 mb-4">Search User</h2>
-                <div class="flex gap-3">
-                    <input type="text" id="searchEmail" placeholder="Enter email" 
-                        class="flex-1 px-4 py-2 bg-gray-800 border border-green-500 rounded text-white">
-                    <button onclick="searchUser()" class="bg-green-500 text-black px-6 py-2 rounded font-bold">Search</button>
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-green-400">🔧 Admin Panel</h1>
+                    <a href="games.html" class="bg-gray-700 text-white px-4 py-2 rounded">Back</a>
                 </div>
             </div>
 
-            <div id="userDetails" class="hidden bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-                <h3 class="text-xl font-bold text-green-400 mb-4">User Details</h3>
-                <div id="userInfo" class="space-y-2 mb-4"></div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-green-400 mb-2">Add Balance</label>
-                        <div class="flex gap-2">
-                            <input type="number" id="addAmount" placeholder="Amount" 
-                                class="flex-1 px-4 py-2 bg-gray-800 border border-green-500 rounded text-white">
-                            <button onclick="addBalance()" class="bg-green-500 text-black px-4 py-2 rounded font-bold">Add</button>
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button onclick="showTab('users')" class="tab-btn active bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-500">Users</button>
+                <button onclick="showTab('games')" class="tab-btn bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-500">Games</button>
+                <button onclick="showTab('withdrawals')" class="tab-btn bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-500">Withdrawals</button>
+                <button onclick="showTab('winners')" class="tab-btn bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-500">Pick Winners</button>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+                    <h2 class="text-xl font-bold text-green-400 mb-4">Search User</h2>
+                    <div class="flex gap-3">
+                        <input type="text" id="searchEmail" placeholder="Enter email" 
+                            class="flex-1 px-4 py-2 bg-gray-800 border border-green-500 rounded text-white">
+                        <button onclick="searchUser()" class="bg-green-500 text-black px-6 py-2 rounded font-bold">Search</button>
+                    </div>
+                </div>
+
+                <div id="userDetails" class="hidden bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+                    <h3 class="text-xl font-bold text-green-400 mb-4">User Details</h3>
+                    <div id="userInfo" class="space-y-2 mb-4"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-green-400 mb-2">Add Balance</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="addAmount" placeholder="Amount" 
+                                    class="flex-1 px-4 py-2 bg-gray-800 border border-green-500 rounded text-white">
+                                <button onclick="addBalance()" class="bg-green-500 text-black px-4 py-2 rounded font-bold">Add</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
+                    <h2 class="text-xl font-bold text-green-400 mb-4">All Users</h2>
+                    <div id="usersList" class="space-y-2">Loading...</div>
+                </div>
             </div>
 
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-                <h2 class="text-xl font-bold text-green-400 mb-4">All Users</h2>
-                <div id="usersList" class="space-y-2">Loading...</div>
-            </div>
-        </div>
+            <!-- Games Tab -->
+            <div id="gamesTab" class="tab-content hidden">
+                <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+                    <h2 class="text-xl font-bold text-green-400 mb-4">Create Games</h2>
+                    <button onclick="create20Games()" class="bg-green-500 text-black px-6 py-3 rounded font-bold">
+                        Create 20 Games for Today
+                    </button>
+                </div>
 
-        <!-- Games Tab -->
-        <div id="gamesTab" class="tab-content hidden">
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-                <h2 class="text-xl font-bold text-green-400 mb-4">Create Games</h2>
-                <button onclick="create20Games()" class="bg-green-500 text-black px-6 py-3 rounded font-bold">
-                    Create 20 Games for Today
-                </button>
+                <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
+                    <h2 class="text-xl font-bold text-green-400 mb-4">Today's Games</h2>
+                    <div id="gamesList" class="space-y-3">Loading...</div>
+                </div>
             </div>
 
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-                <h2 class="text-xl font-bold text-green-400 mb-4">Today's Games</h2>
-                <div id="gamesList" class="space-y-3">Loading...</div>
+            <!-- Withdrawals Tab -->
+            <div id="withdrawalsTab" class="tab-content hidden">
+                <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
+                    <h2 class="text-xl font-bold text-green-400 mb-4">Pending Withdrawals</h2>
+                    <div id="withdrawalsList" class="space-y-3">Loading...</div>
+                </div>
             </div>
-        </div>
 
-        <!-- Withdrawals Tab -->
-        <div id="withdrawalsTab" class="tab-content hidden">
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-                <h2 class="text-xl font-bold text-green-400 mb-4">Pending Withdrawals</h2>
-                <div id="withdrawalsList" class="space-y-3">Loading...</div>
-            </div>
-        </div>
-
-        <!-- Winners Tab -->
-        <div id="winnersTab" class="tab-content hidden">
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-                <h2 class="text-xl font-bold text-green-400 mb-4">Pick Winners (Full Games)</h2>
-                <p class="text-gray-400 mb-4">Note: Winners are automatically selected when 100 tickets are sold. Use this only for manual override if needed.</p>
-                <div id="fullGamesList" class="space-y-3">Loading...</div>
+            <!-- Winners Tab -->
+            <div id="winnersTab" class="tab-content hidden">
+                <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
+                    <h2 class="text-xl font-bold text-green-400 mb-4">Pick Winners (Full Games)</h2>
+                    <p class="text-gray-400 mb-4">Note: Winners are automatically selected when 100 tickets are sold. Use this only for manual override if needed.</p>
+                    <div id="fullGamesList" class="space-y-3">Loading...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -99,15 +109,31 @@
         const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubmdubWJmYmticHpoc2Rwc21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzU5MDgsImV4cCI6MjA4ODA1MTkwOH0.vIYdJA3eKajAGQ9Om27P8RkqTIeWUlGx1B-npq3u6u0';
         
+        // 🔒 REPLACE THIS WITH YOUR ACTUAL USER ID!
+        const ADMIN_USER_ID = 'cee05a83-4119-408f-af5f-2ffa86c46fc0'; // YOUR UID FROM SUPABASE
+        
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let selectedUserId = null;
+        let currentAdminId = null;
 
-        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
             if (!session) {
                 window.location.href = 'index.html';
                 return;
             }
+
+            currentAdminId = session.user.id;
+
+            // 🔒 CHECK IF USER IS ADMIN
+            if (currentAdminId !== ADMIN_USER_ID) {
+                document.getElementById('accessDenied').classList.remove('hidden');
+                return;
+            }
+
+            // User is admin, show admin panel
+            document.getElementById('adminContent').classList.remove('hidden');
+            
             loadAllUsers();
             loadTodaysGames();
             loadWithdrawals();
