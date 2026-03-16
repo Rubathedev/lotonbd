@@ -231,46 +231,77 @@
             document.getElementById('suggestions').classList.add('hidden');
         };
 
-        window.addBalance = async function() {
-            const amount = parseInt(document.getElementById('addAmount').value);
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
-                return;
-            }
-            
-            if (!selectedUserId) {
-                alert('Please search for a user first');
-                return;
-            }
+    window.addBalance = async function() {
+    const amount = parseInt(document.getElementById('addAmount').value);
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+    
+    if (!selectedUserId) {
+        alert('Please search for a user first');
+        return;
+    }
 
-            try {
-                const { data: user } = await supabaseClient
-                    .from('users')
-                    .select('balance')
-                    .eq('id', selectedUserId)
-                    .single();
-                
-                await supabaseClient
-                    .from('users')
-                    .update({ balance: user.balance + amount })
-                    .eq('id', selectedUserId);
-                    
-                await supabaseClient.from('transactions').insert({
-                    user_id: selectedUserId,
-                    type: 'topup',
-                    amount: amount
-                });
+    try {
+        // Get current balance
+        const { data: user, error: getUserError } = await supabaseClient
+            .from('users')
+            .select('balance, name, email')
+            .eq('id', selectedUserId)
+            .single();
+        
+        if (getUserError) {
+            console.error('Get user error:', getUserError);
+            throw getUserError;
+        }
 
-                alert(`✅ Balance added! ৳${amount} added successfully.`);
-                
-                clearSearch();
-                await loadAllUsers();
-                
-            } catch (error) {
-                console.error('Add balance error:', error);
-                alert('Error adding balance: ' + error.message);
-            }
-        };
+        console.log('Current balance:', user.balance);
+        console.log('Adding:', amount);
+        console.log('New balance will be:', user.balance + amount);
+        
+        // Update balance
+        const { error: updateError } = await supabaseClient
+            .from('users')
+            .update({ balance: user.balance + amount })
+            .eq('id', selectedUserId);
+        
+        if (updateError) {
+            console.error('Update error:', updateError);
+            throw updateError;
+        }
+        
+        // Add transaction record
+        const { error: transactionError } = await supabaseClient
+            .from('transactions')
+            .insert({
+                user_id: selectedUserId,
+                type: 'topup',
+                amount: amount
+            });
+        
+        if (transactionError) {
+            console.error('Transaction error:', transactionError);
+            // Don't throw - transaction record is not critical
+        }
+
+        alert(`✅ Success! Added ৳${amount} to ${user.name}\nNew balance: ৳${user.balance + amount}`);
+        
+        // Clear the form
+        document.getElementById('addAmount').value = '';
+        document.getElementById('searchEmail').value = '';
+        document.getElementById('userDetails').classList.add('hidden');
+        document.getElementById('suggestions').classList.add('hidden');
+        selectedUserId = null;
+        
+        // Force reload all users
+        await loadAllUsers();
+        
+    } catch (error) {
+        console.error('Add balance error:', error);
+        alert('Error adding balance: ' + error.message);
+    }
+};
 
         window.clearSearch = function() {
             document.getElementById('searchEmail').value = '';
