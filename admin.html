@@ -9,13 +9,8 @@
         body { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
         .tab-btn { transition: all 0.3s; }
         .tab-btn.active { background: #22c55e; color: #000; }
-        .suggestion-item {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .suggestion-item:hover {
-            background: rgba(34, 197, 94, 0.2);
-        }
+        .suggestion-item { cursor: pointer; transition: background 0.2s; }
+        .suggestion-item:hover { background: rgba(34, 197, 94, 0.2); }
     </style>
 </head>
 <body class="min-h-screen p-4">
@@ -54,7 +49,6 @@
                                 class="flex-1 px-4 py-2 bg-gray-800 border border-green-500 rounded text-white">
                             <button onclick="searchUser()" class="bg-green-500 text-black px-6 py-2 rounded font-bold">Search</button>
                         </div>
-                        <!-- Autocomplete Suggestions -->
                         <div id="suggestions" class="hidden absolute z-10 w-full bg-gray-800 border border-green-500 rounded mt-1 max-h-60 overflow-y-auto"></div>
                     </div>
                 </div>
@@ -86,16 +80,32 @@
 
             <!-- Games Tab -->
             <div id="gamesTab" class="tab-content hidden">
-                <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-                    <h2 class="text-xl font-bold text-green-400 mb-4">Create Games</h2>
-                    <button onclick="create20Games()" class="bg-green-500 text-black px-6 py-3 rounded font-bold">
-                        Create 20 Games for Today
-                    </button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
+                        <h2 class="text-xl font-bold text-green-400 mb-2">Normal Games (৳100)</h2>
+                        <p class="text-gray-400 text-sm mb-4">100 tickets • 26 winners</p>
+                        <button onclick="createNormalGames()" class="w-full bg-green-500 text-black px-6 py-3 rounded font-bold">
+                            Create 10 Normal Games
+                        </button>
+                    </div>
+
+                    <div class="bg-gray-900 p-6 rounded-lg border border-yellow-500">
+                        <h2 class="text-xl font-bold text-yellow-400 mb-2">VIP Games (৳1,000)</h2>
+                        <p class="text-gray-400 text-sm mb-4">10 tickets • 7 winners</p>
+                        <button onclick="createVIPGame()" class="w-full bg-yellow-500 text-black px-6 py-3 rounded font-bold">
+                            Create 1 VIP Game
+                        </button>
+                    </div>
                 </div>
 
-                <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-                    <h2 class="text-xl font-bold text-green-400 mb-4">Today's Games</h2>
-                    <div id="gamesList" class="space-y-3">Loading...</div>
+                <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+                    <h2 class="text-xl font-bold text-green-400 mb-4">Today's Normal Games</h2>
+                    <div id="normalGamesList" class="grid grid-cols-2 md:grid-cols-5 gap-3">Loading...</div>
+                </div>
+
+                <div class="bg-gray-900 p-6 rounded-lg border border-yellow-500">
+                    <h2 class="text-xl font-bold text-yellow-400 mb-4">Today's VIP Games</h2>
+                    <div id="vipGamesList" class="space-y-3">Loading...</div>
                 </div>
             </div>
 
@@ -109,10 +119,19 @@
 
             <!-- Winners Tab -->
             <div id="winnersTab" class="tab-content hidden">
-                <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-                    <h2 class="text-xl font-bold text-green-400 mb-4">Pick Winners (Full Games)</h2>
-                    <p class="text-gray-400 mb-4">Note: Winners are automatically selected when 100 tickets are sold. Use this only for manual override if needed.</p>
-                    <div id="fullGamesList" class="space-y-3">Loading...</div>
+                <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+                    <h2 class="text-xl font-bold text-green-400 mb-4">Pick Winners (Manual Override)</h2>
+                    <p class="text-gray-400 mb-4">Winners are automatically selected when games are full. Use this only if needed.</p>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-yellow-400 mb-3">Full VIP Games</h3>
+                        <div id="fullVIPGamesList" class="space-y-3">Loading...</div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold text-green-400 mb-3">Full Normal Games</h3>
+                        <div id="fullNormalGamesList" class="space-y-3">Loading...</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -160,7 +179,6 @@
             event.target.classList.add('active');
         };
 
-        // AUTOCOMPLETE SUGGESTIONS
         window.showSuggestions = function() {
             const searchTerm = document.getElementById('searchEmail').value.trim().toLowerCase();
             const suggestionsDiv = document.getElementById('suggestions');
@@ -231,77 +249,55 @@
             document.getElementById('suggestions').classList.add('hidden');
         };
 
-    window.addBalance = async function() {
-    const amount = parseInt(document.getElementById('addAmount').value);
-    if (!amount || amount <= 0) {
-        alert('Please enter a valid amount');
-        return;
-    }
-    
-    if (!selectedUserId) {
-        alert('Please search for a user first');
-        return;
-    }
+        window.addBalance = async function() {
+            const amount = parseInt(document.getElementById('addAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (!selectedUserId) {
+                alert('Please search for a user first');
+                return;
+            }
 
-    try {
-        // Get current balance
-        const { data: user, error: getUserError } = await supabaseClient
-            .from('users')
-            .select('balance, name, email')
-            .eq('id', selectedUserId)
-            .single();
-        
-        if (getUserError) {
-            console.error('Get user error:', getUserError);
-            throw getUserError;
-        }
+            try {
+                const { data: user, error: getUserError } = await supabaseClient
+                    .from('users')
+                    .select('balance, name, email')
+                    .eq('id', selectedUserId)
+                    .single();
+                
+                if (getUserError) throw getUserError;
 
-        console.log('Current balance:', user.balance);
-        console.log('Adding:', amount);
-        console.log('New balance will be:', user.balance + amount);
-        
-        // Update balance
-        const { error: updateError } = await supabaseClient
-            .from('users')
-            .update({ balance: user.balance + amount })
-            .eq('id', selectedUserId);
-        
-        if (updateError) {
-            console.error('Update error:', updateError);
-            throw updateError;
-        }
-        
-        // Add transaction record
-        const { error: transactionError } = await supabaseClient
-            .from('transactions')
-            .insert({
-                user_id: selectedUserId,
-                type: 'topup',
-                amount: amount
-            });
-        
-        if (transactionError) {
-            console.error('Transaction error:', transactionError);
-            // Don't throw - transaction record is not critical
-        }
+                const { error: updateError } = await supabaseClient
+                    .from('users')
+                    .update({ balance: user.balance + amount })
+                    .eq('id', selectedUserId);
+                
+                if (updateError) throw updateError;
+                
+                await supabaseClient.from('transactions').insert({
+                    user_id: selectedUserId,
+                    type: 'topup',
+                    amount: amount
+                });
 
-        alert(`✅ Success! Added ৳${amount} to ${user.name}\nNew balance: ৳${user.balance + amount}`);
-        
-        // Clear the form
-        document.getElementById('addAmount').value = '';
-        document.getElementById('searchEmail').value = '';
-        document.getElementById('userDetails').classList.add('hidden');
-        document.getElementById('suggestions').classList.add('hidden');
-        selectedUserId = null;
-        
-        // Force reload all users
-        await loadAllUsers();
-        
-    } catch (error) {
-        console.error('Add balance error:', error);
-        alert('Error adding balance: ' + error.message);
-    }
-};
+                alert(`✅ Added ৳${amount} to ${user.name}\nNew balance: ৳${user.balance + amount}`);
+                
+                document.getElementById('addAmount').value = '';
+                document.getElementById('searchEmail').value = '';
+                document.getElementById('userDetails').classList.add('hidden');
+                document.getElementById('suggestions').classList.add('hidden');
+                selectedUserId = null;
+                
+                await loadAllUsers();
+                
+            } catch (error) {
+                console.error('Add balance error:', error);
+                alert('Error adding balance: ' + error.message);
+            }
+        };
 
         window.clearSearch = function() {
             document.getElementById('searchEmail').value = '';
@@ -311,7 +307,6 @@
             selectedUserId = null;
         };
 
-        // Close suggestions when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('#searchEmail') && !e.target.closest('#suggestions')) {
                 document.getElementById('suggestions').classList.add('hidden');
@@ -327,7 +322,7 @@
                 return;
             }
 
-            allUsers = data; // Store for autocomplete
+            allUsers = data;
 
             usersDiv.innerHTML = '';
             data.forEach(user => {
@@ -346,16 +341,27 @@
             });
         }
 
-        window.create20Games = async function() {
-            if (!confirm('Create 20 games for today?')) return;
+        window.createNormalGames = async function() {
+            if (!confirm('Create 10 normal games for today?')) return;
 
             const today = new Date().toISOString().split('T')[0];
-            const games = [];
             
-            for (let i = 1; i <= 20; i++) {
+            const { data: existingGames } = await supabaseClient
+                .from('games')
+                .select('game_number')
+                .eq('date', today)
+                .eq('game_type', 'normal')
+                .order('game_number', { ascending: false })
+                .limit(1);
+            
+            const startNumber = existingGames && existingGames.length > 0 ? existingGames[0].game_number + 1 : 1;
+            
+            const games = [];
+            for (let i = 0; i < 10; i++) {
                 games.push({
                     date: today,
-                    game_number: i,
+                    game_number: startNumber + i,
+                    game_type: 'normal',
                     status: 'active',
                     tickets_sold: 0
                 });
@@ -366,31 +372,98 @@
             if (error) {
                 alert('Error: ' + error.message);
             } else {
-                alert('20 games created!');
+                alert('10 normal games created!');
+                loadTodaysGames();
+            }
+        };
+
+        window.createVIPGame = async function() {
+            if (!confirm('Create 1 VIP game?')) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            
+            const { data: existingGames } = await supabaseClient
+                .from('games')
+                .select('game_number')
+                .eq('date', today)
+                .eq('game_type', 'vip')
+                .order('game_number', { ascending: false })
+                .limit(1);
+            
+            const gameNumber = existingGames && existingGames.length > 0 ? existingGames[0].game_number + 1 : 1;
+            
+            const { error } = await supabaseClient.from('games').insert({
+                date: today,
+                game_number: gameNumber,
+                game_type: 'vip',
+                status: 'active',
+                tickets_sold: 0
+            });
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert(`VIP Game #${gameNumber} created!`);
                 loadTodaysGames();
             }
         };
 
         async function loadTodaysGames() {
             const today = new Date().toISOString().split('T')[0];
-            const { data } = await supabaseClient.from('games').select('*').eq('date', today).order('game_number');
             
-            const gamesDiv = document.getElementById('gamesList');
+            const { data: normalGames } = await supabaseClient
+                .from('games')
+                .select('*')
+                .eq('date', today)
+                .eq('game_type', 'normal')
+                .order('game_number');
             
-            if (!data || data.length === 0) {
-                gamesDiv.innerHTML = '<p class="text-gray-400">No games today. Click button above to create 20 games.</p>';
-                return;
+            const normalGamesDiv = document.getElementById('normalGamesList');
+            
+            if (!normalGames || normalGames.length === 0) {
+                normalGamesDiv.innerHTML = '<p class="col-span-full text-gray-400">No games today.</p>';
+            } else {
+                normalGamesDiv.innerHTML = '';
+                normalGames.forEach(game => {
+                    const gameNum = String(game.game_number).padStart(2, '0');
+                    normalGamesDiv.innerHTML += `
+                        <div class="bg-gray-800 p-3 rounded border border-green-500 text-center">
+                            <p class="text-white font-bold text-2xl">#${gameNum}</p>
+                            <p class="text-xs text-gray-400">${game.tickets_sold}/100</p>
+                            <p class="text-xs ${game.status === 'completed' ? 'text-yellow-400' : 'text-green-400'}">${game.status}</p>
+                        </div>
+                    `;
+                });
             }
-
-            gamesDiv.innerHTML = '';
-            data.forEach(game => {
-                gamesDiv.innerHTML += `
-                    <div class="bg-gray-800 p-3 rounded border border-green-500">
-                        <p class="text-white font-bold">Game #${game.game_number}</p>
-                        <p class="text-sm text-gray-400">Tickets: ${game.tickets_sold}/100 - ${game.status}</p>
-                    </div>
-                `;
-            });
+            
+            const { data: vipGames } = await supabaseClient
+                .from('games')
+                .select('*')
+                .eq('date', today)
+                .eq('game_type', 'vip')
+                .order('game_number');
+            
+            const vipGamesDiv = document.getElementById('vipGamesList');
+            
+            if (!vipGames || vipGames.length === 0) {
+                vipGamesDiv.innerHTML = '<p class="text-gray-400">No VIP games today.</p>';
+            } else {
+                vipGamesDiv.innerHTML = '';
+                vipGames.forEach(game => {
+                    const gameNum = String(game.game_number).padStart(2, '0');
+                    vipGamesDiv.innerHTML += `
+                        <div class="bg-gray-800 p-4 rounded border border-yellow-500">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-yellow-400 font-bold text-lg">💎 #${gameNum}</p>
+                                    <p class="text-sm text-gray-400">${game.tickets_sold}/10</p>
+                                </div>
+                                <p class="text-xs ${game.status === 'completed' ? 'text-yellow-400' : 'text-green-400'}">${game.status}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
         }
 
         async function loadWithdrawals() {
@@ -425,51 +498,71 @@
         };
 
         async function loadFullGames() {
-            const { data } = await supabaseClient.from('games').select('*').eq('tickets_sold', 100).eq('status', 'active');
+            const { data: vipGames } = await supabaseClient.from('games').select('*').eq('tickets_sold', 10).eq('status', 'active').eq('game_type', 'vip');
+            const { data: normalGames } = await supabaseClient.from('games').select('*').eq('tickets_sold', 100).eq('status', 'active').eq('game_type', 'normal');
             
-            const fullGamesDiv = document.getElementById('fullGamesList');
+            const vipDiv = document.getElementById('fullVIPGamesList');
+            const normalDiv = document.getElementById('fullNormalGamesList');
             
-            if (!data || data.length === 0) {
-                fullGamesDiv.innerHTML = '<p class="text-gray-400">No full games ready for winner selection (Winners are selected automatically!)</p>';
-                return;
+            if (!vipGames || vipGames.length === 0) {
+                vipDiv.innerHTML = '<p class="text-gray-400">No full VIP games</p>';
+            } else {
+                vipDiv.innerHTML = '';
+                vipGames.forEach(game => {
+                    const gameNum = String(game.game_number).padStart(2, '0');
+                    vipDiv.innerHTML += `
+                        <div class="bg-gray-800 p-4 rounded border border-yellow-500">
+                            <p class="text-yellow-400 font-bold">💎 VIP #${gameNum} - ${game.date}</p>
+                            <button onclick="pickWinners('${game.id}', 'vip')" class="mt-2 bg-yellow-500 text-black px-4 py-2 rounded font-bold">Pick 7 Winners</button>
+                        </div>
+                    `;
+                });
             }
-
-            fullGamesDiv.innerHTML = '';
-            data.forEach(game => {
-                fullGamesDiv.innerHTML += `
-                    <div class="bg-gray-800 p-4 rounded border border-green-500">
-                        <p class="text-white font-bold">Game #${game.game_number} - ${game.date}</p>
-                        <p class="text-sm text-gray-400">All 100 tickets sold!</p>
-                        <button onclick="pickWinners('${game.id}')" class="mt-2 bg-green-500 text-black px-4 py-2 rounded font-bold">🎰 Pick 26 Winners (Manual Override)</button>
-                    </div>
-                `;
-            });
+            
+            if (!normalGames || normalGames.length === 0) {
+                normalDiv.innerHTML = '<p class="text-gray-400">No full normal games</p>';
+            } else {
+                normalDiv.innerHTML = '';
+                normalGames.forEach(game => {
+                    const gameNum = String(game.game_number).padStart(2, '0');
+                    normalDiv.innerHTML += `
+                        <div class="bg-gray-800 p-4 rounded border border-green-500">
+                            <p class="text-green-400 font-bold">#${gameNum} - ${game.date}</p>
+                            <button onclick="pickWinners('${game.id}', 'normal')" class="mt-2 bg-green-500 text-black px-4 py-2 rounded font-bold">Pick 26 Winners</button>
+                        </div>
+                    `;
+                });
+            }
         }
 
-        window.pickWinners = async function(gameId) {
-            if (!confirm('Pick winners for this game? This cannot be undone!')) return;
+        window.pickWinners = async function(gameId, gameType) {
+            if (!confirm('Pick winners? Cannot be undone!')) return;
 
             try {
                 const { data: tickets } = await supabaseClient.from('tickets').select('*').eq('game_id', gameId);
+                const expectedTickets = gameType === 'vip' ? 10 : 100;
                 
-                if (tickets.length !== 100) {
-                    alert('Error: Game doesn\'t have exactly 100 tickets');
+                if (tickets.length !== expectedTickets) {
+                    alert(`Error: Need exactly ${expectedTickets} tickets`);
                     return;
                 }
 
                 const shuffled = tickets.sort(() => Math.random() - 0.5);
-                const winners = shuffled.slice(0, 26);
+                let prizes, winnerCount;
+                
+                if (gameType === 'vip') {
+                    prizes = [3000, 2000, 1000, 500, 500, 500, 500];
+                    winnerCount = 7;
+                } else {
+                    prizes = [...Array(2).fill(1000), ...Array(4).fill(500), ...Array(20).fill(200)];
+                    winnerCount = 26;
+                }
+                
+                const winners = shuffled.slice(0, winnerCount);
 
-                const prizes = [
-                    ...Array(2).fill(1000),
-                    ...Array(4).fill(500),
-                    ...Array(20).fill(200)
-                ];
-
-                for (let i = 0; i < 26; i++) {
+                for (let i = 0; i < winnerCount; i++) {
                     const winner = winners[i];
                     const prize = prizes[i];
-
                     const { data: user } = await supabaseClient.from('users').select('balance, total_earned').eq('id', winner.user_id).single();
                     
                     await supabaseClient.from('users').update({
@@ -488,7 +581,7 @@
 
                 await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
 
-                alert('Winners selected! 26 users won prizes!');
+                alert(`Winners selected! ${winnerCount} users won prizes!`);
                 loadFullGames();
                 loadTodaysGames();
             } catch (error) {
