@@ -60,6 +60,63 @@
             </div>
         </div>
 
+        <!-- Payment Information -->
+        <div class="bg-gray-900 p-4 rounded-lg border border-blue-500 mb-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-blue-400">💰 Send Money to Play</h3>
+                <button onclick="togglePaymentInfo()" id="paymentToggleBtn" class="text-blue-400 text-sm underline">
+                    Show Numbers
+                </button>
+            </div>
+            
+            <div id="paymentInfo" class="hidden">
+                <p class="text-gray-300 text-sm mb-3">Send via bKash or Nagad to either number:</p>
+                
+                <div class="space-y-3 mb-3">
+                    <div class="bg-gray-800 p-4 rounded-lg border-2 border-green-500">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <p class="text-xs text-gray-400">Payment Number 1:</p>
+                                <p class="text-2xl font-bold text-green-400">01939870830</p>
+                            </div>
+                            <button onclick="copyNumber('01939870830')" class="bg-green-500 text-black px-4 py-2 rounded text-sm font-bold">
+                                Copy
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="bg-pink-600 text-white px-3 py-1 rounded text-xs font-bold">bKash</span>
+                            <span class="bg-orange-600 text-white px-3 py-1 rounded text-xs font-bold">Nagad</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-800 p-4 rounded-lg border-2 border-green-500">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <p class="text-xs text-gray-400">Payment Number 2:</p>
+                                <p class="text-2xl font-bold text-green-400">01747055163</p>
+                            </div>
+                            <button onclick="copyNumber('01747055163')" class="bg-green-500 text-black px-4 py-2 rounded text-sm font-bold">
+                                Copy
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="bg-pink-600 text-white px-3 py-1 rounded text-xs font-bold">bKash</span>
+                            <span class="bg-orange-600 text-white px-3 py-1 rounded text-xs font-bold">Nagad</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-900 bg-opacity-30 p-3 rounded border border-yellow-500">
+                    <p class="text-yellow-400 text-sm font-bold mb-2">📌 How to Add Money:</p>
+                    <ol class="text-gray-300 text-xs space-y-1 ml-4 list-decimal">
+                        <li>Send money via bKash or Nagad to either number above</li>
+                        <li>After sending, send your transaction ID to admin</li>
+                        <li>Balance will be added within 5-10 minutes ⚡</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
         <!-- Game Type Tabs -->
         <div class="flex gap-3 mb-4">
             <button onclick="showGameType('normal')" id="normalTabBtn" class="flex-1 bg-green-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base">
@@ -213,15 +270,13 @@
         };
 
         async function loadGames() {
-            const today = new Date().toISOString().split('T')[0];
-            
-            // Load Normal Games
+            // Load ALL active normal games (not just today's!)
             const { data: normalGames } = await supabaseClient
                 .from('games')
                 .select('*')
-                .eq('date', today)
                 .eq('game_type', 'normal')
                 .eq('status', 'active')
+                .order('date', { ascending: true })
                 .order('game_number', { ascending: true });
 
             const normalGamesDiv = document.getElementById('normalGamesList');
@@ -229,14 +284,21 @@
             if (!normalGames || normalGames.length === 0) {
                 normalGamesDiv.innerHTML = '<div class="col-span-full text-center text-gray-400 p-8">No games available.<br>Check back later!</div>';
             } else {
+                const today = new Date().toISOString().split('T')[0];
                 normalGamesDiv.innerHTML = '';
                 normalGames.forEach(game => {
                     const sold = game.tickets_sold || 0;
                     const gameNum = String(game.game_number).padStart(2, '0');
+                    const gameDate = new Date(game.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                    const isToday = game.date === today;
+                    
                     normalGamesDiv.innerHTML += `
                         <div class="bg-gray-800 p-4 rounded-lg border-2 border-green-500 cursor-pointer hover:bg-gray-700 ${sold >= 100 ? 'opacity-50' : ''}" onclick="selectGame('${game.id}', 'normal')">
                             <div class="text-center">
-                                <h3 class="text-3xl font-bold text-green-400 mb-1">#${gameNum}</h3>
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="text-3xl font-bold text-green-400">#${gameNum}</h3>
+                                    <span class="text-xs ${isToday ? 'text-green-400 bg-green-900 px-2 py-1 rounded' : 'text-yellow-400'}">${gameDate}</span>
+                                </div>
                                 <p class="text-xs text-gray-400 mb-2">${sold}/100</p>
                                 <div class="bg-gray-700 rounded-full h-2">
                                     <div class="bg-green-500 h-2 rounded-full" style="width: ${sold}%"></div>
@@ -248,28 +310,35 @@
                 });
             }
             
-            // Load VIP Games
+            // Load ALL active VIP games (not just today's!)
             const { data: vipGames } = await supabaseClient
                 .from('games')
                 .select('*')
-                .eq('date', today)
                 .eq('game_type', 'vip')
                 .eq('status', 'active')
+                .order('date', { ascending: true })
                 .order('game_number', { ascending: true });
 
             const vipGamesDiv = document.getElementById('vipGamesList');
             
             if (!vipGames || vipGames.length === 0) {
-                vipGamesDiv.innerHTML = '<div class="col-span-full text-center text-gray-400 p-8">No VIP games today.</div>';
+                vipGamesDiv.innerHTML = '<div class="col-span-full text-center text-gray-400 p-8">No VIP games available.</div>';
             } else {
+                const today = new Date().toISOString().split('T')[0];
                 vipGamesDiv.innerHTML = '';
                 vipGames.forEach(game => {
                     const sold = game.tickets_sold || 0;
                     const gameNum = String(game.game_number).padStart(2, '0');
+                    const gameDate = new Date(game.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                    const isToday = game.date === today;
+                    
                     vipGamesDiv.innerHTML += `
                         <div class="bg-gray-800 p-6 rounded-lg border-2 border-yellow-500 cursor-pointer hover:bg-gray-700 ${sold >= 10 ? 'opacity-50' : ''}" onclick="selectGame('${game.id}', 'vip')">
                             <div class="flex justify-between items-start mb-3">
-                                <h3 class="text-3xl font-bold text-yellow-400">💎 #${gameNum}</h3>
+                                <div>
+                                    <h3 class="text-3xl font-bold text-yellow-400">💎 #${gameNum}</h3>
+                                    <span class="text-xs ${isToday ? 'text-green-400 bg-green-900 px-2 py-1 rounded' : 'text-yellow-400'}">${gameDate}</span>
+                                </div>
                                 <span class="bg-yellow-600 text-black px-2 py-1 rounded font-bold text-xs">VIP</span>
                             </div>
                             <p class="text-sm text-gray-300 mb-2">Players: ${sold}/10</p>
@@ -479,6 +548,44 @@
             resultsDiv.innerHTML = html;
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('hidden'); window.location.reload(); }, 10000);
+        }
+
+        window.togglePaymentInfo = function() {
+            const infoDiv = document.getElementById('paymentInfo');
+            const toggleBtn = document.getElementById('paymentToggleBtn');
+            
+            if (infoDiv.classList.contains('hidden')) {
+                infoDiv.classList.remove('hidden');
+                toggleBtn.textContent = 'Hide Numbers';
+            } else {
+                infoDiv.classList.add('hidden');
+                toggleBtn.textContent = 'Show Numbers';
+            }
+        };
+
+        window.copyNumber = function(number) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(number).then(() => {
+                    alert(`✅ Copied: ${number}\nPaste in bKash/Nagad app!`);
+                }).catch(() => {
+                    fallbackCopy(number);
+                });
+            } else {
+                fallbackCopy(number);
+            }
+        };
+
+        function fallbackCopy(number) {
+            const tempInput = document.createElement('input');
+            tempInput.value = number;
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert(`✅ Copied: ${number}\nPaste in bKash/Nagad app!`);
         }
 
         window.logout = async function() {
