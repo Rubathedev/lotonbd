@@ -576,3 +576,31 @@
                 });
             } else {
                 fallbackCopy(number);
+}
+        };
+
+        function fallbackCopy(number) {
+            const tempInput = document.createElement('input');
+            tempInput.value = number;
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert(`✅ Copied: ${number}\nPaste in bKash/Nagad app!`);
+        }
+
+        window.logout = async function() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
+        };
+
+        window.closeWinnerModal = function() {
+            document.getElementById('winnerModal').classList.add('hidden');
+            window.location.reload();
+        };
+    </script>
+</body>
+</html>
