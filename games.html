@@ -109,8 +109,8 @@
                 <div class="bg-yellow-900 bg-opacity-30 p-3 rounded border border-yellow-500">
                     <p class="text-yellow-400 text-sm font-bold mb-2">📌 How to Add Money:</p>
                     <ol class="text-gray-300 text-xs space-y-1 ml-4 list-decimal">
-                        <li>Send money via bKash or Nagad to either number above and add your gmail which you use to make a account put that in the referance</li>
-                        <li>After sending, send the screenshot to the group </li>
+                        <li>Send money via bKash or Nagad to either number above</li>
+                        <li>After sending, send your transaction ID to admin</li>
                         <li>Balance will be added within 5-10 minutes ⚡</li>
                     </ol>
                 </div>
@@ -119,17 +119,27 @@
 
         <!-- Game Type Tabs -->
         <div class="flex gap-3 mb-4">
-            <button onclick="showGameType('normal')" id="normalTabBtn" class="flex-1 bg-green-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base">
-                ৳100 Games
+            <button onclick="showGameType('junior')" id="juniorTabBtn" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base">
+                Junior ৳200
             </button>
             <button onclick="showGameType('vip')" id="vipTabBtn" class="flex-1 bg-gray-700 text-white px-4 py-3 rounded font-bold text-sm md:text-base">
-                💎 ৳1,000 VIP
+                💎 VIP ৳1,000
             </button>
         </div>
 
-        <!-- Normal Games List -->
-        <div id="normalGamesSection">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6" id="normalGamesList">
+        <!-- Junior Games List -->
+        <div id="juniorGamesSection">
+            <div class="bg-blue-900 bg-opacity-30 p-4 rounded-lg border border-blue-500 mb-4">
+                <h3 class="text-blue-400 font-bold text-lg mb-2">🎮 Junior Games</h3>
+                <p class="text-gray-300 text-sm">• ৳200 per ticket • 10 players • Top 6 win!</p>
+                <div class="grid grid-cols-3 gap-2 mt-3 text-xs">
+                    <div class="bg-gray-800 p-2 rounded">🥇 1st: ৳500</div>
+                    <div class="bg-gray-800 p-2 rounded">🥈 2nd: ৳300</div>
+                    <div class="bg-gray-800 p-2 rounded">🥉 3rd: ৳200</div>
+                    <div class="bg-gray-800 p-2 rounded col-span-3">🎖️ 4th-6th: ৳100 each</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6" id="juniorGamesList">
                 <div class="text-center text-gray-400">Loading...</div>
             </div>
         </div>
@@ -137,13 +147,13 @@
         <!-- VIP Games List -->
         <div id="vipGamesSection" class="hidden">
             <div class="bg-yellow-900 bg-opacity-30 p-4 rounded-lg border border-yellow-500 mb-4">
-                <h3 class="text-yellow-400 font-bold text-lg mb-2">💎 VIP Games - Higher Stakes!</h3>
-                <p class="text-gray-300 text-sm">• ৳1,000 per ticket • Only 10 players • Top 7 win big!</p>
+                <h3 class="text-yellow-400 font-bold text-lg mb-2">💎 VIP Games - Highest Stakes!</h3>
+                <p class="text-gray-300 text-sm">• ৳1,000 per ticket • 10 players • Top 7 win big!</p>
                 <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
                     <div class="bg-gray-800 p-2 rounded">🥇 1st: ৳3,000</div>
                     <div class="bg-gray-800 p-2 rounded">🥈 2nd: ৳2,000</div>
                     <div class="bg-gray-800 p-2 rounded">🥉 3rd: ৳1,000</div>
-                    <div class="bg-gray-800 p-2 rounded">🎖️ 4th-7th: ৳500</div>
+                    <div class="bg-gray-800 p-2 rounded col-span-2">🎖️ 4th-7th: ৳500 each</div>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" id="vipGamesList">
@@ -155,30 +165,30 @@
             <div class="bg-gray-900 p-4 md:p-6 rounded-lg border border-green-500 mb-4" id="gameHeader">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-xl md:text-2xl font-bold text-green-400" id="gameTitle">#001</h2>
-                    <span class="px-3 py-1 rounded text-xs md:text-sm font-bold" id="gameTypeBadge">৳100</span>
+                    <span class="px-3 py-1 rounded text-xs md:text-sm font-bold" id="gameTypeBadge">Junior</span>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
                     <div>
                         <p class="text-gray-400 text-xs md:text-sm">Sold</p>
-                        <p class="text-xl md:text-2xl font-bold text-white" id="soldCount">0/100</p>
+                        <p class="text-xl md:text-2xl font-bold text-white" id="soldCount">0/10</p>
                     </div>
                     <div>
                         <p class="text-gray-400 text-xs md:text-sm">My Tickets</p>
-                        <p class="text-xl md:text-2xl font-bold text-green-400" id="myTicketCount">0/10</p>
+                        <p class="text-xl md:text-2xl font-bold text-green-400" id="myTicketCount">0/3</p>
                     </div>
                     <div>
                         <p class="text-gray-400 text-xs md:text-sm">Price</p>
-                        <p class="text-xl md:text-2xl font-bold text-white" id="ticketPrice">৳100</p>
+                        <p class="text-xl md:text-2xl font-bold text-white" id="ticketPrice">৳200</p>
                     </div>
                     <div>
                         <p class="text-gray-400 text-xs md:text-sm">Prizes</p>
-                        <p class="text-xl md:text-2xl font-bold text-white" id="prizePool">৳8,000</p>
+                        <p class="text-xl md:text-2xl font-bold text-white" id="prizePool">৳1,300</p>
                     </div>
                 </div>
             </div>
 
             <div class="bg-gray-900 p-4 md:p-6 rounded-lg border border-green-500">
-                <h3 class="text-base md:text-lg font-bold text-green-400 mb-3 md:mb-4" id="pickNumbersText">Pick Numbers (Max 10)</h3>
+                <h3 class="text-base md:text-lg font-bold text-green-400 mb-3 md:mb-4" id="pickNumbersText">Pick Numbers (Max 3)</h3>
                 <div id="numbersGrid" class="grid gap-2"></div>
                 <div class="mt-4 flex flex-col md:flex-row gap-2 text-xs md:text-sm">
                     <span class="flex items-center gap-2">
@@ -212,10 +222,10 @@
 
         let currentUser = null;
         let currentGame = null;
-        let currentGameType = 'normal';
+        let currentGameType = 'junior';
         let userBalance = 0;
         let myTickets = [];
-        let activeGameType = 'normal';
+        let activeGameType = 'junior';
 
         supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
             if (!session) {
@@ -254,15 +264,15 @@
         window.showGameType = function(type) {
             activeGameType = type;
             
-            if (type === 'normal') {
-                document.getElementById('normalTabBtn').className = 'flex-1 bg-green-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
+            if (type === 'junior') {
+                document.getElementById('juniorTabBtn').className = 'flex-1 bg-blue-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
                 document.getElementById('vipTabBtn').className = 'flex-1 bg-gray-700 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
-                document.getElementById('normalGamesSection').classList.remove('hidden');
+                document.getElementById('juniorGamesSection').classList.remove('hidden');
                 document.getElementById('vipGamesSection').classList.add('hidden');
             } else {
-                document.getElementById('normalTabBtn').className = 'flex-1 bg-gray-700 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
+                document.getElementById('juniorTabBtn').className = 'flex-1 bg-gray-700 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
                 document.getElementById('vipTabBtn').className = 'flex-1 bg-yellow-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
-                document.getElementById('normalGamesSection').classList.add('hidden');
+                document.getElementById('juniorGamesSection').classList.add('hidden');
                 document.getElementById('vipGamesSection').classList.remove('hidden');
             }
             
@@ -270,52 +280,55 @@
         };
 
         async function loadGames() {
-            // Load ALL active normal games (not just today's!)
-            const { data: normalGames } = await supabaseClient
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Load Junior games (with tickets OR created today)
+            const { data: juniorGames } = await supabaseClient
                 .from('games')
                 .select('*')
-                .eq('game_type', 'normal')
+                .eq('game_type', 'junior')
                 .eq('status', 'active')
+                .or(`tickets_sold.gt.0,date.eq.${today}`)
                 .order('date', { ascending: true })
                 .order('game_number', { ascending: true });
 
-            const normalGamesDiv = document.getElementById('normalGamesList');
+            const juniorGamesDiv = document.getElementById('juniorGamesList');
             
-            if (!normalGames || normalGames.length === 0) {
-                normalGamesDiv.innerHTML = '<div class="col-span-full text-center text-gray-400 p-8">No games available.<br>Check back later!</div>';
+            if (!juniorGames || juniorGames.length === 0) {
+                juniorGamesDiv.innerHTML = '<div class="col-span-full text-center text-gray-400 p-8">No games available.</div>';
             } else {
-                const today = new Date().toISOString().split('T')[0];
-                normalGamesDiv.innerHTML = '';
-                normalGames.forEach(game => {
+                juniorGamesDiv.innerHTML = '';
+                juniorGames.forEach(game => {
                     const sold = game.tickets_sold || 0;
                     const gameNum = String(game.game_number).padStart(2, '0');
                     const gameDate = new Date(game.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
                     const isToday = game.date === today;
                     
-                    normalGamesDiv.innerHTML += `
-                        <div class="bg-gray-800 p-4 rounded-lg border-2 border-green-500 cursor-pointer hover:bg-gray-700 ${sold >= 100 ? 'opacity-50' : ''}" onclick="selectGame('${game.id}', 'normal')">
+                    juniorGamesDiv.innerHTML += `
+                        <div class="bg-gray-800 p-4 rounded-lg border-2 border-blue-500 cursor-pointer hover:bg-gray-700 ${sold >= 10 ? 'opacity-50' : ''}" onclick="selectGame('${game.id}', 'junior')">
                             <div class="text-center">
                                 <div class="flex justify-between items-center mb-1">
-                                    <h3 class="text-3xl font-bold text-green-400">#${gameNum}</h3>
+                                    <h3 class="text-3xl font-bold text-blue-400">#${gameNum}</h3>
                                     <span class="text-xs ${isToday ? 'text-green-400 bg-green-900 px-2 py-1 rounded' : 'text-yellow-400'}">${gameDate}</span>
                                 </div>
-                                <p class="text-xs text-gray-400 mb-2">${sold}/100</p>
+                                <p class="text-xs text-gray-400 mb-2">${sold}/10</p>
                                 <div class="bg-gray-700 rounded-full h-2">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${sold}%"></div>
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${(sold/10)*100}%"></div>
                                 </div>
-                                ${sold < 100 ? '<p class="mt-2 text-green-400 text-sm font-bold">৳100</p>' : '<p class="mt-2 text-red-400 text-sm">FULL</p>'}
+                                ${sold < 10 ? '<p class="mt-2 text-blue-400 text-sm font-bold">৳200</p>' : '<p class="mt-2 text-red-400 text-sm">FULL</p>'}
                             </div>
                         </div>
                     `;
                 });
             }
             
-            // Load ALL active VIP games (not just today's!)
+            // Load VIP games (with tickets OR created today)
             const { data: vipGames } = await supabaseClient
                 .from('games')
                 .select('*')
                 .eq('game_type', 'vip')
                 .eq('status', 'active')
+                .or(`tickets_sold.gt.0,date.eq.${today}`)
                 .order('date', { ascending: true })
                 .order('game_number', { ascending: true });
 
@@ -324,7 +337,6 @@
             if (!vipGames || vipGames.length === 0) {
                 vipGamesDiv.innerHTML = '<div class="col-span-full text-center text-gray-400 p-8">No VIP games available.</div>';
             } else {
-                const today = new Date().toISOString().split('T')[0];
                 vipGamesDiv.innerHTML = '';
                 vipGames.forEach(game => {
                     const sold = game.tickets_sold || 0;
@@ -374,16 +386,16 @@
                 document.getElementById('pickNumbersText').textContent = 'Pick Numbers (Max 3)';
                 document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-yellow-400 mb-3 md:mb-4';
             } else {
-                gameHeader.className = 'bg-gray-900 p-4 md:p-6 rounded-lg border-2 border-green-500 mb-4';
-                gameTypeBadge.className = 'px-3 py-1 rounded text-xs md:text-sm font-bold bg-green-600 text-white';
-                gameTypeBadge.textContent = '৳100';
-                document.getElementById('gameTitle').className = 'text-xl md:text-2xl font-bold text-green-400';
+                gameHeader.className = 'bg-gray-900 p-4 md:p-6 rounded-lg border-2 border-blue-500 mb-4';
+                gameTypeBadge.className = 'px-3 py-1 rounded text-xs md:text-sm font-bold bg-blue-600 text-white';
+                gameTypeBadge.textContent = 'Junior';
+                document.getElementById('gameTitle').className = 'text-xl md:text-2xl font-bold text-blue-400';
                 document.getElementById('gameTitle').textContent = `#${gameNum}`;
-                document.getElementById('soldCount').textContent = `${data.tickets_sold || 0}/100`;
-                document.getElementById('ticketPrice').textContent = '৳100';
-                document.getElementById('prizePool').textContent = '৳8,000';
-                document.getElementById('pickNumbersText').textContent = 'Pick Numbers (Max 10)';
-                document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-green-400 mb-3 md:mb-4';
+                document.getElementById('soldCount').textContent = `${data.tickets_sold || 0}/10`;
+                document.getElementById('ticketPrice').textContent = '৳200';
+                document.getElementById('prizePool').textContent = '৳1,300';
+                document.getElementById('pickNumbersText').textContent = 'Pick Numbers (Max 3)';
+                document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-blue-400 mb-3 md:mb-4';
             }
             
             document.getElementById('gameContainer').classList.remove('hidden');
@@ -408,16 +420,13 @@
                 }
             });
 
-            const maxTickets = currentGameType === 'vip' ? 10 : 100;
-            const maxPerUser = currentGameType === 'vip' ? 3 : 10;
-            
-            document.getElementById('myTicketCount').textContent = `${myTickets.length}/${maxPerUser}`;
+            document.getElementById('myTicketCount').textContent = `${myTickets.length}/3`;
 
             const grid = document.getElementById('numbersGrid');
             grid.innerHTML = '';
             grid.className = 'grid grid-cols-5 md:grid-cols-10 gap-2';
             
-            for (let i = 1; i <= maxTickets; i++) {
+            for (let i = 1; i <= 10; i++) {
                 const div = document.createElement('div');
                 div.className = 'ticket rounded border-2';
                 div.textContent = i;
@@ -429,7 +438,7 @@
                         div.className += ' ticket-sold bg-gray-700 border-gray-600 text-gray-500';
                     }
                 } else {
-                    const borderColor = currentGameType === 'vip' ? 'border-yellow-500 text-yellow-400' : 'border-green-500 text-green-400';
+                    const borderColor = currentGameType === 'vip' ? 'border-yellow-500 text-yellow-400' : 'border-blue-500 text-blue-400';
                     div.className += ` ticket-available bg-gray-800 ${borderColor}`;
                     div.onclick = () => buyTicket(i);
                 }
@@ -439,11 +448,10 @@
         }
 
         async function buyTicket(number) {
-            const maxPerUser = currentGameType === 'vip' ? 3 : 10;
-            const ticketPrice = currentGameType === 'vip' ? 1000 : 100;
+            const ticketPrice = currentGameType === 'vip' ? 1000 : 200;
             
-            if (myTickets.length >= maxPerUser) {
-                alert(`Maximum ${maxPerUser} tickets per game!`);
+            if (myTickets.length >= 3) {
+                alert('Maximum 3 tickets per game!');
                 return;
             }
             
@@ -465,14 +473,12 @@
 
                 userBalance -= ticketPrice;
                 document.getElementById('userBalance').textContent = `৳${userBalance}`;
-                
-                const maxTickets = currentGameType === 'vip' ? 10 : 100;
-                document.getElementById('soldCount').textContent = `${newCount}/${maxTickets}`;
+                document.getElementById('soldCount').textContent = `${newCount}/10`;
                 
                 await loadTickets();
                 alert(`#${number} purchased! 🍀`);
 
-                if (newCount === maxTickets) {
+                if (newCount === 10) {
                     setTimeout(async () => {
                         alert(`🎰 FULL! Drawing winners...`);
                         await autoPickWinners(currentGame, currentGameType);
@@ -486,8 +492,7 @@
         async function autoPickWinners(gameId, gameType) {
             try {
                 const { data: tickets } = await supabaseClient.from('tickets').select('*').eq('game_id', gameId);
-                const expectedTickets = gameType === 'vip' ? 10 : 100;
-                if (tickets.length !== expectedTickets) return;
+                if (tickets.length !== 10) return;
 
                 const shuffled = tickets.sort(() => Math.random() - 0.5);
                 let prizes, winnerCount;
@@ -496,8 +501,9 @@
                     prizes = [3000, 2000, 1000, 500, 500, 500, 500];
                     winnerCount = 7;
                 } else {
-                    prizes = [...Array(2).fill(1000), ...Array(4).fill(500), ...Array(20).fill(200)];
-                    winnerCount = 26;
+                    // Junior: 500, 300, 200, 100, 100, 100
+                    prizes = [500, 300, 200, 100, 100, 100];
+                    winnerCount = 6;
                 }
                 
                 const winners = shuffled.slice(0, winnerCount);
@@ -532,16 +538,14 @@
                     </div>`;
                 });
             } else {
-                html += `<p class="text-white mb-4">26 winners selected!</p>`;
-                const myWins = winners.filter(w => w.user_id === currentUser.id);
-                if (myWins.length > 0) {
-                    html += '<div class="bg-green-900 p-4 rounded mb-4"><h4 class="text-yellow-400 font-bold text-xl mb-2">🎉 YOU WON!</h4>';
-                    myWins.forEach((w, i) => {
-                        const idx = winners.indexOf(w);
-                        html += `<p class="text-white">Ticket #${w.ticket_number}: ৳${prizes[idx]}</p>`;
-                    });
-                    html += '</div>';
-                }
+                // Junior
+                const titles = ['🥇 1st - ৳500', '🥈 2nd - ৳300', '🥉 3rd - ৳200', '🎖️ 4th - ৳100', '🎖️ 5th - ৳100', '🎖️ 6th - ৳100'];
+                winners.forEach((w, i) => {
+                    const isMe = w.user_id === currentUser.id;
+                    html += `<div class="bg-gray-800 p-3 rounded mb-2 ${isMe ? 'border-2 border-blue-400' : ''}">
+                        <p class="${isMe ? 'text-blue-400 font-bold text-lg' : 'text-white'}">${titles[i]}: #${w.ticket_number} ${isMe ? '← YOU WON!' : ''}</p>
+                    </div>`;
+                });
             }
             
             html += '<p class="text-gray-400 text-center mt-4">Refreshing in 10 seconds...</p>';
@@ -572,31 +576,3 @@
                 });
             } else {
                 fallbackCopy(number);
-            }
-        };
-
-        function fallbackCopy(number) {
-            const tempInput = document.createElement('input');
-            tempInput.value = number;
-            tempInput.style.position = 'absolute';
-            tempInput.style.left = '-9999px';
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            tempInput.setSelectionRange(0, 99999);
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            alert(`✅ Copied: ${number}\nPaste in bKash/Nagad app!`);
-        }
-
-        window.logout = async function() {
-            await supabaseClient.auth.signOut();
-            window.location.href = 'index.html';
-        };
-
-        window.closeWinnerModal = function() {
-            document.getElementById('winnerModal').classList.add('hidden');
-            window.location.reload();
-        };
-    </script>
-</body>
-</html>
