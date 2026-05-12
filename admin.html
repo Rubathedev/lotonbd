@@ -81,11 +81,11 @@
             <!-- Games Tab -->
             <div id="gamesTab" class="tab-content hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-                        <h2 class="text-xl font-bold text-green-400 mb-2">Normal Games (৳100)</h2>
-                        <p class="text-gray-400 text-sm mb-4">100 tickets • 26 winners</p>
-                        <button onclick="createNormalGames()" class="w-full bg-green-500 text-black px-6 py-3 rounded font-bold">
-                            Create 10 Normal Games
+                    <div class="bg-gray-900 p-6 rounded-lg border border-blue-500">
+                        <h2 class="text-xl font-bold text-blue-400 mb-2">Junior Games (৳200)</h2>
+                        <p class="text-gray-400 text-sm mb-4">10 tickets • 6 winners</p>
+                        <button onclick="createJuniorGames()" class="w-full bg-blue-500 text-white px-6 py-3 rounded font-bold">
+                            Create 10 Junior Games
                         </button>
                     </div>
 
@@ -98,9 +98,9 @@
                     </div>
                 </div>
 
-                <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-                    <h2 class="text-xl font-bold text-green-400 mb-4">Today's Normal Games</h2>
-                    <div id="normalGamesList" class="grid grid-cols-2 md:grid-cols-5 gap-3">Loading...</div>
+                <div class="bg-gray-900 p-6 rounded-lg border border-blue-500 mb-6">
+                    <h2 class="text-xl font-bold text-blue-400 mb-4">Today's Junior Games</h2>
+                    <div id="juniorGamesList" class="grid grid-cols-2 md:grid-cols-5 gap-3">Loading...</div>
                 </div>
 
                 <div class="bg-gray-900 p-6 rounded-lg border border-yellow-500">
@@ -129,8 +129,8 @@
                     </div>
                     
                     <div>
-                        <h3 class="text-lg font-bold text-green-400 mb-3">Full Normal Games</h3>
-                        <div id="fullNormalGamesList" class="space-y-3">Loading...</div>
+                        <h3 class="text-lg font-bold text-blue-400 mb-3">Full Junior Games</h3>
+                        <div id="fullJuniorGamesList" class="space-y-3">Loading...</div>
                     </div>
                 </div>
             </div>
@@ -341,8 +341,8 @@
             });
         }
 
-        window.createNormalGames = async function() {
-            if (!confirm('Create 10 normal games for today?')) return;
+        window.createJuniorGames = async function() {
+            if (!confirm('Create 10 junior games for today?')) return;
 
             const today = new Date().toISOString().split('T')[0];
             
@@ -350,7 +350,7 @@
                 .from('games')
                 .select('game_number')
                 .eq('date', today)
-                .eq('game_type', 'normal')
+                .eq('game_type', 'junior')
                 .order('game_number', { ascending: false })
                 .limit(1);
             
@@ -361,7 +361,7 @@
                 games.push({
                     date: today,
                     game_number: startNumber + i,
-                    game_type: 'normal',
+                    game_type: 'junior',
                     status: 'active',
                     tickets_sold: 0
                 });
@@ -372,7 +372,7 @@
             if (error) {
                 alert('Error: ' + error.message);
             } else {
-                alert('10 normal games created!');
+                alert('10 junior games created!');
                 loadTodaysGames();
             }
         };
@@ -411,26 +411,26 @@
         async function loadTodaysGames() {
             const today = new Date().toISOString().split('T')[0];
             
-            const { data: normalGames } = await supabaseClient
+            const { data: juniorGames } = await supabaseClient
                 .from('games')
                 .select('*')
                 .eq('date', today)
-                .eq('game_type', 'normal')
+                .eq('game_type', 'junior')
                 .order('game_number');
             
-            const normalGamesDiv = document.getElementById('normalGamesList');
+            const juniorGamesDiv = document.getElementById('juniorGamesList');
             
-            if (!normalGames || normalGames.length === 0) {
-                normalGamesDiv.innerHTML = '<p class="col-span-full text-gray-400">No games today.</p>';
+            if (!juniorGames || juniorGames.length === 0) {
+                juniorGamesDiv.innerHTML = '<p class="col-span-full text-gray-400">No games today.</p>';
             } else {
-                normalGamesDiv.innerHTML = '';
-                normalGames.forEach(game => {
+                juniorGamesDiv.innerHTML = '';
+                juniorGames.forEach(game => {
                     const gameNum = String(game.game_number).padStart(2, '0');
-                    normalGamesDiv.innerHTML += `
-                        <div class="bg-gray-800 p-3 rounded border border-green-500 text-center">
+                    juniorGamesDiv.innerHTML += `
+                        <div class="bg-gray-800 p-3 rounded border border-blue-500 text-center">
                             <p class="text-white font-bold text-2xl">#${gameNum}</p>
-                            <p class="text-xs text-gray-400">${game.tickets_sold}/100</p>
-                            <p class="text-xs ${game.status === 'completed' ? 'text-yellow-400' : 'text-green-400'}">${game.status}</p>
+                            <p class="text-xs text-gray-400">${game.tickets_sold}/10</p>
+                            <p class="text-xs ${game.status === 'completed' ? 'text-yellow-400' : 'text-blue-400'}">${game.status}</p>
                         </div>
                     `;
                 });
@@ -499,10 +499,10 @@
 
         async function loadFullGames() {
             const { data: vipGames } = await supabaseClient.from('games').select('*').eq('tickets_sold', 10).eq('status', 'active').eq('game_type', 'vip');
-            const { data: normalGames } = await supabaseClient.from('games').select('*').eq('tickets_sold', 100).eq('status', 'active').eq('game_type', 'normal');
+            const { data: juniorGames } = await supabaseClient.from('games').select('*').eq('tickets_sold', 10).eq('status', 'active').eq('game_type', 'junior');
             
             const vipDiv = document.getElementById('fullVIPGamesList');
-            const normalDiv = document.getElementById('fullNormalGamesList');
+            const juniorDiv = document.getElementById('fullJuniorGamesList');
             
             if (!vipGames || vipGames.length === 0) {
                 vipDiv.innerHTML = '<p class="text-gray-400">No full VIP games</p>';
@@ -519,16 +519,16 @@
                 });
             }
             
-            if (!normalGames || normalGames.length === 0) {
-                normalDiv.innerHTML = '<p class="text-gray-400">No full normal games</p>';
+            if (!juniorGames || juniorGames.length === 0) {
+                juniorDiv.innerHTML = '<p class="text-gray-400">No full junior games</p>';
             } else {
-                normalDiv.innerHTML = '';
-                normalGames.forEach(game => {
+                juniorDiv.innerHTML = '';
+                juniorGames.forEach(game => {
                     const gameNum = String(game.game_number).padStart(2, '0');
-                    normalDiv.innerHTML += `
-                        <div class="bg-gray-800 p-4 rounded border border-green-500">
-                            <p class="text-green-400 font-bold">#${gameNum} - ${game.date}</p>
-                            <button onclick="pickWinners('${game.id}', 'normal')" class="mt-2 bg-green-500 text-black px-4 py-2 rounded font-bold">Pick 26 Winners</button>
+                    juniorDiv.innerHTML += `
+                        <div class="bg-gray-800 p-4 rounded border border-blue-500">
+                            <p class="text-blue-400 font-bold">#${gameNum} - ${game.date}</p>
+                            <button onclick="pickWinners('${game.id}', 'junior')" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded font-bold">Pick 6 Winners</button>
                         </div>
                     `;
                 });
@@ -540,10 +540,9 @@
 
             try {
                 const { data: tickets } = await supabaseClient.from('tickets').select('*').eq('game_id', gameId);
-                const expectedTickets = gameType === 'vip' ? 10 : 100;
                 
-                if (tickets.length !== expectedTickets) {
-                    alert(`Error: Need exactly ${expectedTickets} tickets`);
+                if (tickets.length !== 10) {
+                    alert('Error: Need exactly 10 tickets');
                     return;
                 }
 
@@ -554,8 +553,8 @@
                     prizes = [3000, 2000, 1000, 500, 500, 500, 500];
                     winnerCount = 7;
                 } else {
-                    prizes = [...Array(2).fill(1000), ...Array(4).fill(500), ...Array(20).fill(200)];
-                    winnerCount = 26;
+                    prizes = [500, 300, 200, 100, 100, 100];
+                    winnerCount = 6;
                 }
                 
                 const winners = shuffled.slice(0, winnerCount);
