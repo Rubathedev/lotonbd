@@ -6,8 +6,10 @@
     <title>LottoBD - Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
-        .glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+        body { 
+            background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); 
+        }
+        .glow { box-shadow: 0 0 20px rgba(0, 150, 136, 0.4); }
         .ticket { 
             transition: all 0.3s; 
             cursor: pointer;
@@ -26,11 +28,12 @@
         }
         .ticket-available:hover { 
             transform: scale(1.05); 
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.8); 
+            box-shadow: 0 0 15px rgba(0, 150, 136, 0.8); 
         }
         .ticket-mine { 
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); 
-            color: black;
+            background: linear-gradient(135deg, #FFD54F 0%, #FFC107 100%); 
+            color: #004D40;
+            font-weight: bold;
         }
         .ticket-sold { 
             opacity: 0.4; 
@@ -40,46 +43,46 @@
 </head>
 <body class="min-h-screen p-2 md:p-4">
     <div class="max-w-7xl mx-auto">
-        <div class="bg-gray-900 p-4 md:p-6 rounded-lg border border-green-500 mb-4 md:mb-6">
+        <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 mb-4 md:mb-6 shadow-lg">
             <div class="flex flex-col md:flex-row justify-between items-center gap-3">
                 <div>
-                    <h1 class="text-xl md:text-2xl font-bold text-green-400">🎰 LottoBD</h1>
-                    <p class="text-gray-400 text-sm md:text-base" id="userName">Loading...</p>
+                    <h1 class="text-xl md:text-2xl font-bold text-teal-700">🎰 LottoBD</h1>
+                    <p class="text-teal-600 text-sm md:text-base" id="userName">Loading...</p>
                 </div>
                 <div class="flex gap-2 md:gap-3 w-full md:w-auto">
-                    <a href="profile.html" class="flex-1 md:flex-none bg-gray-800 text-green-400 px-3 md:px-4 py-2 rounded border border-green-500 text-center text-sm md:text-base">Profile</a>
-                    <button onclick="logout()" class="flex-1 md:flex-none bg-red-600 text-white px-3 md:px-4 py-2 rounded text-sm md:text-base">Logout</button>
+                    <a href="profile.html" class="flex-1 md:flex-none bg-teal-600 text-white px-3 md:px-4 py-2 rounded border border-teal-700 text-center text-sm md:text-base hover:bg-teal-700">Profile</a>
+                    <button onclick="logout()" class="flex-1 md:flex-none bg-red-500 text-white px-3 md:px-4 py-2 rounded text-sm md:text-base hover:bg-red-600">Logout</button>
                 </div>
             </div>
         </div>
 
-        <div class="bg-gray-900 p-3 md:p-4 rounded-lg border border-green-500 mb-4 md:mb-6 glow">
+        <div class="bg-white p-3 md:p-4 rounded-lg border-2 border-teal-600 mb-4 md:mb-6 glow shadow-lg">
             <div class="flex justify-between items-center">
-                <span class="text-green-400 text-sm md:text-base">Your Balance:</span>
-                <span class="text-2xl md:text-3xl font-bold text-white" id="userBalance">৳0</span>
+                <span class="text-teal-700 text-sm md:text-base font-semibold">Your Balance:</span>
+                <span class="text-2xl md:text-3xl font-bold text-teal-800" id="userBalance">৳0</span>
             </div>
         </div>
 
         <!-- Payment Information -->
-        <div class="bg-gray-900 p-4 rounded-lg border border-blue-500 mb-4">
+        <div class="bg-white p-4 rounded-lg border-2 border-teal-500 mb-4 shadow-lg">
             <div class="flex justify-between items-center mb-3">
-                <h3 class="text-lg font-bold text-blue-400">💰 Send Money to Play</h3>
-                <button onclick="togglePaymentInfo()" id="paymentToggleBtn" class="text-blue-400 text-sm underline">
+                <h3 class="text-lg font-bold text-teal-700">💰 Send Money to Play</h3>
+                <button onclick="togglePaymentInfo()" id="paymentToggleBtn" class="text-teal-600 text-sm underline hover:text-teal-800">
                     Show Numbers
                 </button>
             </div>
             
             <div id="paymentInfo" class="hidden">
-                <p class="text-gray-300 text-sm mb-3">Send via bKash or Nagad to either number:</p>
+                <p class="text-gray-700 text-sm mb-3">Send via bKash or Nagad to either number:</p>
                 
                 <div class="space-y-3 mb-3">
-                    <div class="bg-gray-800 p-4 rounded-lg border-2 border-green-500">
+                    <div class="bg-teal-50 p-4 rounded-lg border-2 border-teal-500">
                         <div class="flex justify-between items-center mb-2">
                             <div>
-                                <p class="text-xs text-gray-400">Payment Number 1:</p>
-                                <p class="text-2xl font-bold text-green-400">01939870830</p>
+                                <p class="text-xs text-teal-600">Payment Number 1:</p>
+                                <p class="text-2xl font-bold text-teal-800">01939870830</p>
                             </div>
-                            <button onclick="copyNumber('01939870830')" class="bg-green-500 text-black px-4 py-2 rounded text-sm font-bold">
+                            <button onclick="copyNumber('01939870830')" class="bg-amber-500 text-white px-4 py-2 rounded text-sm font-bold hover:bg-amber-600">
                                 Copy
                             </button>
                         </div>
@@ -89,13 +92,13 @@
                         </div>
                     </div>
                     
-                    <div class="bg-gray-800 p-4 rounded-lg border-2 border-green-500">
+                    <div class="bg-teal-50 p-4 rounded-lg border-2 border-teal-500">
                         <div class="flex justify-between items-center mb-2">
                             <div>
-                                <p class="text-xs text-gray-400">Payment Number 2:</p>
-                                <p class="text-2xl font-bold text-green-400">01747055163</p>
+                                <p class="text-xs text-teal-600">Payment Number 2:</p>
+                                <p class="text-2xl font-bold text-teal-800">01747055163</p>
                             </div>
-                            <button onclick="copyNumber('01747055163')" class="bg-green-500 text-black px-4 py-2 rounded text-sm font-bold">
+                            <button onclick="copyNumber('01747055163')" class="bg-amber-500 text-white px-4 py-2 rounded text-sm font-bold hover:bg-amber-600">
                                 Copy
                             </button>
                         </div>
@@ -106,9 +109,9 @@
                     </div>
                 </div>
                 
-                <div class="bg-yellow-900 bg-opacity-30 p-3 rounded border border-yellow-500">
-                    <p class="text-yellow-400 text-sm font-bold mb-2">📌 How to Add Money:</p>
-                    <ol class="text-gray-300 text-xs space-y-1 ml-4 list-decimal">
+                <div class="bg-amber-50 p-3 rounded border-2 border-amber-400">
+                    <p class="text-amber-700 text-sm font-bold mb-2">📌 How to Add Money:</p>
+                    <ol class="text-gray-700 text-xs space-y-1 ml-4 list-decimal">
                         <li>Send money via bKash or Nagad to either number above</li>
                         <li>After sending, send your transaction ID to admin</li>
                         <li>Balance will be added within 5-10 minutes ⚡</li>
@@ -119,95 +122,95 @@
 
         <!-- Game Type Tabs -->
         <div class="flex gap-3 mb-4">
-            <button onclick="showGameType('junior')" id="juniorTabBtn" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base">
+            <button onclick="showGameType('junior')" id="juniorTabBtn" class="flex-1 bg-teal-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base shadow-lg hover:bg-teal-700">
                 Junior ৳200
             </button>
-            <button onclick="showGameType('vip')" id="vipTabBtn" class="flex-1 bg-gray-700 text-white px-4 py-3 rounded font-bold text-sm md:text-base">
+            <button onclick="showGameType('vip')" id="vipTabBtn" class="flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded font-bold text-sm md:text-base hover:bg-gray-400">
                 💎 VIP ৳1,000
             </button>
         </div>
 
         <!-- Junior Games List -->
         <div id="juniorGamesSection">
-            <div class="bg-blue-900 bg-opacity-30 p-4 rounded-lg border border-blue-500 mb-4">
-                <h3 class="text-blue-400 font-bold text-lg mb-2">🎮 Junior Games</h3>
-                <p class="text-gray-300 text-sm">• ৳200 per ticket • 10 players • Top 6 win!</p>
+            <div class="bg-teal-50 p-4 rounded-lg border-2 border-teal-500 mb-4 shadow-lg">
+                <h3 class="text-teal-700 font-bold text-lg mb-2">🎮 Junior Games</h3>
+                <p class="text-gray-700 text-sm">• ৳200 per ticket • 10 players • Top 6 win!</p>
                 <div class="grid grid-cols-3 gap-2 mt-3 text-xs">
-                    <div class="bg-gray-800 p-2 rounded">🥇 1st: ৳500</div>
-                    <div class="bg-gray-800 p-2 rounded">🥈 2nd: ৳300</div>
-                    <div class="bg-gray-800 p-2 rounded">🥉 3rd: ৳200</div>
-                    <div class="bg-gray-800 p-2 rounded col-span-3">🎖️ 4th-6th: ৳100 each</div>
+                    <div class="bg-white p-2 rounded border border-teal-400 text-teal-700">🥇 1st: ৳500</div>
+                    <div class="bg-white p-2 rounded border border-teal-400 text-teal-700">🥈 2nd: ৳300</div>
+                    <div class="bg-white p-2 rounded border border-teal-400 text-teal-700">🥉 3rd: ৳200</div>
+                    <div class="bg-white p-2 rounded border border-teal-400 col-span-3 text-teal-700">🎖️ 4th-6th: ৳100 each</div>
                 </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6" id="juniorGamesList">
-                <div class="text-center text-gray-400">Loading...</div>
+                <div class="text-center text-teal-600">Loading...</div>
             </div>
         </div>
 
         <!-- VIP Games List -->
         <div id="vipGamesSection" class="hidden">
-            <div class="bg-yellow-900 bg-opacity-30 p-4 rounded-lg border border-yellow-500 mb-4">
-                <h3 class="text-yellow-400 font-bold text-lg mb-2">💎 VIP Games - Highest Stakes!</h3>
-                <p class="text-gray-300 text-sm">• ৳1,000 per ticket • 10 players • Top 7 win big!</p>
+            <div class="bg-amber-50 p-4 rounded-lg border-2 border-amber-500 mb-4 shadow-lg">
+                <h3 class="text-amber-700 font-bold text-lg mb-2">💎 VIP Games - Highest Stakes!</h3>
+                <p class="text-gray-700 text-sm">• ৳1,000 per ticket • 10 players • Top 7 win big!</p>
                 <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
-                    <div class="bg-gray-800 p-2 rounded">🥇 1st: ৳3,000</div>
-                    <div class="bg-gray-800 p-2 rounded">🥈 2nd: ৳2,000</div>
-                    <div class="bg-gray-800 p-2 rounded">🥉 3rd: ৳1,000</div>
-                    <div class="bg-gray-800 p-2 rounded col-span-2">🎖️ 4th-7th: ৳500 each</div>
+                    <div class="bg-white p-2 rounded border border-amber-400 text-amber-700">🥇 1st: ৳3,000</div>
+                    <div class="bg-white p-2 rounded border border-amber-400 text-amber-700">🥈 2nd: ৳2,000</div>
+                    <div class="bg-white p-2 rounded border border-amber-400 text-amber-700">🥉 3rd: ৳1,000</div>
+                    <div class="bg-white p-2 rounded border border-amber-400 col-span-2 text-amber-700">🎖️ 4th-7th: ৳500 each</div>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" id="vipGamesList">
-                <div class="text-center text-gray-400">Loading...</div>
+                <div class="text-center text-teal-600">Loading...</div>
             </div>
         </div>
 
         <div id="gameContainer" class="hidden">
-            <div class="bg-gray-900 p-4 md:p-6 rounded-lg border border-green-500 mb-4" id="gameHeader">
+            <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 mb-4 shadow-lg" id="gameHeader">
                 <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-xl md:text-2xl font-bold text-green-400" id="gameTitle">#001</h2>
-                    <span class="px-3 py-1 rounded text-xs md:text-sm font-bold" id="gameTypeBadge">Junior</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-teal-700" id="gameTitle">#001</h2>
+                    <span class="px-3 py-1 rounded text-xs md:text-sm font-bold bg-teal-600 text-white" id="gameTypeBadge">Junior</span>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
                     <div>
-                        <p class="text-gray-400 text-xs md:text-sm">Sold</p>
-                        <p class="text-xl md:text-2xl font-bold text-white" id="soldCount">0/10</p>
+                        <p class="text-teal-600 text-xs md:text-sm">Sold</p>
+                        <p class="text-xl md:text-2xl font-bold text-teal-800" id="soldCount">0/10</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 text-xs md:text-sm">My Tickets</p>
-                        <p class="text-xl md:text-2xl font-bold text-green-400" id="myTicketCount">0/3</p>
+                        <p class="text-teal-600 text-xs md:text-sm">My Tickets</p>
+                        <p class="text-xl md:text-2xl font-bold text-amber-600" id="myTicketCount">0/3</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 text-xs md:text-sm">Price</p>
-                        <p class="text-xl md:text-2xl font-bold text-white" id="ticketPrice">৳200</p>
+                        <p class="text-teal-600 text-xs md:text-sm">Price</p>
+                        <p class="text-xl md:text-2xl font-bold text-teal-800" id="ticketPrice">৳200</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 text-xs md:text-sm">Prizes</p>
-                        <p class="text-xl md:text-2xl font-bold text-white" id="prizePool">৳1,300</p>
+                        <p class="text-teal-600 text-xs md:text-sm">Prizes</p>
+                        <p class="text-xl md:text-2xl font-bold text-amber-600" id="prizePool">৳1,300</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gray-900 p-4 md:p-6 rounded-lg border border-green-500">
-                <h3 class="text-base md:text-lg font-bold text-green-400 mb-3 md:mb-4" id="pickNumbersText">Pick Numbers (Max 3)</h3>
+            <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 shadow-lg">
+                <h3 class="text-base md:text-lg font-bold text-teal-700 mb-3 md:mb-4" id="pickNumbersText">Pick Numbers (Max 3)</h3>
                 <div id="numbersGrid" class="grid gap-2"></div>
                 <div class="mt-4 flex flex-col md:flex-row gap-2 text-xs md:text-sm">
                     <span class="flex items-center gap-2">
-                        <div class="w-5 h-5 bg-green-500 rounded"></div> Yours
+                        <div class="w-5 h-5 bg-amber-500 rounded"></div> <span class="text-gray-700">Yours</span>
                     </span>
                     <span class="flex items-center gap-2">
-                        <div class="w-5 h-5 bg-gray-600 rounded"></div> Sold
+                        <div class="w-5 h-5 bg-gray-400 rounded"></div> <span class="text-gray-700">Sold</span>
                     </span>
                     <span class="flex items-center gap-2">
-                        <div class="w-5 h-5 bg-gray-800 border border-green-500 rounded"></div> Available
+                        <div class="w-5 h-5 bg-white border-2 border-teal-500 rounded"></div> <span class="text-gray-700">Available</span>
                     </span>
                 </div>
             </div>
         </div>
 
         <div id="winnerModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-            <div class="bg-gray-900 p-6 md:p-8 rounded-lg border border-green-500 max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div class="bg-white p-6 md:p-8 rounded-lg border-2 border-amber-500 max-w-2xl w-full max-h-screen overflow-y-auto">
                 <div id="winnerResults"></div>
-                <button onclick="closeWinnerModal()" class="mt-6 w-full bg-green-500 text-black font-bold py-3 rounded">Close</button>
+                <button onclick="closeWinnerModal()" class="mt-6 w-full bg-amber-500 text-white font-bold py-3 rounded hover:bg-amber-600">Close</button>
             </div>
         </div>
     </div>
@@ -265,13 +268,13 @@
             activeGameType = type;
             
             if (type === 'junior') {
-                document.getElementById('juniorTabBtn').className = 'flex-1 bg-blue-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
-                document.getElementById('vipTabBtn').className = 'flex-1 bg-gray-700 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
+                document.getElementById('juniorTabBtn').className = 'flex-1 bg-teal-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base shadow-lg hover:bg-teal-700';
+                document.getElementById('vipTabBtn').className = 'flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded font-bold text-sm md:text-base hover:bg-gray-400';
                 document.getElementById('juniorGamesSection').classList.remove('hidden');
                 document.getElementById('vipGamesSection').classList.add('hidden');
             } else {
-                document.getElementById('juniorTabBtn').className = 'flex-1 bg-gray-700 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
-                document.getElementById('vipTabBtn').className = 'flex-1 bg-yellow-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base';
+                document.getElementById('juniorTabBtn').className = 'flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded font-bold text-sm md:text-base hover:bg-gray-400';
+                document.getElementById('vipTabBtn').className = 'flex-1 bg-amber-500 text-white px-4 py-3 rounded font-bold text-sm md:text-base shadow-lg hover:bg-amber-600';
                 document.getElementById('juniorGamesSection').classList.add('hidden');
                 document.getElementById('vipGamesSection').classList.remove('hidden');
             }
@@ -280,84 +283,69 @@
         };
 
         async function loadGames() {
-            const today = new Date().toISOString().split('T')[0];
-            
-            // Load Junior games (with tickets OR created today)
+            // ONLY SHOW ACTIVE GAMES (NO HISTORY!)
             const { data: juniorGames } = await supabaseClient
                 .from('games')
                 .select('*')
                 .eq('game_type', 'junior')
                 .eq('status', 'active')
-                .or(`tickets_sold.gt.0,date.eq.${today}`)
-                .order('date', { ascending: true })
                 .order('game_number', { ascending: true });
 
             const juniorGamesDiv = document.getElementById('juniorGamesList');
             
             if (!juniorGames || juniorGames.length === 0) {
-                juniorGamesDiv.innerHTML = '<div class="col-span-full text-center text-gray-400 p-8">No games available.</div>';
+                juniorGamesDiv.innerHTML = '<div class="col-span-full text-center text-teal-600 p-8">No active games.</div>';
             } else {
                 juniorGamesDiv.innerHTML = '';
                 juniorGames.forEach(game => {
                     const sold = game.tickets_sold || 0;
                     const gameNum = String(game.game_number).padStart(2, '0');
-                    const gameDate = new Date(game.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-                    const isToday = game.date === today;
                     
                     juniorGamesDiv.innerHTML += `
-                        <div class="bg-gray-800 p-4 rounded-lg border-2 border-blue-500 cursor-pointer hover:bg-gray-700 ${sold >= 10 ? 'opacity-50' : ''}" onclick="selectGame('${game.id}', 'junior')">
+                        <div class="bg-white p-4 rounded-lg border-2 border-teal-500 cursor-pointer hover:bg-teal-50 ${sold >= 10 ? 'opacity-50' : ''} shadow-lg" onclick="selectGame('${game.id}', 'junior')">
                             <div class="text-center">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h3 class="text-3xl font-bold text-blue-400">#${gameNum}</h3>
-                                    <span class="text-xs ${isToday ? 'text-green-400 bg-green-900 px-2 py-1 rounded' : 'text-yellow-400'}">${gameDate}</span>
+                                <h3 class="text-3xl font-bold text-teal-700 mb-1">#${gameNum}</h3>
+                                <p class="text-xs text-teal-600 mb-2">${sold}/10</p>
+                                <div class="bg-teal-100 rounded-full h-2">
+                                    <div class="bg-teal-600 h-2 rounded-full" style="width: ${(sold/10)*100}%"></div>
                                 </div>
-                                <p class="text-xs text-gray-400 mb-2">${sold}/10</p>
-                                <div class="bg-gray-700 rounded-full h-2">
-                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${(sold/10)*100}%"></div>
-                                </div>
-                                ${sold < 10 ? '<p class="mt-2 text-blue-400 text-sm font-bold">৳200</p>' : '<p class="mt-2 text-red-400 text-sm">FULL</p>'}
+                                ${sold < 10 ? '<p class="mt-2 text-teal-700 text-sm font-bold">৳200</p>' : '<p class="mt-2 text-red-600 text-sm">FULL</p>'}
                             </div>
                         </div>
                     `;
                 });
             }
             
-            // Load VIP games (with tickets OR created today)
             const { data: vipGames } = await supabaseClient
                 .from('games')
                 .select('*')
                 .eq('game_type', 'vip')
                 .eq('status', 'active')
-                .or(`tickets_sold.gt.0,date.eq.${today}`)
-                .order('date', { ascending: true })
                 .order('game_number', { ascending: true });
 
             const vipGamesDiv = document.getElementById('vipGamesList');
             
             if (!vipGames || vipGames.length === 0) {
-                vipGamesDiv.innerHTML = '<div class="col-span-full text-center text-gray-400 p-8">No VIP games available.</div>';
+                vipGamesDiv.innerHTML = '<div class="col-span-full text-center text-teal-600 p-8">No VIP games available.</div>';
             } else {
                 vipGamesDiv.innerHTML = '';
                 vipGames.forEach(game => {
                     const sold = game.tickets_sold || 0;
                     const gameNum = String(game.game_number).padStart(2, '0');
-                    const gameDate = new Date(game.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-                    const isToday = game.date === today;
                     
                     vipGamesDiv.innerHTML += `
-                        <div class="bg-gray-800 p-6 rounded-lg border-2 border-yellow-500 cursor-pointer hover:bg-gray-700 ${sold >= 10 ? 'opacity-50' : ''}" onclick="selectGame('${game.id}', 'vip')">
+                        <div class="bg-white p-6 rounded-lg border-2 border-amber-500 cursor-pointer hover:bg-amber-50 ${sold >= 10 ? 'opacity-50' : ''} shadow-lg" onclick="selectGame('${game.id}', 'vip')">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <h3 class="text-3xl font-bold text-yellow-400">💎 #${gameNum}</h3>
-                                    <span class="text-xs ${isToday ? 'text-green-400 bg-green-900 px-2 py-1 rounded' : 'text-yellow-400'}">${gameDate}</span>
+                                    <h3 class="text-3xl font-bold text-amber-600">💎 #${gameNum}</h3>
                                 </div>
-                                <span class="bg-yellow-600 text-black px-2 py-1 rounded font-bold text-xs">VIP</span>
+                                <span class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-xs">VIP</span>
                             </div>
-                            <p class="text-sm text-gray-300 mb-2">Players: ${sold}/10</p>
-                            <div class="bg-gray-700 rounded-full h-3 mb-3">
-                                <div class="bg-yellow-500 h-3 rounded-full" style="width: ${(sold/10)*100}%"></div>
+                            <p class="text-sm text-gray-700 mb-2">Players: ${sold}/10</p>
+                            <div class="bg-amber-100 rounded-full h-3 mb-3">
+                                <div class="bg-amber-500 h-3 rounded-full" style="width: ${(sold/10)*100}%"></div>
                             </div>
-                            ${sold < 10 ? '<p class="text-yellow-400 text-center font-bold">৳1,000</p>' : '<p class="text-red-400 text-center font-bold">FULL</p>'}
+                            ${sold < 10 ? '<p class="text-amber-600 text-center font-bold">৳1,000</p>' : '<p class="text-red-600 text-center font-bold">FULL</p>'}
                         </div>
                     `;
                 });
@@ -375,27 +363,27 @@
             const gameNum = String(data.game_number).padStart(2, '0');
             
             if (gameType === 'vip') {
-                gameHeader.className = 'bg-gray-900 p-4 md:p-6 rounded-lg border-2 border-yellow-500 mb-4';
-                gameTypeBadge.className = 'px-3 py-1 rounded text-xs md:text-sm font-bold bg-yellow-600 text-black';
+                gameHeader.className = 'bg-white p-4 md:p-6 rounded-lg border-2 border-amber-500 mb-4 shadow-lg';
+                gameTypeBadge.className = 'px-3 py-1 rounded text-xs md:text-sm font-bold bg-amber-500 text-white';
                 gameTypeBadge.textContent = '💎 VIP';
-                document.getElementById('gameTitle').className = 'text-xl md:text-2xl font-bold text-yellow-400';
+                document.getElementById('gameTitle').className = 'text-xl md:text-2xl font-bold text-amber-600';
                 document.getElementById('gameTitle').textContent = `#${gameNum}`;
                 document.getElementById('soldCount').textContent = `${data.tickets_sold || 0}/10`;
                 document.getElementById('ticketPrice').textContent = '৳1,000';
                 document.getElementById('prizePool').textContent = '৳8,000';
                 document.getElementById('pickNumbersText').textContent = 'Pick Numbers (Max 3)';
-                document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-yellow-400 mb-3 md:mb-4';
+                document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-amber-600 mb-3 md:mb-4';
             } else {
-                gameHeader.className = 'bg-gray-900 p-4 md:p-6 rounded-lg border-2 border-blue-500 mb-4';
-                gameTypeBadge.className = 'px-3 py-1 rounded text-xs md:text-sm font-bold bg-blue-600 text-white';
+                gameHeader.className = 'bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 mb-4 shadow-lg';
+                gameTypeBadge.className = 'px-3 py-1 rounded text-xs md:text-sm font-bold bg-teal-600 text-white';
                 gameTypeBadge.textContent = 'Junior';
-                document.getElementById('gameTitle').className = 'text-xl md:text-2xl font-bold text-blue-400';
+                document.getElementById('gameTitle').className = 'text-xl md:text-2xl font-bold text-teal-700';
                 document.getElementById('gameTitle').textContent = `#${gameNum}`;
                 document.getElementById('soldCount').textContent = `${data.tickets_sold || 0}/10`;
                 document.getElementById('ticketPrice').textContent = '৳200';
                 document.getElementById('prizePool').textContent = '৳1,300';
                 document.getElementById('pickNumbersText').textContent = 'Pick Numbers (Max 3)';
-                document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-blue-400 mb-3 md:mb-4';
+                document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-teal-700 mb-3 md:mb-4';
             }
             
             document.getElementById('gameContainer').classList.remove('hidden');
@@ -435,11 +423,11 @@
                     if (soldTickets[i] === currentUser.id) {
                         div.className += ' ticket-mine';
                     } else {
-                        div.className += ' ticket-sold bg-gray-700 border-gray-600 text-gray-500';
+                        div.className += ' ticket-sold bg-gray-300 border-gray-400 text-gray-500';
                     }
                 } else {
-                    const borderColor = currentGameType === 'vip' ? 'border-yellow-500 text-yellow-400' : 'border-blue-500 text-blue-400';
-                    div.className += ` ticket-available bg-gray-800 ${borderColor}`;
+                    const borderColor = currentGameType === 'vip' ? 'border-amber-500 text-amber-600' : 'border-teal-500 text-teal-700';
+                    div.className += ` ticket-available bg-white ${borderColor}`;
                     div.onclick = () => buyTicket(i);
                 }
                 
@@ -501,7 +489,6 @@
                     prizes = [3000, 2000, 1000, 500, 500, 500, 500];
                     winnerCount = 7;
                 } else {
-                    // Junior: 500, 300, 200, 100, 100, 100
                     prizes = [500, 300, 200, 100, 100, 100];
                     winnerCount = 6;
                 }
@@ -527,28 +514,27 @@
             const modal = document.getElementById('winnerModal');
             const resultsDiv = document.getElementById('winnerResults');
             
-            let html = '<h3 class="text-2xl md:text-3xl font-bold text-green-400 mb-4 text-center">🎉 WINNERS! 🎉</h3>';
+            let html = '<h3 class="text-2xl md:text-3xl font-bold text-amber-600 mb-4 text-center">🎉 WINNERS! 🎉</h3>';
             
             if (gameType === 'vip') {
                 const titles = ['🥇 1st - ৳3,000', '🥈 2nd - ৳2,000', '🥉 3rd - ৳1,000', '🎖️ 4th - ৳500', '🎖️ 5th - ৳500', '🎖️ 6th - ৳500', '🎖️ 7th - ৳500'];
                 winners.forEach((w, i) => {
                     const isMe = w.user_id === currentUser.id;
-                    html += `<div class="bg-gray-800 p-3 rounded mb-2 ${isMe ? 'border-2 border-yellow-400' : ''}">
-                        <p class="${isMe ? 'text-yellow-400 font-bold text-lg' : 'text-white'}">${titles[i]}: #${w.ticket_number} ${isMe ? '← YOU WON!' : ''}</p>
+                    html += `<div class="bg-teal-50 p-3 rounded mb-2 border ${isMe ? 'border-2 border-amber-500' : 'border-teal-300'}">
+                        <p class="${isMe ? 'text-amber-600 font-bold text-lg' : 'text-gray-700'}">${titles[i]}: #${w.ticket_number} ${isMe ? '← YOU WON!' : ''}</p>
                     </div>`;
                 });
             } else {
-                // Junior
                 const titles = ['🥇 1st - ৳500', '🥈 2nd - ৳300', '🥉 3rd - ৳200', '🎖️ 4th - ৳100', '🎖️ 5th - ৳100', '🎖️ 6th - ৳100'];
                 winners.forEach((w, i) => {
                     const isMe = w.user_id === currentUser.id;
-                    html += `<div class="bg-gray-800 p-3 rounded mb-2 ${isMe ? 'border-2 border-blue-400' : ''}">
-                        <p class="${isMe ? 'text-blue-400 font-bold text-lg' : 'text-white'}">${titles[i]}: #${w.ticket_number} ${isMe ? '← YOU WON!' : ''}</p>
+                    html += `<div class="bg-teal-50 p-3 rounded mb-2 border ${isMe ? 'border-2 border-amber-500' : 'border-teal-300'}">
+                        <p class="${isMe ? 'text-amber-600 font-bold text-lg' : 'text-gray-700'}">${titles[i]}: #${w.ticket_number} ${isMe ? '← YOU WON!' : ''}</p>
                     </div>`;
                 });
             }
             
-            html += '<p class="text-gray-400 text-center mt-4">Refreshing in 10 seconds...</p>';
+            html += '<p class="text-gray-600 text-center mt-4">Refreshing in 10 seconds...</p>';
             resultsDiv.innerHTML = html;
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('hidden'); window.location.reload(); }, 10000);
@@ -576,7 +562,7 @@
                 });
             } else {
                 fallbackCopy(number);
-}
+            }
         };
 
         function fallbackCopy(number) {
