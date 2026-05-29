@@ -5,21 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
-    </style>
 </head>
-<body class="min-h-screen p-4">
+<body class="min-h-screen p-4" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
     <div id="accessDenied" class="hidden min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg border-2 border-red-500 text-center shadow-lg">
             <h1 class="text-3xl font-bold text-red-600 mb-4">🚫 ACCESS DENIED</h1>
-            <p class="text-gray-700 mb-6">Not authorized</p>
             <a href="games.html" class="bg-teal-600 text-white px-6 py-3 rounded hover:bg-teal-700">Back</a>
         </div>
     </div>
 
     <div id="adminContent" class="hidden">
-        <div class="max-w-6xl mx-auto">
+        <div class="max-w-7xl mx-auto">
             <!-- Header -->
             <div class="bg-white p-6 rounded-lg border-2 border-teal-600 mb-6 shadow-lg">
                 <div class="flex justify-between items-center">
@@ -28,15 +24,37 @@
                 </div>
             </div>
 
-            <!-- Create Games Buttons -->
+            <!-- Create Games Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <button onclick="createJuniorGames()" class="bg-teal-600 hover:bg-teal-700 text-white p-6 rounded-lg border-2 border-teal-700 shadow-lg text-center font-bold text-lg transform hover:scale-105 transition">
-                    ✨ Create 10 Junior Games<br><span class="text-sm">৳200 each • 10 slots</span>
+                    ✨ Create 10 Junior Games<br><span class="text-sm">৳200 each</span>
                 </button>
                 
                 <button onclick="createVIPGame()" class="bg-amber-500 hover:bg-amber-600 text-white p-6 rounded-lg border-2 border-amber-600 shadow-lg text-center font-bold text-lg transform hover:scale-105 transition">
-                    💎 Create 1 VIP Game<br><span class="text-sm">৳1,000 each • 10 slots</span>
+                    💎 Create 1 VIP Game<br><span class="text-sm">৳1,000 each</span>
                 </button>
+            </div>
+
+            <!-- Add Money Section -->
+            <div class="bg-white p-6 rounded-lg border-2 border-green-600 mb-6 shadow-lg">
+                <h2 class="text-xl font-bold text-green-700 mb-4">💰 Add Money to Customer</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-green-700 mb-2 font-semibold">Customer Email</label>
+                        <input type="email" id="customerEmail" placeholder="Enter customer email" 
+                            class="w-full px-4 py-2 bg-green-50 border-2 border-green-500 rounded text-gray-800">
+                    </div>
+                    <div>
+                        <label class="block text-green-700 mb-2 font-semibold">Amount</label>
+                        <input type="number" id="addAmount" placeholder="Amount" 
+                            class="w-full px-4 py-2 bg-green-50 border-2 border-green-500 rounded text-gray-800">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addMoneyToCustomer()" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-bold">
+                            Add Money
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Games List -->
@@ -72,48 +90,9 @@
             }
 
             document.getElementById('adminContent').classList.remove('hidden');
-            
-            await autoCleanupOldGames();
             await loadGames();
         });
 
-        // AUTO-CLEANUP: Delete games that are completed and older than 24 hours
-        async function autoCleanupOldGames() {
-            try {
-                const now = new Date();
-                const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                const oneDayAgoISO = oneDayAgo.toISOString();
-
-                // Get all completed games older than 24 hours
-                const { data: oldGames } = await supabaseClient
-                    .from('games')
-                    .select('id')
-                    .eq('status', 'completed')
-                    .lt('updated_at', oneDayAgoISO);
-
-                if (oldGames && oldGames.length > 0) {
-                    const gameIds = oldGames.map(g => g.id);
-
-                    // Delete tickets from old games
-                    await supabaseClient
-                        .from('tickets')
-                        .delete()
-                        .in('game_id', gameIds);
-
-                    // Delete old games
-                    await supabaseClient
-                        .from('games')
-                        .delete()
-                        .in('id', gameIds);
-
-                    console.log(`🧹 Auto-cleaned ${oldGames.length} old games`);
-                }
-            } catch (error) {
-                console.error('Auto-cleanup error:', error);
-            }
-        }
-
-        // Load and display all active games
         async function loadGames() {
             try {
                 const { data } = await supabaseClient
@@ -126,7 +105,7 @@
                 const gamesList = document.getElementById('gamesList');
 
                 if (!data || data.length === 0) {
-                    gamesList.innerHTML = '<p class="text-gray-600 text-center py-8">No active games. Create some!</p>';
+                    gamesList.innerHTML = '<p class="text-gray-600 text-center py-8">No active games</p>';
                     return;
                 }
 
@@ -135,15 +114,13 @@
                 data.forEach(game => {
                     const gameNum = String(game.game_number).padStart(2, '0');
                     const isJunior = game.game_type === 'junior';
-                    const maxTickets = 10;
                     const sold = game.tickets_sold || 0;
-                    const percentFull = (sold / maxTickets) * 100;
+                    const percentFull = (sold / 10) * 100;
                     
                     const bgColor = isJunior ? 'bg-teal-50' : 'bg-amber-50';
                     const borderColor = isJunior ? 'border-teal-500' : 'border-amber-500';
                     const textColor = isJunior ? 'text-teal-700' : 'text-amber-700';
                     const barColor = isJunior ? 'bg-teal-600' : 'bg-amber-500';
-                    const buttonColor = isJunior ? 'bg-red-500 hover:bg-red-600' : 'bg-red-500 hover:bg-red-600';
                     const type = isJunior ? 'Junior' : '💎 VIP';
                     const price = isJunior ? '৳200' : '৳1,000';
 
@@ -152,7 +129,7 @@
                             <div class="flex-1">
                                 <div class="flex items-center gap-3 mb-2">
                                     <h3 class="${textColor} font-bold text-lg">${type} #${gameNum}</h3>
-                                    <span class="text-xs text-gray-600">${sold}/${maxTickets}</span>
+                                    <span class="text-xs text-gray-600">${sold}/10</span>
                                 </div>
                                 <div class="w-32 bg-gray-200 rounded-full h-2">
                                     <div class="${barColor} h-2 rounded-full" style="width: ${percentFull}%"></div>
@@ -160,9 +137,9 @@
                             </div>
                             <div class="text-right ml-4">
                                 <p class="text-gray-600 font-bold">${price}</p>
-                                ${sold >= maxTickets ? '<p class="text-red-500 text-sm font-bold">FULL</p>' : '<p class="text-green-600 text-sm">Active</p>'}
+                                ${sold >= 10 ? '<p class="text-red-500 text-sm font-bold">FULL</p>' : '<p class="text-green-600 text-sm">Active</p>'}
                             </div>
-                            <button onclick="deleteGame('${game.id}')" class="${buttonColor} text-white px-4 py-2 rounded font-bold ml-3 text-sm">
+                            <button onclick="deleteGame('${game.id}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-bold ml-3 text-sm">
                                 🗑️ Delete
                             </button>
                         </div>
@@ -202,12 +179,10 @@
 
                 const { error } = await supabaseClient.from('games').insert(games);
                 
-                if (error) {
-                    alert('Error: ' + error.message);
-                } else {
-                    alert('✅ 10 Junior games created!');
-                    await loadGames();
-                }
+                if (error) throw error;
+                
+                alert('✅ 10 Junior games created!');
+                await loadGames();
             } catch (error) {
                 alert('Error: ' + error.message);
             }
@@ -237,68 +212,98 @@
                     tickets_sold: 0
                 });
                 
-                if (error) {
-                    alert('Error: ' + error.message);
-                } else {
-                    alert('✅ VIP game created!');
-                    await loadGames();
-                }
+                if (error) throw error;
+                
+                alert('✅ VIP game created!');
+                await loadGames();
             } catch (error) {
                 alert('Error: ' + error.message);
             }
         };
 
-     window.deleteGame = async function(gameId) {
-    if (!confirm('Delete this game? Cannot be undone!')) return;
+        window.addMoneyToCustomer = async function() {
+            const email = document.getElementById('customerEmail').value.trim();
+            const amount = parseInt(document.getElementById('addAmount').value);
 
-    try {
-        console.log('Deleting game:', gameId);
-        
-        // Step 1: Delete transactions from this game
-        const { error: transError } = await supabaseClient
-            .from('transactions')
-            .delete()
-            .eq('game_id', gameId);
+            if (!email || !amount || amount <= 0) {
+                alert('Please enter valid email and amount');
+                return;
+            }
 
-        if (transError) {
-            console.error('Transaction delete error:', transError);
-            alert('Error deleting transactions: ' + transError.message);
-            return;
-        }
+            try {
+                // Find user by email
+                const { data: users } = await supabaseClient
+                    .from('users')
+                    .select('id, balance, name')
+                    .eq('email', email)
+                    .single();
 
-        // Step 2: Delete all tickets from this game
-        const { error: ticketError } = await supabaseClient
-            .from('tickets')
-            .delete()
-            .eq('game_id', gameId);
+                if (!users) {
+                    alert('User not found with this email');
+                    return;
+                }
 
-        if (ticketError) {
-            console.error('Ticket delete error:', ticketError);
-            alert('Error deleting tickets: ' + ticketError.message);
-            return;
-        }
+                // Update balance
+                const newBalance = users.balance + amount;
+                const { error } = await supabaseClient
+                    .from('users')
+                    .update({ balance: newBalance })
+                    .eq('id', users.id);
 
-        // Step 3: Delete the game
-        const { error: gameError } = await supabaseClient
-            .from('games')
-            .delete()
-            .eq('id', gameId);
+                if (error) throw error;
 
-        if (gameError) {
-            console.error('Game delete error:', gameError);
-            alert('Error deleting game: ' + gameError.message);
-            return;
-        }
+                // Record transaction
+                await supabaseClient.from('transactions').insert({
+                    user_id: users.id,
+                    type: 'topup',
+                    amount: amount
+                });
 
-        console.log('Game deleted successfully');
-        alert('✅ Game deleted!');
-        await loadGames();
-    } catch (error) {
-        console.error('Delete error:', error);
-        alert('Error: ' + error.message);
-    }
-};
-        // Refresh games every 5 seconds
+                alert(`✅ Added ৳${amount} to ${users.name}\nNew balance: ৳${newBalance}`);
+                
+                // Clear fields
+                document.getElementById('customerEmail').value = '';
+                document.getElementById('addAmount').value = '';
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+
+        window.deleteGame = async function(gameId) {
+            if (!confirm('Delete this game? Cannot be undone!')) return;
+
+            try {
+                // Delete in correct order: transactions → tickets → game
+                
+                // Step 1: Delete transactions
+                await supabaseClient
+                    .from('transactions')
+                    .delete()
+                    .eq('game_id', gameId);
+
+                // Step 2: Delete tickets
+                await supabaseClient
+                    .from('tickets')
+                    .delete()
+                    .eq('game_id', gameId);
+
+                // Step 3: Delete game
+                const { error } = await supabaseClient
+                    .from('games')
+                    .delete()
+                    .eq('id', gameId);
+
+                if (error) throw error;
+
+                alert('✅ Game deleted!');
+                await loadGames();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+
+        // Auto-refresh every 5 seconds
         setInterval(() => {
             loadGames();
         }, 5000);
