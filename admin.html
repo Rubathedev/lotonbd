@@ -249,32 +249,43 @@
         };
 
         window.deleteGame = async function(gameId) {
-            if (!confirm('Delete this game? Cannot be undone!')) return;
+    if (!confirm('Delete this game? Cannot be undone!')) return;
 
-            try {
-                // Delete all tickets from this game
-                await supabaseClient
-                    .from('tickets')
-                    .delete()
-                    .eq('game_id', gameId);
+    try {
+        console.log('Deleting game:', gameId);
+        
+        // Delete all tickets from this game
+        const { error: ticketError } = await supabaseClient
+            .from('tickets')
+            .delete()
+            .eq('game_id', gameId);
 
-                // Delete the game
-                const { error } = await supabaseClient
-                    .from('games')
-                    .delete()
-                    .eq('id', gameId);
+        if (ticketError) {
+            console.error('Ticket delete error:', ticketError);
+            alert('Error deleting tickets: ' + ticketError.message);
+            return;
+        }
 
-                if (error) {
-                    alert('Error: ' + error.message);
-                } else {
-                    alert('✅ Game deleted!');
-                    await loadGames();
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        };
+        // Delete the game
+        const { error: gameError } = await supabaseClient
+            .from('games')
+            .delete()
+            .eq('id', gameId);
 
+        if (gameError) {
+            console.error('Game delete error:', gameError);
+            alert('Error deleting game: ' + gameError.message);
+            return;
+        }
+
+        console.log('Game deleted successfully');
+        alert('✅ Game deleted!');
+        await loadGames();
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('Error: ' + error.message);
+    }
+};
         // Refresh games every 5 seconds
         setInterval(() => {
             loadGames();
