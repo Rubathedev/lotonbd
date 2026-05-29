@@ -248,13 +248,25 @@
             }
         };
 
-        window.deleteGame = async function(gameId) {
+     window.deleteGame = async function(gameId) {
     if (!confirm('Delete this game? Cannot be undone!')) return;
 
     try {
         console.log('Deleting game:', gameId);
         
-        // Delete all tickets from this game
+        // Step 1: Delete transactions from this game
+        const { error: transError } = await supabaseClient
+            .from('transactions')
+            .delete()
+            .eq('game_id', gameId);
+
+        if (transError) {
+            console.error('Transaction delete error:', transError);
+            alert('Error deleting transactions: ' + transError.message);
+            return;
+        }
+
+        // Step 2: Delete all tickets from this game
         const { error: ticketError } = await supabaseClient
             .from('tickets')
             .delete()
@@ -266,7 +278,7 @@
             return;
         }
 
-        // Delete the game
+        // Step 3: Delete the game
         const { error: gameError } = await supabaseClient
             .from('games')
             .delete()
