@@ -5,42 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
-        .glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
-    </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    <div class="bg-gray-900 p-8 rounded-lg shadow-2xl w-full max-w-md border border-green-500">
-        <h1 class="text-3xl font-bold text-center text-green-400 mb-2">🎰 LottoBD</h1>
-        <p class="text-center text-gray-400 mb-8">Bangladesh Lottery System</p>
-        
-        <div id="loginSection">
-            <p class="text-gray-400 text-center mb-6">Enter your details</p>
-            
-            <div class="mb-4">
-                <label class="block text-green-400 mb-2">Email</label>
-                <input type="email" id="email" placeholder="your@email.com" 
-                    class="w-full px-4 py-3 bg-gray-800 border border-green-500 rounded text-white">
+<body class="min-h-screen flex items-center justify-center p-4" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
+    <div class="w-full max-w-md">
+        <!-- Login Card -->
+        <div class="bg-white p-8 rounded-lg border-2 border-teal-600 shadow-lg">
+            <!-- Logo -->
+            <div class="text-center mb-6">
+                <h1 class="text-4xl font-bold text-teal-600 mb-2">🎰 LottoBD</h1>
+                <p class="text-gray-600">Bangladesh Lottery System</p>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-green-400 mb-2">Password (min 6 characters)</label>
-                <input type="password" id="password" placeholder="Create a password" 
-                    class="w-full px-4 py-3 bg-gray-800 border border-green-500 rounded text-white">
-            </div>
-            
-            <button onclick="handleAuth()" 
-                class="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-3 rounded glow mb-3">
-                Sign Up / Login
-            </button>
+            <!-- Login Form -->
+            <div id="loginForm" class="hidden">
+                <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">Enter your details</h2>
 
-            <p class="text-xs text-gray-500 text-center">Instant access - no email confirmation needed!</p>
+                <!-- Email Input -->
+                <div class="mb-4">
+                    <label class="block text-teal-700 font-bold mb-2">Email</label>
+                    <input type="email" id="email" placeholder="your@email.com" 
+                        class="w-full px-4 py-3 bg-teal-50 border-2 border-teal-600 rounded focus:outline-none focus:border-teal-700">
+                </div>
+
+                <!-- Password Input -->
+                <div class="mb-6">
+                    <label class="block text-teal-700 font-bold mb-2">Password (min 6 characters)</label>
+                    <input type="password" id="password" placeholder="••••••••" 
+                        class="w-full px-4 py-3 bg-teal-50 border-2 border-teal-600 rounded focus:outline-none focus:border-teal-700">
+                </div>
+
+                <!-- Login Button -->
+                <button onclick="login()" class="w-full bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded font-bold text-lg mb-3 transition">
+                    Sign Up / Login
+                </button>
+
+                <!-- Forgot Password Button -->
+                <button onclick="showForgotPassword()" class="w-full bg-gray-700 hover:bg-gray-800 text-white px-6 py-2 rounded font-bold transition">
+                    🔑 Forgot Password?
+                </button>
+
+                <!-- Info Text -->
+                <p class="text-center text-gray-600 text-sm mt-4">
+                    Instant access - no email confirmation needed!
+                </p>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgotPasswordForm" class="hidden">
+                <h2 class="text-2xl font-bold text-gray-700 mb-6 text-center">Reset Password</h2>
+
+                <!-- Email Input -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-bold mb-2">Enter your email</label>
+                    <input type="email" id="resetEmail" placeholder="your@email.com" 
+                        class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-500 rounded focus:outline-none focus:border-gray-700">
+                </div>
+
+                <!-- Info Text -->
+                <p class="text-gray-600 text-sm mb-6 text-center">
+                    We'll send you a link to reset your password
+                </p>
+
+                <!-- Send Button -->
+                <button onclick="sendResetEmail()" class="w-full bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded font-bold text-lg mb-3 transition">
+                    📧 Send Reset Link
+                </button>
+
+                <!-- Back Button -->
+                <button onclick="showForgotPassword()" class="w-full bg-gray-700 hover:bg-gray-800 text-white px-6 py-2 rounded font-bold transition">
+                    ← Back to Login
+                </button>
+            </div>
         </div>
 
-        <div id="successMsg" class="hidden text-center text-green-400 mt-4"></div>
-        <div id="loadingMsg" class="hidden text-center text-green-400 mt-4"><p>Loading...</p></div>
-        <div id="errorMsg" class="hidden text-center text-red-400 mt-4"></div>
+        <!-- Debug Info -->
+        <div class="mt-4 text-center text-gray-600 text-xs">
+            <p>🔒 Secure • No email confirmation needed</p>
+        </div>
     </div>
 
     <script type="module">
@@ -51,116 +92,119 @@
         
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // Show login/forgot password forms
+        window.showForgotPassword = function() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('forgotPasswordForm').classList.toggle('hidden');
+            document.getElementById('resetEmail').value = document.getElementById('email').value;
+        };
+
+        // Check if already logged in
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
             if (session) {
                 window.location.href = 'games.html';
+            } else {
+                document.getElementById('loginForm').classList.remove('hidden');
             }
         });
 
-        window.handleAuth = async function() {
-            const email = document.getElementById('email').value.trim().toLowerCase();
+        // Login function
+        window.login = async function() {
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
             if (!email || !password) {
-                showError('Please enter email and password');
+                alert('Please enter email and password');
                 return;
             }
 
             if (password.length < 6) {
-                showError('Password must be at least 6 characters');
+                alert('Password must be at least 6 characters');
                 return;
             }
 
-            showLoading(true);
-
             try {
-                // Try to sign in first
-                let { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
+                // Try to sign in
+                const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
 
-                if (signInError && signInError.message.includes('Invalid login')) {
-                    // User doesn't exist, sign up
-                    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-                        email: email,
-                        password: password,
-                        options: {
-                            emailRedirectTo: window.location.origin + '/games.html',
-                            data: { email_confirm: false }
+                if (signInError) {
+                    // If user doesn't exist, create account
+                    if (signInError.message.includes('Invalid login credentials')) {
+                        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
+                            email: email,
+                            password: password
+                        });
+
+                        if (signUpError) {
+                            alert('❌ Error: ' + signUpError.message);
+                            return;
                         }
-                    });
 
-                    if (signUpError) throw signUpError;
+                        // Create user profile
+                        const { error: insertError } = await supabaseClient
+                            .from('users')
+                            .insert({
+                                id: signUpData.user.id,
+                                email: email,
+                                name: email.split('@')[0],
+                                balance: 0,
+                                total_earned: 0
+                            });
 
-                    if (signUpData.user) {
-                        // Create user in database
-                        await supabaseClient.from('users').insert({
-                            id: signUpData.user.id,
-                            email: email,
-                            name: email.split('@')[0],
-                            balance: 0,
-                            total_earned: 0
-                        });
+                        if (insertError) {
+                            console.error('Profile creation error:', insertError);
+                        }
+
+                        alert('✅ Account created! Welcome to LottoBD!');
+                        window.location.href = 'games.html';
+                    } else {
+                        alert('❌ Error: ' + signInError.message);
                     }
-
-                    showSuccess('Account created! Redirecting...');
-                    setTimeout(() => window.location.href = 'games.html', 1500);
-                } else if (signInError) {
-                    throw signInError;
                 } else {
-                    // Sign in successful, check if user exists in database
-                    const { data: userData, error: userError } = await supabaseClient
-                        .from('users')
-                        .select('*')
-                        .eq('id', signInData.user.id)
-                        .single();
-
-                    // If user doesn't exist in database, create them
-                    if (userError && userError.code === 'PGRST116') {
-                        await supabaseClient.from('users').insert({
-                            id: signInData.user.id,
-                            email: email,
-                            name: email.split('@')[0],
-                            balance: 0,
-                            total_earned: 0
-                        });
-                    }
-
-                    showSuccess('Welcome back! Redirecting...');
-                    setTimeout(() => window.location.href = 'games.html', 1000);
+                    alert('✅ Logged in successfully!');
+                    window.location.href = 'games.html';
                 }
             } catch (error) {
-                console.error('Auth error:', error);
-                showError(error.message || 'An error occurred. Please try again.');
-                showLoading(false);
+                alert('❌ Error: ' + error.message);
             }
         };
 
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleAuth();
+        // Send reset email function
+        window.sendResetEmail = async function() {
+            const email = document.getElementById('resetEmail').value.trim();
+
+            if (!email) {
+                alert('Please enter your email address');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: 'https://lotonbd.vercel.app'
+                });
+
+                if (error) {
+                    alert('❌ Error: ' + error.message);
+                } else {
+                    alert('✅ Password reset link sent to ' + email + '\n\nCheck your email for the reset link!');
+                    document.getElementById('resetEmail').value = '';
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        };
+
+        // Allow Enter key to login
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                if (!document.getElementById('loginForm').classList.contains('hidden')) {
+                    login();
+                }
             }
         });
-
-        function showLoading(show) {
-            document.getElementById('loadingMsg').classList.toggle('hidden', !show);
-            document.getElementById('loginSection').style.opacity = show ? '0.5' : '1';
-        }
-
-        function showSuccess(msg) {
-            document.getElementById('successMsg').textContent = msg;
-            document.getElementById('successMsg').classList.remove('hidden');
-            document.getElementById('loadingMsg').classList.add('hidden');
-        }
-
-        function showError(msg) {
-            const errorDiv = document.getElementById('errorMsg');
-            errorDiv.textContent = msg;
-            errorDiv.classList.remove('hidden');
-            showLoading(false);
-            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
-        }
     </script>
 </body>
 </html>
