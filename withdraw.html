@@ -3,66 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LottoBD - Withdraw</title>
+    <title>LottoBD - Withdraw Money</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
-        .glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
-    </style>
 </head>
-<body class="min-h-screen p-4">
-    <div class="max-w-4xl mx-auto">
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
+<body class="min-h-screen p-4" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white p-6 rounded-lg border-2 border-teal-600 mb-6 shadow-lg">
             <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-green-400">💸 Withdraw Money</h1>
-                <a href="profile.html" class="bg-gray-700 text-white px-4 py-2 rounded">Back</a>
+                <h1 class="text-2xl font-bold text-teal-700">🏧 Withdraw Money</h1>
+                <a href="games.html" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 font-bold">← Back</a>
             </div>
         </div>
 
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-            <div class="flex justify-between items-center">
-                <span class="text-green-400">Available Balance:</span>
-                <span class="text-3xl font-bold text-white" id="balance">৳0</span>
-            </div>
+        <!-- Balance Section -->
+        <div class="bg-white p-6 rounded-lg border-2 border-teal-600 mb-6 shadow-lg">
+            <p class="text-gray-600 text-lg">Available Balance:</p>
+            <p class="text-4xl font-bold text-teal-600">৳<span id="userBalance">0</span></p>
         </div>
 
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-            <h2 class="text-xl font-bold text-green-400 mb-4">Request Withdrawal</h2>
-            
+        <!-- Withdrawal Request Section -->
+        <div class="bg-white p-6 rounded-lg border-2 border-green-600 mb-6 shadow-lg">
+            <h2 class="text-2xl font-bold text-green-700 mb-6">Request Withdrawal</h2>
+
+            <!-- Amount Input -->
             <div class="mb-4">
-                <label class="block text-green-400 mb-2">Amount (Minimum ৳500)</label>
-                <input type="number" id="amount" min="500" placeholder="Enter amount" 
-                    class="w-full px-4 py-3 bg-gray-800 border border-green-500 rounded text-white">
+                <label class="block text-green-700 font-bold mb-2">Amount (Minimum ৳500)</label>
+                <input type="number" id="withdrawAmount" placeholder="Enter amount" min="500" 
+                    class="w-full px-4 py-3 bg-green-50 border-2 border-green-500 rounded text-gray-800 focus:outline-none focus:border-green-700">
+                <p class="text-sm text-gray-600 mt-2">Must be at least ৳500</p>
             </div>
 
+            <!-- Payment Method -->
             <div class="mb-4">
-                <label class="block text-green-400 mb-2">Payment Method</label>
-                <select id="method" class="w-full px-4 py-3 bg-gray-800 border border-green-500 rounded text-white">
-                    <option>bKash</option>
-                    <option>Nagad</option>
-                    <option>Rocket</option>
-                    <option>Bank Transfer</option>
+                <label class="block text-green-700 font-bold mb-2">Payment Method</label>
+                <select id="paymentMethod" class="w-full px-4 py-3 bg-green-50 border-2 border-green-500 rounded text-gray-800 focus:outline-none">
+                    <option value="bkash">bKash</option>
+                    <option value="nagad">Nagad</option>
+                    <option value="rocket">Rocket</option>
+                    <option value="bank">Bank Transfer</option>
                 </select>
             </div>
 
+            <!-- Account Number / Phone -->
             <div class="mb-6">
-                <label class="block text-green-400 mb-2">Account Number / Phone</label>
-                <input type="text" id="account" placeholder="01XXXXXXXXX" 
-                    class="w-full px-4 py-3 bg-gray-800 border border-green-500 rounded text-white">
+                <label class="block text-green-700 font-bold mb-2">📱 Account Number / Phone</label>
+                <input type="text" id="accountNumber" placeholder="01XXXXXXXXX" 
+                    class="w-full px-4 py-3 bg-green-50 border-2 border-green-500 rounded text-gray-800 focus:outline-none focus:border-green-700">
+                <p class="text-sm text-gray-600 mt-2">Enter your bKash/Nagad/Rocket number or Bank account number</p>
             </div>
 
-            <button onclick="requestWithdrawal()" 
-                class="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-3 rounded glow">
-                Submit Request
+            <!-- Submit Button -->
+            <button onclick="submitWithdrawal()" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded font-bold text-lg mb-2">
+                ✅ Submit Request
             </button>
 
-            <p class="text-sm text-gray-400 mt-4">* Withdrawals are processed within 24-48 hours</p>
+            <!-- Info -->
+            <p class="text-center text-gray-600 text-sm">* Withdrawals are processed within 24-48 hours</p>
         </div>
 
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-            <h2 class="text-xl font-bold text-green-400 mb-4">Withdrawal History</h2>
-            <div id="history" class="space-y-3">
-                <p class="text-gray-400">Loading...</p>
+        <!-- Withdrawal History -->
+        <div class="bg-white p-6 rounded-lg border-2 border-teal-600 shadow-lg">
+            <h2 class="text-2xl font-bold text-teal-700 mb-4">📋 Withdrawal History</h2>
+            <div id="withdrawalHistory" class="space-y-3">
+                <p class="text-gray-600 text-center py-8">Loading history...</p>
             </div>
         </div>
     </div>
@@ -78,6 +82,7 @@
         let currentUser = null;
         let userBalance = 0;
 
+        // Initialize
         supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
             if (!session) {
                 window.location.href = 'index.html';
@@ -85,43 +90,103 @@
             }
 
             currentUser = session.user;
-            const { data: userData } = await supabaseClient
-                .from('users')
-                .select('*')
-                .eq('id', currentUser.id)
-                .single();
-
-            if (userData) {
-                userBalance = userData.balance;
-                document.getElementById('balance').textContent = `৳${userBalance}`;
-            }
-
-            loadHistory();
+            await loadUserBalance();
+            await loadWithdrawalHistory();
         });
 
-        window.requestWithdrawal = async function() {
-            const amount = parseInt(document.getElementById('amount').value);
-            const method = document.getElementById('method').value;
-            const account = document.getElementById('account').value;
+        async function loadUserBalance() {
+            try {
+                const { data } = await supabaseClient
+                    .from('users')
+                    .select('balance')
+                    .eq('id', currentUser.id)
+                    .single();
 
+                if (data) {
+                    userBalance = data.balance;
+                    document.getElementById('userBalance').textContent = userBalance;
+                }
+            } catch (error) {
+                console.error('Load balance error:', error);
+            }
+        }
+
+        async function loadWithdrawalHistory() {
+            try {
+                const { data } = await supabaseClient
+                    .from('withdrawals')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                const historyDiv = document.getElementById('withdrawalHistory');
+
+                if (!data || data.length === 0) {
+                    historyDiv.innerHTML = '<p class="text-gray-600 text-center py-8">No withdrawal history</p>';
+                    return;
+                }
+
+                historyDiv.innerHTML = '';
+                data.forEach(withdrawal => {
+                    const statusColor = withdrawal.status === 'pending' ? 'bg-yellow-100 border-yellow-500' : 
+                                       withdrawal.status === 'completed' ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500';
+                    const statusEmoji = withdrawal.status === 'pending' ? '⏳' : 
+                                       withdrawal.status === 'completed' ? '✅' : '❌';
+
+                    const date = new Date(withdrawal.created_at).toLocaleDateString('en-GB', { 
+                        day: '2-digit', 
+                        month: 'short', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    historyDiv.innerHTML += `
+                        <div class="${statusColor} p-4 rounded-lg border-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-bold text-gray-800">৳${withdrawal.amount}</p>
+                                    <p class="text-sm text-gray-600">${withdrawal.method.toUpperCase()}</p>
+                                    <p class="text-sm text-gray-600">${withdrawal.account}</p>
+                                    <p class="text-xs text-gray-500">${date}</p>
+                                </div>
+                                <span class="text-2xl">${statusEmoji}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error('Load history error:', error);
+            }
+        }
+
+        window.submitWithdrawal = async function() {
+            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            const method = document.getElementById('paymentMethod').value;
+            const account = document.getElementById('accountNumber').value.trim();
+
+            // Validation
             if (!amount || amount < 500) {
-                alert('Minimum withdrawal is ৳500');
+                alert('❌ Minimum withdrawal is ৳500');
+                return;
+            }
+
+            if (!account || account.length < 5) {
+                alert('❌ Please enter a valid account number/phone');
                 return;
             }
 
             if (amount > userBalance) {
-                alert('Insufficient balance');
+                alert(`❌ Insufficient balance! You have ৳${userBalance}`);
                 return;
             }
 
-            if (!account) {
-                alert('Please enter your account number');
+            if (!confirm(`Request withdrawal of ৳${amount}?\n\nMethod: ${method.toUpperCase()}\nAccount: ${account}`)) {
                 return;
             }
-
-            if (!confirm(`Request withdrawal of ৳${amount}?`)) return;
 
             try {
+                // Create withdrawal request
                 const { error } = await supabaseClient.from('withdrawals').insert({
                     user_id: currentUser.id,
                     amount: amount,
@@ -132,57 +197,40 @@
 
                 if (error) throw error;
 
+                // Deduct from balance
+                const newBalance = userBalance - amount;
                 await supabaseClient
                     .from('users')
-                    .update({ balance: userBalance - amount })
+                    .update({ balance: newBalance })
                     .eq('id', currentUser.id);
 
-                alert('Withdrawal request submitted! We will process it within 24-48 hours.');
-                
-                document.getElementById('amount').value = '';
-                document.getElementById('account').value = '';
-                
-                userBalance -= amount;
-                document.getElementById('balance').textContent = `৳${userBalance}`;
-                
-                loadHistory();
+                // Record transaction
+                await supabaseClient.from('transactions').insert({
+                    user_id: currentUser.id,
+                    type: 'withdrawal',
+                    amount: -amount
+                });
+
+                alert(`✅ Withdrawal request submitted!\n\nAmount: ৳${amount}\nStatus: Pending\nYou will receive the money within 24-48 hours`);
+
+                // Clear form
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('accountNumber').value = '';
+
+                // Refresh
+                await loadUserBalance();
+                await loadWithdrawalHistory();
+
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('❌ Error: ' + error.message);
             }
         };
 
-        async function loadHistory() {
-            const { data } = await supabaseClient
-                .from('withdrawals')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .order('created_at', { ascending: false });
-
-            const historyDiv = document.getElementById('history');
-            
-            if (!data || data.length === 0) {
-                historyDiv.innerHTML = '<p class="text-gray-400">No withdrawal requests yet</p>';
-                return;
-            }
-
-            historyDiv.innerHTML = '';
-            data.forEach(w => {
-                const statusColor = w.status === 'pending' ? 'text-yellow-400' : 
-                                   w.status === 'completed' ? 'text-green-400' : 'text-red-400';
-                const date = new Date(w.created_at).toLocaleString();
-                
-                historyDiv.innerHTML += `
-                    <div class="bg-gray-800 p-4 rounded border border-green-500">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-xl font-bold text-white">৳${w.amount}</span>
-                            <span class="${statusColor} font-bold">${w.status.toUpperCase()}</span>
-                        </div>
-                        <p class="text-sm text-gray-400">${w.method} - ${w.account}</p>
-                        <p class="text-xs text-gray-500">${date}</p>
-                    </div>
-                `;
-            });
-        }
+        // Refresh every 10 seconds
+        setInterval(() => {
+            loadUserBalance();
+            loadWithdrawalHistory();
+        }, 10000);
     </script>
 </body>
 </html>
