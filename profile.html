@@ -5,52 +5,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
-        .glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
-    </style>
 </head>
-<body class="min-h-screen p-4">
-    <div class="max-w-4xl mx-auto">
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-green-400">👤 My Profile</h1>
-                <a href="games.html" class="bg-gray-700 text-white px-4 py-2 rounded">Back to Games</a>
+<body class="min-h-screen p-4" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header with Language Toggle -->
+        <div class="bg-white p-6 rounded-lg border-2 border-teal-600 mb-6 shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h1 id="profileTitle" class="text-2xl font-bold text-teal-700">👤 My Profile</h1>
+                <div class="flex gap-2">
+                    <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-3 py-1 rounded font-bold text-sm active">EN</button>
+                    <button onclick="setLanguage('bn')" id="btnBn" class="bg-gray-400 text-white px-3 py-1 rounded font-bold text-sm">বাং</button>
+                    <a href="games.html" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 font-bold">← Back</a>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-500 glow">
-                <h3 class="text-green-400 mb-2">Current Balance</h3>
-                <p class="text-4xl font-bold text-white" id="balance">৳0</p>
+        <!-- Profile Picture & Edit Section -->
+        <div class="bg-white p-8 rounded-lg border-2 border-teal-600 mb-6 shadow-lg text-center">
+            <!-- Profile Picture -->
+            <div class="mb-6">
+                <div class="relative inline-block">
+                    <img id="profilePicture" src="https://via.placeholder.com/150/00897B/FFFFFF?text=User" alt="Profile" 
+                        class="w-32 h-32 rounded-full border-4 border-teal-600 object-cover">
+                    <label class="absolute bottom-0 right-0 bg-teal-600 text-white p-2 rounded-full cursor-pointer hover:bg-teal-700 transition">
+                        📷
+                        <input type="file" id="photoInput" accept="image/*" onchange="uploadPhoto()" class="hidden">
+                    </label>
+                </div>
+                <p id="photoHint" class="text-xs text-gray-600 mt-2">Click camera to change photo</p>
             </div>
-            <div class="bg-gray-900 p-6 rounded-lg border border-green-500 glow">
-                <h3 class="text-green-400 mb-2">Total Earned</h3>
-                <p class="text-4xl font-bold text-white" id="totalEarned">৳0</p>
+
+            <!-- Username Edit -->
+            <div class="mb-6">
+                <div id="usernameDisplay" class="cursor-pointer">
+                    <p id="usernameLabel" class="text-sm text-gray-600 mb-1">Username</p>
+                    <p id="usernameValue" class="text-2xl font-bold text-teal-700 hover:text-teal-800">Loading...</p>
+                </div>
+
+                <div id="usernameEdit" class="hidden">
+                    <input type="text" id="usernameInput" placeholder="Enter new username" 
+                        class="w-full px-4 py-2 bg-teal-50 border-2 border-teal-600 rounded text-gray-800 mb-3 focus:outline-none">
+                    <div class="flex gap-2">
+                        <button onclick="saveUsername()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded font-bold">
+                            ✅ Save
+                        </button>
+                        <button onclick="cancelUsername()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded font-bold">
+                            ✕ Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <p id="editHint" class="text-xs text-gray-600 mt-2 cursor-pointer hover:text-teal-600">✏️ Click to edit</p>
+            </div>
+
+            <!-- Email Display -->
+            <div class="bg-gray-50 p-4 rounded border-2 border-gray-300">
+                <p id="emailLabel" class="text-sm text-gray-600 mb-1">Email</p>
+                <p id="emailValue" class="font-bold text-gray-800">Loading...</p>
             </div>
         </div>
 
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-            <h2 class="text-xl font-bold text-green-400 mb-4">My Information</h2>
-            <div class="space-y-2">
-                <p class="text-gray-400">Name: <span class="text-white" id="userName">-</span></p>
-                <p class="text-gray-400">Email: <span class="text-white" id="userEmail">-</span></p>
+        <!-- Balance Section -->
+        <div class="bg-white p-6 rounded-lg border-2 border-green-600 mb-6 shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Current Balance -->
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-500">
+                    <p id="balanceLabel" class="text-sm text-gray-600 mb-2">Current Balance</p>
+                    <p class="text-3xl font-bold text-green-600">৳<span id="currentBalance">0</span></p>
+                </div>
+
+                <!-- Total Earned -->
+                <div class="bg-gradient-to-br from-amber-50 to-yellow-50 p-4 rounded-lg border-2 border-amber-500">
+                    <p id="earnedLabel" class="text-sm text-gray-600 mb-2">Total Earned</p>
+                    <p class="text-3xl font-bold text-amber-600">৳<span id="totalEarned">0</span></p>
+                </div>
             </div>
         </div>
 
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500 mb-6">
-            <h2 class="text-xl font-bold text-green-400 mb-4">Actions</h2>
-            <a href="withdraw.html" class="block bg-green-500 text-black text-center font-bold py-3 rounded mb-3 hover:bg-green-600">
-                💸 Request Withdrawal
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <a href="withdraw.html" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-4 rounded-lg font-bold text-center border-2 border-red-600 shadow-lg transform hover:scale-105 transition">
+                🏧 <span id="withdrawBtn">Withdraw Money</span>
+            </a>
+            <a href="winners.html" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-4 rounded-lg font-bold text-center border-2 border-pink-600 shadow-lg transform hover:scale-105 transition">
+                🏆 <span id="winnersBtn">Winners History</span>
             </a>
         </div>
 
-        <div class="bg-gray-900 p-6 rounded-lg border border-green-500">
-            <h2 class="text-xl font-bold text-green-400 mb-4">Recent Wins</h2>
-            <div id="winHistory" class="space-y-2">
-                <p class="text-gray-400">Loading...</p>
+        <!-- Transaction History -->
+        <div class="bg-white p-6 rounded-lg border-2 border-teal-600 shadow-lg">
+            <h2 id="historyTitle" class="text-xl font-bold text-teal-700 mb-4">📊 Transaction History</h2>
+            <div id="transactionsList" class="space-y-3">
+                <p class="text-gray-600 text-center py-8">Loading...</p>
             </div>
         </div>
+
+        <!-- Logout Button -->
+        <button onclick="logout()" class="w-full mt-6 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded font-bold text-lg">
+            🚪 <span id="logoutBtn">Logout</span>
+        </button>
     </div>
 
     <script type="module">
@@ -61,49 +114,274 @@
         
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        let currentUser = null;
+        let currentLanguage = 'en';
+        let originalUsername = '';
+
+        const translations = {
+            en: {
+                profileTitle: '👤 My Profile',
+                photoHint: 'Click camera to change photo',
+                usernameLabel: 'Username',
+                emailLabel: 'Email',
+                balanceLabel: 'Current Balance',
+                earnedLabel: 'Total Earned',
+                withdrawBtn: 'Withdraw Money',
+                winnersBtn: 'Winners History',
+                historyTitle: '📊 Transaction History',
+                logoutBtn: 'Logout',
+                editHint: '✏️ Click to edit',
+                // Transaction types
+                prize: 'Prize Won',
+                topup: 'Balance Added',
+                ticket_purchase: 'Ticket Purchase',
+                withdrawal: 'Withdrawal Request',
+                // Others
+                pending: 'Pending',
+                completed: 'Completed',
+                rejected: 'Rejected'
+            },
+            bn: {
+                profileTitle: '👤 আমার প্রোফাইল',
+                photoHint: 'ছবি পরিবর্তন করতে ক্যামেরায় ক্লিক করুন',
+                usernameLabel: 'ব্যবহারকারী নাম',
+                emailLabel: 'ইমেল',
+                balanceLabel: 'বর্তমান ব্যালেন্স',
+                earnedLabel: 'মোট আয়',
+                withdrawBtn: 'টাকা তুলুন',
+                winnersBtn: 'বিজয়ীদের ইতিহাস',
+                historyTitle: '📊 লেনদেনের ইতিহাস',
+                logoutBtn: 'লগ আউট',
+                editHint: '✏️ সম্পাদনা করতে ক্লিক করুন',
+                // Transaction types
+                prize: 'পুরস্কার জিতেছেন',
+                topup: 'ব্যালেন্স যোগ করা হয়েছে',
+                ticket_purchase: 'টিকেট ক্রয়',
+                withdrawal: 'উত্তোলনের অনুরোধ',
+                // Others
+                pending: 'অপেক্ষমাণ',
+                completed: 'সম্পন্ন',
+                rejected: 'প্রত্যাখ্যাত'
+            }
+        };
+
+        // Initialize
         supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
             if (!session) {
                 window.location.href = 'index.html';
                 return;
             }
 
-            const { data: userData } = await supabaseClient
-                .from('users')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
+            currentUser = session.user;
+            await loadUserProfile();
+            await loadTransactions();
+            updateLanguage();
+        });
 
-            if (userData) {
-                document.getElementById('balance').textContent = `৳${userData.balance}`;
-                document.getElementById('totalEarned').textContent = `৳${userData.total_earned}`;
-                document.getElementById('userName').textContent = userData.name;
-                document.getElementById('userEmail').textContent = userData.email;
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            document.getElementById('profileTitle').textContent = t.profileTitle;
+            document.getElementById('photoHint').textContent = t.photoHint;
+            document.getElementById('usernameLabel').textContent = t.usernameLabel;
+            document.getElementById('emailLabel').textContent = t.emailLabel;
+            document.getElementById('balanceLabel').textContent = t.balanceLabel;
+            document.getElementById('earnedLabel').textContent = t.earnedLabel;
+            document.getElementById('withdrawBtn').textContent = t.withdrawBtn;
+            document.getElementById('winnersBtn').textContent = t.winnersBtn;
+            document.getElementById('historyTitle').textContent = t.historyTitle;
+            document.getElementById('logoutBtn').textContent = t.logoutBtn;
+            document.getElementById('editHint').textContent = t.editHint;
+
+            // Update button colors
+            document.getElementById('btnEn').classList.toggle('bg-blue-600', currentLanguage === 'en');
+            document.getElementById('btnEn').classList.toggle('bg-gray-400', currentLanguage !== 'en');
+            document.getElementById('btnBn').classList.toggle('bg-blue-600', currentLanguage === 'bn');
+            document.getElementById('btnBn').classList.toggle('bg-gray-400', currentLanguage !== 'bn');
+
+            loadTransactions();
+        }
+
+        window.setLanguage = function(lang) {
+            currentLanguage = lang;
+            updateLanguage();
+        };
+
+        async function loadUserProfile() {
+            try {
+                const { data } = await supabaseClient
+                    .from('users')
+                    .select('name, email, balance, total_earned, photo_url')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (data) {
+                    document.getElementById('usernameValue').textContent = data.name;
+                    originalUsername = data.name;
+                    document.getElementById('emailValue').textContent = data.email;
+                    document.getElementById('currentBalance').textContent = data.balance || 0;
+                    document.getElementById('totalEarned').textContent = data.total_earned || 0;
+
+                    if (data.photo_url) {
+                        document.getElementById('profilePicture').src = data.photo_url;
+                    }
+                }
+            } catch (error) {
+                console.error('Load profile error:', error);
             }
+        }
 
-            const { data: wins } = await supabaseClient
-                .from('transactions')
-                .select('*')
-                .eq('user_id', session.user.id)
-                .eq('type', 'prize')
-                .order('created_at', { ascending: false })
-                .limit(10);
+        async function loadTransactions() {
+            try {
+                const { data } = await supabaseClient
+                    .from('transactions')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false })
+                    .limit(20);
 
-            const winDiv = document.getElementById('winHistory');
-            if (!wins || wins.length === 0) {
-                winDiv.innerHTML = '<p class="text-gray-400">No wins yet. Keep playing!</p>';
-            } else {
-                winDiv.innerHTML = '';
-                wins.forEach(win => {
-                    const date = new Date(win.created_at).toLocaleDateString();
-                    winDiv.innerHTML += `
-                        <div class="bg-gray-800 p-3 rounded flex justify-between">
-                            <span class="text-white">Prize Won - ${date}</span>
-                            <span class="text-green-400 font-bold">+৳${win.amount}</span>
+                const t = translations[currentLanguage];
+                const list = document.getElementById('transactionsList');
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<p class="text-gray-600 text-center py-8">No transactions</p>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                data.forEach(trans => {
+                    const date = new Date(trans.created_at).toLocaleDateString('en-GB', { 
+                        day: '2-digit', 
+                        month: 'short', 
+                        year: 'numeric'
+                    });
+
+                    const typeMap = {
+                        'prize': t.prize,
+                        'topup': t.topup,
+                        'ticket_purchase': t.ticket_purchase,
+                        'withdrawal': t.withdrawal
+                    };
+
+                    const typeLabel = typeMap[trans.type] || trans.type;
+                    const amountColor = trans.amount > 0 ? 'text-green-600' : 'text-red-600';
+                    const amountSign = trans.amount > 0 ? '+' : '';
+
+                    list.innerHTML += `
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-4 rounded border-2 border-teal-400 flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-gray-800">${typeLabel}</p>
+                                <p class="text-sm text-gray-600">${date}</p>
+                            </div>
+                            <p class="font-bold text-lg ${amountColor}">৳${amountSign}${Math.abs(trans.amount)}</p>
                         </div>
                     `;
                 });
+            } catch (error) {
+                console.error('Load transactions error:', error);
             }
+        }
+
+        window.uploadPhoto = async function() {
+            const input = document.getElementById('photoInput');
+            const file = input.files[0];
+
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('❌ Image must be less than 2MB');
+                return;
+            }
+
+            try {
+                const fileName = `profile_${currentUser.id}_${Date.now()}.jpg`;
+
+                const { error: uploadError } = await supabaseClient.storage
+                    .from('profiles')
+                    .upload(fileName, file, { upsert: true });
+
+                if (uploadError) throw uploadError;
+
+                const { data } = supabaseClient.storage
+                    .from('profiles')
+                    .getPublicUrl(fileName);
+
+                const photoUrl = data.publicUrl;
+
+                await supabaseClient
+                    .from('users')
+                    .update({ photo_url: photoUrl })
+                    .eq('id', currentUser.id);
+
+                document.getElementById('profilePicture').src = photoUrl;
+                alert('✅ Photo updated!');
+            } catch (error) {
+                alert('❌ Error uploading photo: ' + error.message);
+            }
+
+            input.value = '';
+        };
+
+        // Username Edit Functions
+        document.getElementById('usernameValue').addEventListener('click', () => {
+            document.getElementById('usernameDisplay').classList.add('hidden');
+            document.getElementById('usernameEdit').classList.remove('hidden');
+            document.getElementById('usernameInput').value = originalUsername;
+            document.getElementById('usernameInput').focus();
         });
+
+        document.getElementById('editHint').addEventListener('click', () => {
+            document.getElementById('usernameDisplay').classList.add('hidden');
+            document.getElementById('usernameEdit').classList.remove('hidden');
+            document.getElementById('usernameInput').value = originalUsername;
+            document.getElementById('usernameInput').focus();
+        });
+
+        window.saveUsername = async function() {
+            const newUsername = document.getElementById('usernameInput').value.trim();
+
+            if (!newUsername) {
+                alert('❌ Username cannot be empty');
+                return;
+            }
+
+            if (newUsername.length < 2) {
+                alert('❌ Username must be at least 2 characters');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('users')
+                    .update({ name: newUsername })
+                    .eq('id', currentUser.id);
+
+                if (error) throw error;
+
+                originalUsername = newUsername;
+                document.getElementById('usernameValue').textContent = newUsername;
+                document.getElementById('usernameDisplay').classList.remove('hidden');
+                document.getElementById('usernameEdit').classList.add('hidden');
+                alert('✅ Username updated!');
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        };
+
+        window.cancelUsername = function() {
+            document.getElementById('usernameDisplay').classList.remove('hidden');
+            document.getElementById('usernameEdit').classList.add('hidden');
+        };
+
+        window.logout = async function() {
+            if (!confirm('Are you sure you want to logout?')) return;
+
+            try {
+                await supabaseClient.auth.signOut();
+                window.location.href = 'index.html';
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        };
     </script>
 </body>
 </html>
