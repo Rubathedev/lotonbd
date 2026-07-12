@@ -11,9 +11,9 @@
         <!-- Header with Language Toggle -->
         <div class="bg-white p-6 rounded-lg border-2 border-teal-600 mb-6 shadow-lg">
             <div class="flex justify-between items-center mb-4">
-                <h1 id="profileTitle" class="text-2xl font-bold text-teal-700">👤 My Profile</h1>
+                <a href="games.html" class="text-2xl font-bold text-teal-700 hover:text-teal-800">🎫 LottoBD</a>
                 <div class="flex gap-2">
-                    <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-3 py-1 rounded font-bold text-sm active">EN</button>
+                    <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-3 py-1 rounded font-bold text-sm">EN</button>
                     <button onclick="setLanguage('bn')" id="btnBn" class="bg-gray-400 text-white px-3 py-1 rounded font-bold text-sm">বাং</button>
                     <a href="games.html" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 font-bold">← Back</a>
                 </div>
@@ -39,7 +39,8 @@
             <div class="mb-6">
                 <div id="usernameDisplay" class="cursor-pointer">
                     <p id="usernameLabel" class="text-sm text-gray-600 mb-1">Username</p>
-                    <p id="usernameValue" class="text-2xl font-bold text-teal-700 hover:text-teal-800">Loading...</p>
+                    <p id="usernameValue" class="text-2xl font-bold text-teal-700 hover:text-teal-800 min-h-8">-</p>
+                    <p id="editHint" class="text-xs text-gray-600 mt-2 hover:text-teal-600">✏️ Click to edit</p>
                 </div>
 
                 <div id="usernameEdit" class="hidden">
@@ -54,14 +55,12 @@
                         </button>
                     </div>
                 </div>
-
-                <p id="editHint" class="text-xs text-gray-600 mt-2 cursor-pointer hover:text-teal-600">✏️ Click to edit</p>
             </div>
 
             <!-- Email Display -->
             <div class="bg-gray-50 p-4 rounded border-2 border-gray-300">
                 <p id="emailLabel" class="text-sm text-gray-600 mb-1">Email</p>
-                <p id="emailValue" class="font-bold text-gray-800">Loading...</p>
+                <p id="emailValue" class="font-bold text-gray-800 min-h-6">-</p>
             </div>
         </div>
 
@@ -115,12 +114,11 @@
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
-        let currentLanguage = 'en';
+        let currentLanguage = localStorage.getItem('lottobdLanguage') || 'en';
         let originalUsername = '';
 
         const translations = {
             en: {
-                profileTitle: '👤 My Profile',
                 photoHint: 'Click camera to change photo',
                 usernameLabel: 'Username',
                 emailLabel: 'Email',
@@ -131,18 +129,12 @@
                 historyTitle: '📊 Transaction History',
                 logoutBtn: 'Logout',
                 editHint: '✏️ Click to edit',
-                // Transaction types
                 prize: 'Prize Won',
                 topup: 'Balance Added',
                 ticket_purchase: 'Ticket Purchase',
-                withdrawal: 'Withdrawal Request',
-                // Others
-                pending: 'Pending',
-                completed: 'Completed',
-                rejected: 'Rejected'
+                withdrawal: 'Withdrawal Request'
             },
             bn: {
-                profileTitle: '👤 আমার প্রোফাইল',
                 photoHint: 'ছবি পরিবর্তন করতে ক্যামেরায় ক্লিক করুন',
                 usernameLabel: 'ব্যবহারকারী নাম',
                 emailLabel: 'ইমেল',
@@ -153,15 +145,10 @@
                 historyTitle: '📊 লেনদেনের ইতিহাস',
                 logoutBtn: 'লগ আউট',
                 editHint: '✏️ সম্পাদনা করতে ক্লিক করুন',
-                // Transaction types
                 prize: 'পুরস্কার জিতেছেন',
                 topup: 'ব্যালেন্স যোগ করা হয়েছে',
                 ticket_purchase: 'টিকেট ক্রয়',
-                withdrawal: 'উত্তোলনের অনুরোধ',
-                // Others
-                pending: 'অপেক্ষমাণ',
-                completed: 'সম্পন্ন',
-                rejected: 'প্রত্যাখ্যাত'
+                withdrawal: 'উত্তোলনের অনুরোধ'
             }
         };
 
@@ -173,14 +160,20 @@
             }
 
             currentUser = session.user;
+            updateLanguage();
             await loadUserProfile();
             await loadTransactions();
-            updateLanguage();
         });
+
+        window.setLanguage = function(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('lottobdLanguage', lang);
+            updateLanguage();
+            loadTransactions();
+        };
 
         function updateLanguage() {
             const t = translations[currentLanguage];
-            document.getElementById('profileTitle').textContent = t.profileTitle;
             document.getElementById('photoHint').textContent = t.photoHint;
             document.getElementById('usernameLabel').textContent = t.usernameLabel;
             document.getElementById('emailLabel').textContent = t.emailLabel;
@@ -192,19 +185,11 @@
             document.getElementById('logoutBtn').textContent = t.logoutBtn;
             document.getElementById('editHint').textContent = t.editHint;
 
-            // Update button colors
             document.getElementById('btnEn').classList.toggle('bg-blue-600', currentLanguage === 'en');
             document.getElementById('btnEn').classList.toggle('bg-gray-400', currentLanguage !== 'en');
             document.getElementById('btnBn').classList.toggle('bg-blue-600', currentLanguage === 'bn');
             document.getElementById('btnBn').classList.toggle('bg-gray-400', currentLanguage !== 'bn');
-
-            loadTransactions();
         }
-
-        window.setLanguage = function(lang) {
-            currentLanguage = lang;
-            updateLanguage();
-        };
 
         async function loadUserProfile() {
             try {
@@ -215,9 +200,9 @@
                     .single();
 
                 if (data) {
-                    document.getElementById('usernameValue').textContent = data.name;
-                    originalUsername = data.name;
-                   document.getElementById('emailValue').textContent = data.email || currentUser.email;
+                    originalUsername = data.name || '';
+                    document.getElementById('usernameValue').textContent = data.name || '-';
+                    document.getElementById('emailValue').textContent = data.email || currentUser.email || '-';
                     document.getElementById('currentBalance').textContent = data.balance || 0;
                     document.getElementById('totalEarned').textContent = data.total_earned || 0;
 
@@ -227,6 +212,7 @@
                 }
             } catch (error) {
                 console.error('Load profile error:', error);
+                document.getElementById('emailValue').textContent = currentUser.email || '-';
             }
         }
 
@@ -321,20 +307,18 @@
             input.value = '';
         };
 
-        // Username Edit Functions
-        document.getElementById('usernameValue').addEventListener('click', () => {
-            document.getElementById('usernameDisplay').classList.add('hidden');
-            document.getElementById('usernameEdit').classList.remove('hidden');
-            document.getElementById('usernameInput').value = originalUsername;
-            document.getElementById('usernameInput').focus();
-        });
+        // Username Edit
+        document.getElementById('usernameValue').addEventListener('click', toggleUsernameEdit);
+        document.getElementById('editHint').addEventListener('click', toggleUsernameEdit);
 
-        document.getElementById('editHint').addEventListener('click', () => {
-            document.getElementById('usernameDisplay').classList.add('hidden');
-            document.getElementById('usernameEdit').classList.remove('hidden');
-            document.getElementById('usernameInput').value = originalUsername;
-            document.getElementById('usernameInput').focus();
-        });
+        function toggleUsernameEdit() {
+            document.getElementById('usernameDisplay').classList.toggle('hidden');
+            document.getElementById('usernameEdit').classList.toggle('hidden');
+            if (!document.getElementById('usernameEdit').classList.contains('hidden')) {
+                document.getElementById('usernameInput').value = originalUsername;
+                document.getElementById('usernameInput').focus();
+            }
+        }
 
         window.saveUsername = async function() {
             const newUsername = document.getElementById('usernameInput').value.trim();
