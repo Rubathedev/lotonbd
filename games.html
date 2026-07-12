@@ -6,81 +6,95 @@
     <title>LottoBD - Play Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen p-4" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
-    <div class="max-w-7xl mx-auto">
-        <!-- HEADER WITH LANGUAGE TOGGLE -->
-        <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 mb-6 shadow-lg">
-            <div class="flex justify-between items-center flex-wrap gap-3">
-                <a href="games.html" class="text-2xl md:text-3xl font-bold text-teal-600 hover:text-teal-700 cursor-pointer transition">
+<body class="min-h-screen" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- HEADER -->
+        <div class="bg-white rounded-xl border-2 border-teal-600 shadow-2xl p-6 mb-8 mt-6">
+            <!-- Logo and Top Section -->
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                <a href="games.html" class="text-4xl font-bold text-teal-600 hover:text-teal-700 transition hover:scale-105">
                     🎫 LottoBD
                 </a>
                 
                 <div class="flex items-center gap-3 flex-wrap">
                     <!-- Language Toggle -->
-                    <div class="flex gap-1 bg-gray-200 p-1 rounded">
-                        <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-3 py-1 rounded font-bold text-sm">EN</button>
-                        <button onclick="setLanguage('bn')" id="btnBn" class="bg-gray-400 text-white px-3 py-1 rounded font-bold text-sm">বাং</button>
+                    <div class="flex gap-1 bg-gray-200 p-1 rounded-lg">
+                        <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition">EN</button>
+                        <button onclick="setLanguage('bn')" id="btnBn" class="bg-gray-400 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-500 transition">বাং</button>
                     </div>
-                    
-                    <!-- Balance -->
-                    <div class="bg-teal-100 px-4 py-2 rounded border-2 border-teal-600">
-                        <p id="balanceLabel" class="text-xs text-gray-600">Balance</p>
-                        <p class="font-bold text-teal-700">৳<span id="userBalance">0</span></p>
-                    </div>
-                    
-                    <!-- Navigation -->
-                    <a href="profile.html" class="bg-teal-600 text-white px-3 py-2 rounded hover:bg-teal-700 font-bold text-sm">👤 <span id="profileBtn">Profile</span></a>
-                    <a href="withdraw.html" class="bg-orange-600 text-white px-3 py-2 rounded hover:bg-orange-700 font-bold text-sm">🏧 <span id="withdrawBtn">Withdraw</span></a>
                 </div>
+            </div>
+
+            <!-- Quick Stats & Nav -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-lg border-2 border-green-500">
+                    <p id="balanceLabel" class="text-xs text-gray-600 font-bold">BALANCE</p>
+                    <p class="text-2xl font-bold text-green-700">৳<span id="userBalance">0</span></p>
+                </div>
+
+                <a href="profile.html" class="bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white p-4 rounded-lg border-2 border-teal-700 font-bold text-center transition transform hover:scale-105 shadow-lg">
+                    👤 <span id="profileBtn">Profile</span>
+                </a>
+
+                <a href="withdraw.html" class="bg-gradient-to-br from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white p-4 rounded-lg border-2 border-red-600 font-bold text-center transition transform hover:scale-105 shadow-lg">
+                    🏧 <span id="withdrawBtn">Withdraw</span>
+                </a>
+
+                <a href="winners.html" class="bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white p-4 rounded-lg border-2 border-pink-600 font-bold text-center transition transform hover:scale-105 shadow-lg">
+                    🏆 <span id="winnersBtn">Winners</span>
+                </a>
             </div>
         </div>
 
         <!-- HOW TO PLAY SECTION -->
-        <div class="bg-white p-6 rounded-lg border-2 border-purple-600 mb-6 shadow-lg">
-            <div class="flex justify-between items-center mb-4">
-                <h2 id="howToPlayTitle" class="text-xl font-bold text-purple-700">❓ How to Play</h2>
-                <button onclick="toggleHowToPlay()" class="text-purple-700 font-bold text-2xl">−</button>
+        <div class="bg-white rounded-xl border-2 border-purple-600 shadow-xl p-6 mb-8">
+            <div class="flex justify-between items-center mb-4 cursor-pointer hover:opacity-80" onclick="toggleHowToPlay()">
+                <h2 id="howToPlayTitle" class="text-2xl font-bold text-purple-700">❓ How to Play</h2>
+                <button id="toggleBtn" class="text-3xl text-purple-700 font-bold hover:scale-125 transition">−</button>
             </div>
             
-            <div id="howToPlayContent" class="space-y-3">
-                <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
-                    <p id="step1" class="font-bold text-gray-800">1️⃣ Choose Your Game</p>
-                    <p id="step1Desc" class="text-sm text-gray-600">Pick Junior (৳200) or VIP (৳1,000) game</p>
+            <div id="howToPlayContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-5 rounded-lg border-l-4 border-purple-600">
+                    <p id="step1" class="font-bold text-gray-800 mb-2">1️⃣ Choose Game</p>
+                    <p id="step1Desc" class="text-sm text-gray-700">Pick Junior (৳200) or VIP (৳1,000)</p>
                 </div>
                 
-                <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
-                    <p id="step2" class="font-bold text-gray-800">2️⃣ Buy Tickets</p>
-                    <p id="step2Desc" class="text-sm text-gray-600">Buy 1, 2, or 3 tickets. Get random numbers 1-10</p>
+                <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-5 rounded-lg border-l-4 border-purple-600">
+                    <p id="step2" class="font-bold text-gray-800 mb-2">2️⃣ Buy Tickets</p>
+                    <p id="step2Desc" class="text-sm text-gray-700">Buy 1-3 tickets, get random numbers</p>
                 </div>
                 
-                <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
-                    <p id="step3" class="font-bold text-gray-800">3️⃣ Wait for Draw</p>
-                    <p id="step3Desc" class="text-sm text-gray-600">When 10 tickets sold, winners are chosen automatically</p>
+                <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-5 rounded-lg border-l-4 border-purple-600">
+                    <p id="step3" class="font-bold text-gray-800 mb-2">3️⃣ Wait Draw</p>
+                    <p id="step3Desc" class="text-sm text-gray-700">Winners chosen when 10 tickets sold</p>
                 </div>
                 
-                <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
-                    <p id="step4" class="font-bold text-gray-800">4️⃣ Win Prizes!</p>
-                    <p id="step4Desc" class="text-sm text-gray-600">💰 Junior: ৳500/৳300/৳200 + 3×৳100</p>
-                    <p id="step4Desc2" class="text-sm text-gray-600">💰 VIP: ৳3,000/৳2,000/৳1,000 + 4×৳500</p>
+                <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-5 rounded-lg border-l-4 border-purple-600">
+                    <p id="step4" class="font-bold text-gray-800 mb-2">4️⃣ Win Prizes</p>
+                    <p id="step4Desc" class="text-sm text-gray-700">Get real money instantly! 💰</p>
                 </div>
             </div>
         </div>
 
         <!-- GAMES SECTION -->
-        <div id="gamesContent" class="space-y-6">
-            <!-- Junior Games Tab -->
+        <div id="gamesContent" class="space-y-8 pb-12">
+            <!-- Junior Games -->
             <div>
-                <h2 id="juniorTitle" class="text-2xl font-bold text-teal-700 mb-4">🎮 Junior Games</h2>
-                <div id="juniorGamesList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    <p class="text-center text-gray-600">Loading...</p>
+                <h2 id="juniorTitle" class="text-3xl font-bold text-teal-700 mb-5 flex items-center gap-2">
+                    <span>🎮</span> Junior Games
+                </h2>
+                <div id="juniorGamesList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <p class="text-center text-gray-600 col-span-full py-8">Loading...</p>
                 </div>
             </div>
 
-            <!-- VIP Games Tab -->
+            <!-- VIP Games -->
             <div>
-                <h2 id="vipTitle" class="text-2xl font-bold text-amber-700 mb-4">💎 VIP Games</h2>
-                <div id="vipGamesList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    <p class="text-center text-gray-600">Loading...</p>
+                <h2 id="vipTitle" class="text-3xl font-bold text-amber-700 mb-5 flex items-center gap-2">
+                    <span>💎</span> VIP Games
+                </h2>
+                <div id="vipGamesList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <p class="text-center text-gray-600 col-span-full py-8">Loading...</p>
                 </div>
             </div>
         </div>
@@ -97,24 +111,22 @@
         let currentUser = null;
         let userBalance = 0;
         let currentLanguage = localStorage.getItem('lottobdLanguage') || 'en';
-        let currentGame = null;
-        let currentGameType = null;
 
         const translations = {
             en: {
-                balanceLabel: 'Balance',
+                balanceLabel: 'BALANCE',
                 profileBtn: 'Profile',
                 withdrawBtn: 'Withdraw',
+                winnersBtn: 'Winners',
                 howToPlayTitle: '❓ How to Play',
-                step1: '1️⃣ Choose Your Game',
-                step1Desc: 'Pick Junior (৳200) or VIP (৳1,000) game',
+                step1: '1️⃣ Choose Game',
+                step1Desc: 'Pick Junior (৳200) or VIP (৳1,000)',
                 step2: '2️⃣ Buy Tickets',
-                step2Desc: 'Buy 1, 2, or 3 tickets. Get random numbers 1-10',
-                step3: '3️⃣ Wait for Draw',
-                step3Desc: 'When 10 tickets sold, winners are chosen automatically',
-                step4: '4️⃣ Win Prizes!',
-                step4Desc: '💰 Junior: ৳500/৳300/৳200 + 3×৳100',
-                step4Desc2: '💰 VIP: ৳3,000/৳2,000/৳1,000 + 4×৳500',
+                step2Desc: 'Buy 1-3 tickets, get random numbers',
+                step3: '3️⃣ Wait Draw',
+                step3Desc: 'Winners chosen when 10 tickets sold',
+                step4: '4️⃣ Win Prizes',
+                step4Desc: 'Get real money instantly! 💰',
                 juniorTitle: '🎮 Junior Games',
                 vipTitle: '💎 VIP Games'
             },
@@ -122,16 +134,16 @@
                 balanceLabel: 'ব্যালেন্স',
                 profileBtn: 'প্রোফাইল',
                 withdrawBtn: 'উত্তোলন',
+                winnersBtn: 'বিজয়ীরা',
                 howToPlayTitle: '❓ কিভাবে খেলবেন',
-                step1: '1️⃣ আপনার গেম বেছে নিন',
-                step1Desc: 'জুনিয়র (৳200) বা ভিআইপি (৳1,000) গেম বেছে নিন',
+                step1: '1️⃣ গেম বেছে নিন',
+                step1Desc: 'জুনিয়র (৳200) বা ভিআইপি (৳1,000) বেছে নিন',
                 step2: '2️⃣ টিকিট কিনুন',
-                step2Desc: '1, 2, বা 3 টি টিকিট কিনুন। 1-10 র্যান্ডম সংখ্যা পান',
-                step3: '3️⃣ ড্র এর জন্য অপেক্ষা করুন',
-                step3Desc: 'যখন 10 টি টিকিট বিক্রয় হয়, বিজয়ীরা স্বয়ংক্রিয়ভাবে নির্বাচিত হয়',
-                step4: '4️⃣ পুরস্কার জিতুন!',
-                step4Desc: '💰 জুনিয়র: ৳500/৳300/৳200 + 3×৳100',
-                step4Desc2: '💰 ভিআইপি: ৳3,000/৳2,000/৳1,000 + 4×৳500',
+                step2Desc: '1-3 টিকিট কিনুন, র্যান্ডম নম্বর পান',
+                step3: '3️⃣ ড্র এর অপেক্ষা করুন',
+                step3Desc: '10 টিকিট বিক্রয়ের সময় বিজয়ী নির্বাচিত',
+                step4: '4️⃣ পুরস্কার জিতুন',
+                step4Desc: 'তাৎক্ষণিক টাকা পান! 💰',
                 juniorTitle: '🎮 জুনিয়র গেম',
                 vipTitle: '💎 ভিআইপি গেম'
             }
@@ -162,6 +174,7 @@
             document.getElementById('balanceLabel').textContent = t.balanceLabel;
             document.getElementById('profileBtn').textContent = t.profileBtn;
             document.getElementById('withdrawBtn').textContent = t.withdrawBtn;
+            document.getElementById('winnersBtn').textContent = t.winnersBtn;
             document.getElementById('howToPlayTitle').textContent = t.howToPlayTitle;
             document.getElementById('step1').textContent = t.step1;
             document.getElementById('step1Desc').textContent = t.step1Desc;
@@ -171,7 +184,6 @@
             document.getElementById('step3Desc').textContent = t.step3Desc;
             document.getElementById('step4').textContent = t.step4;
             document.getElementById('step4Desc').textContent = t.step4Desc;
-            document.getElementById('step4Desc2').textContent = t.step4Desc2;
             document.getElementById('juniorTitle').textContent = t.juniorTitle;
             document.getElementById('vipTitle').textContent = t.vipTitle;
 
@@ -183,7 +195,9 @@
 
         window.toggleHowToPlay = function() {
             const content = document.getElementById('howToPlayContent');
+            const btn = document.getElementById('toggleBtn');
             content.classList.toggle('hidden');
+            btn.textContent = content.classList.contains('hidden') ? '+' : '−';
         };
 
         async function loadUserBalance() {
@@ -218,11 +232,8 @@
                 const juniorGames = data.filter(g => g.game_type === 'junior') || [];
                 const vipGames = data.filter(g => g.game_type === 'vip') || [];
 
-                juniorList.innerHTML = juniorGames.map(game => createGameCard(game)).join('');
-                vipList.innerHTML = vipGames.map(game => createGameCard(game)).join('');
-
-                if (juniorGames.length === 0) juniorList.innerHTML = '<p class="text-gray-600">No games</p>';
-                if (vipGames.length === 0) vipList.innerHTML = '<p class="text-gray-600">No games</p>';
+                juniorList.innerHTML = juniorGames.length ? juniorGames.map(game => createGameCard(game)).join('') : '<p class="text-gray-600 col-span-full text-center py-8">No games available</p>';
+                vipList.innerHTML = vipGames.length ? vipGames.map(game => createGameCard(game)).join('') : '<p class="text-gray-600 col-span-full text-center py-8">No games available</p>';
             } catch (error) {
                 console.error('Load games error:', error);
             }
@@ -234,31 +245,31 @@
             const sold = game.tickets_sold || 0;
             const percentFull = (sold / 10) * 100;
             
-            const bgColor = isJunior ? 'bg-teal-50' : 'bg-amber-50';
-            const borderColor = isJunior ? 'border-teal-600' : 'border-amber-500';
+            const bgColor = isJunior ? 'from-teal-100 to-cyan-100' : 'from-amber-100 to-yellow-100';
+            const borderColor = isJunior ? 'border-teal-600' : 'border-amber-600';
             const textColor = isJunior ? 'text-teal-700' : 'text-amber-700';
             const barColor = isJunior ? 'bg-teal-600' : 'bg-amber-500';
             const price = isJunior ? '200' : '1,000';
+            const statusBg = sold >= 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
+            const statusText = sold >= 10 ? 'FULL' : 'OPEN';
 
             return `
                 <button onclick="selectGame('${game.id}', '${game.game_type}')" 
-                    class="${bgColor} p-4 rounded-lg border-2 ${borderColor} cursor-pointer hover:shadow-lg transition text-center">
-                    <p class="${textColor} font-bold text-lg">#${gameNum}</p>
-                    <p class="text-sm text-gray-600 mb-2">${sold}/10</p>
-                    <div class="w-full bg-gray-300 rounded-full h-2 mb-2">
-                        <div class="${barColor} h-2 rounded-full" style="width: ${percentFull}%"></div>
+                    class="bg-gradient-to-br ${bgColor} p-5 rounded-xl border-2 ${borderColor} cursor-pointer hover:shadow-2xl hover:scale-105 transition transform">
+                    <p class="${textColor} font-bold text-xl mb-2">#${gameNum}</p>
+                    <p class="text-sm text-gray-600 mb-3 font-semibold">${sold}/10</p>
+                    <div class="w-full bg-gray-300 rounded-full h-3 mb-3">
+                        <div class="${barColor} h-3 rounded-full transition-all" style="width: ${percentFull}%"></div>
                     </div>
-                    <p class="font-bold text-gray-800">৳${price}</p>
-                    ${sold >= 10 ? '<p class="text-red-500 text-xs font-bold">FULL</p>' : '<p class="text-green-600 text-xs">Available</p>'}
+                    <p class="font-bold text-lg text-gray-800 mb-2">৳${price}</p>
+                    <p class="${statusBg} text-xs font-bold px-3 py-1 rounded-lg text-center">${statusText}</p>
                 </button>
             `;
         }
 
         window.selectGame = function(gameId, gameType) {
-            currentGame = gameId;
-            currentGameType = gameType;
-            // Navigate to game details or show modal
-            alert('Game selected! (Implementation needed)');
+            // Implementation for game selection
+            console.log('Game selected:', gameId, gameType);
         };
 
         setInterval(() => {
