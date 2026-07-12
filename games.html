@@ -3,238 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LottoBD - Games</title>
+    <title>LottoBD - Play Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { 
-            background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); 
-        }
-        .glow { box-shadow: 0 0 20px rgba(0, 150, 136, 0.4); }
-        .ticket { 
-            transition: all 0.3s; 
-            cursor: pointer;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.125rem;
-            font-weight: bold;
-        }
-        @media (min-width: 768px) {
-            .ticket {
-                min-height: 40px;
-                font-size: 1rem;
-            }
-        }
-        .ticket-available:hover { 
-            transform: scale(1.05); 
-            box-shadow: 0 0 15px rgba(0, 150, 136, 0.8); 
-        }
-        .ticket-mine { 
-            background: linear-gradient(135deg, #FFD54F 0%, #FFC107 100%); 
-            color: #004D40;
-            font-weight: bold;
-        }
-        .ticket-sold { 
-            opacity: 0.4; 
-            cursor: not-allowed; 
-        }
-    </style>
 </head>
-   
-<body class="min-h-screen p-2 md:p-4">
+<body class="min-h-screen p-4" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
     <div class="max-w-7xl mx-auto">
-        <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 mb-4 md:mb-6 shadow-lg">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-3">
-                <div>
-                    <h1 class="text-xl md:text-2xl font-bold text-teal-700">🎰 LottoBD</h1>
-                    <p class="text-teal-600 text-sm md:text-base" id="userName">Loading...</p>
-                </div>
-                <div class="flex gap-2 md:gap-3 w-full md:w-auto">
-                    <a href="profile.html" class="flex-1 md:flex-none bg-teal-600 text-white px-3 md:px-4 py-2 rounded border border-teal-700 text-center text-sm md:text-base hover:bg-teal-700">Profile</a>
-                    <button onclick="logout()" class="flex-1 md:flex-none bg-red-500 text-white px-3 md:px-4 py-2 rounded text-sm md:text-base hover:bg-red-600">Logout</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white p-3 md:p-4 rounded-lg border-2 border-teal-600 mb-4 md:mb-6 glow shadow-lg">
-            <div class="flex justify-between items-center">
-                <span class="text-teal-700 text-sm md:text-base font-semibold">Your Balance:</span>
-                <span class="text-2xl md:text-3xl font-bold text-teal-800" id="userBalance">৳0</span>
-            </div>
-        </div>
- <!-- HOW TO PLAY SECTION -->
-<div class="bg-white p-6 rounded-lg border-2 border-purple-600 mb-6 shadow-lg">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-purple-700">❓ How to Play</h2>
-        <button onclick="toggleHowToPlay()" class="text-purple-700 font-bold text-2xl">−</button>
-    </div>
-    
-    <div id="howToPlayContent" class="space-y-3">
-        <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
-            <p class="font-bold text-gray-800">1️⃣ Choose Your Game</p>
-            <p class="text-sm text-gray-600">Pick Junior (৳200) or VIP (৳1,000) game</p>
-        </div>
-        
-        <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
-            <p class="font-bold text-gray-800">2️⃣ Buy Tickets</p>
-            <p class="text-sm text-gray-600">Buy 1, 2, or 3 tickets. Get random numbers 1-10</p>
-        </div>
-        
-        <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
-            <p class="font-bold text-gray-800">3️⃣ Wait for Draw</p>
-            <p class="text-sm text-gray-600">When 10 tickets sold, winners are chosen automatically</p>
-        </div>
-    </div>
-</div>
-        <!-- Payment Information -->
-        <div class="bg-white p-4 rounded-lg border-2 border-teal-500 mb-4 shadow-lg">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-lg font-bold text-teal-700">💰 Send Money to Play</h3>
-                <button onclick="togglePaymentInfo()" id="paymentToggleBtn" class="text-teal-600 text-sm underline hover:text-teal-800">
-                    Show Numbers
-                </button>
-            </div>
-            
-            <div id="paymentInfo" class="hidden">
-                <p class="text-gray-700 text-sm mb-3">Send via bKash or Nagad to either number:</p>
+        <!-- HEADER WITH LANGUAGE TOGGLE -->
+        <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 mb-6 shadow-lg">
+            <div class="flex justify-between items-center flex-wrap gap-3">
+                <a href="games.html" class="text-2xl md:text-3xl font-bold text-teal-600 hover:text-teal-700 cursor-pointer transition">
+                    🎫 LottoBD
+                </a>
                 
-                <div class="space-y-3 mb-3">
-                    <div class="bg-teal-50 p-4 rounded-lg border-2 border-teal-500">
-                        <div class="flex justify-between items-center mb-2">
-                            <div>
-                                <p class="text-xs text-teal-600">Payment Number 1:</p>
-                                <p class="text-2xl font-bold text-teal-800">01939870830</p>
-                            </div>
-                            <button onclick="copyNumber('01939870830')" class="bg-amber-500 text-white px-4 py-2 rounded text-sm font-bold hover:bg-amber-600">
-                                Copy
-                            </button>
-                        </div>
-                        <div class="flex gap-2">
-                            <span class="bg-pink-600 text-white px-3 py-1 rounded text-xs font-bold">bKash</span>
-                            <span class="bg-orange-600 text-white px-3 py-1 rounded text-xs font-bold">Nagad</span>
-                        </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Language Toggle -->
+                    <div class="flex gap-1 bg-gray-200 p-1 rounded">
+                        <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-3 py-1 rounded font-bold text-sm">EN</button>
+                        <button onclick="setLanguage('bn')" id="btnBn" class="bg-gray-400 text-white px-3 py-1 rounded font-bold text-sm">বাং</button>
                     </div>
                     
-                    <div class="bg-teal-50 p-4 rounded-lg border-2 border-teal-500">
-                        <div class="flex justify-between items-center mb-2">
-                            <div>
-                                <p class="text-xs text-teal-600">Payment Number 2:</p>
-                                <p class="text-2xl font-bold text-teal-800">01747055163</p>
-                            </div>
-                            <button onclick="copyNumber('01747055163')" class="bg-amber-500 text-white px-4 py-2 rounded text-sm font-bold hover:bg-amber-600">
-                                Copy
-                            </button>
-                        </div>
-                        <div class="flex gap-2">
-                            <span class="bg-pink-600 text-white px-3 py-1 rounded text-xs font-bold">bKash</span>
-                            <span class="bg-orange-600 text-white px-3 py-1 rounded text-xs font-bold">Nagad</span>
-                        </div>
+                    <!-- Balance -->
+                    <div class="bg-teal-100 px-4 py-2 rounded border-2 border-teal-600">
+                        <p id="balanceLabel" class="text-xs text-gray-600">Balance</p>
+                        <p class="font-bold text-teal-700">৳<span id="userBalance">0</span></p>
                     </div>
+                    
+                    <!-- Navigation -->
+                    <a href="profile.html" class="bg-teal-600 text-white px-3 py-2 rounded hover:bg-teal-700 font-bold text-sm">👤 <span id="profileBtn">Profile</span></a>
+                    <a href="withdraw.html" class="bg-orange-600 text-white px-3 py-2 rounded hover:bg-orange-700 font-bold text-sm">🏧 <span id="withdrawBtn">Withdraw</span></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOW TO PLAY SECTION -->
+        <div class="bg-white p-6 rounded-lg border-2 border-purple-600 mb-6 shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="howToPlayTitle" class="text-xl font-bold text-purple-700">❓ How to Play</h2>
+                <button onclick="toggleHowToPlay()" class="text-purple-700 font-bold text-2xl">−</button>
+            </div>
+            
+            <div id="howToPlayContent" class="space-y-3">
+                <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
+                    <p id="step1" class="font-bold text-gray-800">1️⃣ Choose Your Game</p>
+                    <p id="step1Desc" class="text-sm text-gray-600">Pick Junior (৳200) or VIP (৳1,000) game</p>
                 </div>
                 
-                <div class="bg-amber-50 p-3 rounded border-2 border-amber-400">
-                    <p class="text-amber-700 text-sm font-bold mb-2">📌 How to Add Money:</p>
-                    <ol class="text-gray-700 text-xs space-y-1 ml-4 list-decimal">
-                        <li>Send money via bKash or Nagad to either number above</li>
-                        <li>After sending, send your transaction ID to admin</li>
-                        <li>Balance will be added within 5-10 minutes ⚡</li>
-                    </ol>
+                <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
+                    <p id="step2" class="font-bold text-gray-800">2️⃣ Buy Tickets</p>
+                    <p id="step2Desc" class="text-sm text-gray-600">Buy 1, 2, or 3 tickets. Get random numbers 1-10</p>
+                </div>
+                
+                <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
+                    <p id="step3" class="font-bold text-gray-800">3️⃣ Wait for Draw</p>
+                    <p id="step3Desc" class="text-sm text-gray-600">When 10 tickets sold, winners are chosen automatically</p>
+                </div>
+                
+                <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
+                    <p id="step4" class="font-bold text-gray-800">4️⃣ Win Prizes!</p>
+                    <p id="step4Desc" class="text-sm text-gray-600">💰 Junior: ৳500/৳300/৳200 + 3×৳100</p>
+                    <p id="step4Desc2" class="text-sm text-gray-600">💰 VIP: ৳3,000/৳2,000/৳1,000 + 4×৳500</p>
                 </div>
             </div>
         </div>
 
-        <!-- Game Type Tabs -->
-        <div class="flex gap-3 mb-4">
-            <button onclick="showGameType('junior')" id="juniorTabBtn" class="flex-1 bg-teal-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base shadow-lg hover:bg-teal-700">
-                Junior ৳200
-            </button>
-            <button onclick="showGameType('vip')" id="vipTabBtn" class="flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded font-bold text-sm md:text-base hover:bg-gray-400">
-                💎 VIP ৳1,000
-            </button>
-        </div>
-
-        <!-- Junior Games List -->
-        <div id="juniorGamesSection">
-            <div class="bg-teal-50 p-4 rounded-lg border-2 border-teal-500 mb-4 shadow-lg">
-                <h3 class="text-teal-700 font-bold text-lg mb-2">🎮 Junior Games</h3>
-                <p class="text-gray-700 text-sm">• ৳200 per ticket • 10 players • Top 6 win!</p>
-                <div class="grid grid-cols-3 gap-2 mt-3 text-xs">
-                    <div class="bg-white p-2 rounded border border-teal-400 text-teal-700">🥇 1st: ৳500</div>
-                    <div class="bg-white p-2 rounded border border-teal-400 text-teal-700">🥈 2nd: ৳300</div>
-                    <div class="bg-white p-2 rounded border border-teal-400 text-teal-700">🥉 3rd: ৳200</div>
-                    <div class="bg-white p-2 rounded border border-teal-400 col-span-3 text-teal-700">🎖️ 4th-6th: ৳100 each</div>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6" id="juniorGamesList">
-                <div class="text-center text-teal-600">Loading...</div>
-            </div>
-        </div>
-
-        <!-- VIP Games List -->
-        <div id="vipGamesSection" class="hidden">
-            <div class="bg-amber-50 p-4 rounded-lg border-2 border-amber-500 mb-4 shadow-lg">
-                <h3 class="text-amber-700 font-bold text-lg mb-2">💎 VIP Games - Highest Stakes!</h3>
-                <p class="text-gray-700 text-sm">• ৳1,000 per ticket • 10 players • Top 7 win big!</p>
-                <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
-                    <div class="bg-white p-2 rounded border border-amber-400 text-amber-700">🥇 1st: ৳3,000</div>
-                    <div class="bg-white p-2 rounded border border-amber-400 text-amber-700">🥈 2nd: ৳2,000</div>
-                    <div class="bg-white p-2 rounded border border-amber-400 text-amber-700">🥉 3rd: ৳1,000</div>
-                    <div class="bg-white p-2 rounded border border-amber-400 col-span-2 text-amber-700">🎖️ 4th-7th: ৳500 each</div>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" id="vipGamesList">
-                <div class="text-center text-teal-600">Loading...</div>
-            </div>
-        </div>
-
-        <div id="gameContainer" class="hidden">
-            <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 mb-4 shadow-lg" id="gameHeader">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-xl md:text-2xl font-bold text-teal-700" id="gameTitle">#001</h2>
-                    <span class="px-3 py-1 rounded text-xs md:text-sm font-bold bg-teal-600 text-white" id="gameTypeBadge">Junior</span>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
-                    <div>
-                        <p class="text-teal-600 text-xs md:text-sm">Sold</p>
-                        <p class="text-xl md:text-2xl font-bold text-teal-800" id="soldCount">0/10</p>
-                    </div>
-                    <div>
-                        <p class="text-teal-600 text-xs md:text-sm">My Tickets</p>
-                        <p class="text-xl md:text-2xl font-bold text-amber-600" id="myTicketCount">0/3</p>
-                    </div>
-                    <div>
-                        <p class="text-teal-600 text-xs md:text-sm">Price</p>
-                        <p class="text-xl md:text-2xl font-bold text-teal-800" id="ticketPrice">৳200</p>
-                    </div>
-                    <div>
-                        <p class="text-teal-600 text-xs md:text-sm">Prizes</p>
-                        <p class="text-xl md:text-2xl font-bold text-amber-600" id="prizePool">৳1,300</p>
-                    </div>
+        <!-- GAMES SECTION -->
+        <div id="gamesContent" class="space-y-6">
+            <!-- Junior Games Tab -->
+            <div>
+                <h2 id="juniorTitle" class="text-2xl font-bold text-teal-700 mb-4">🎮 Junior Games</h2>
+                <div id="juniorGamesList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <p class="text-center text-gray-600">Loading...</p>
                 </div>
             </div>
 
-            <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 shadow-lg">
-                <h3 class="text-base md:text-lg font-bold text-teal-700 mb-3 md:mb-4" id="pickNumbersText">Pick Numbers (Max 3)</h3>
-                <div id="numbersGrid" class="grid gap-2"></div>
-                <div class="mt-4 flex flex-col md:flex-row gap-2 text-xs md:text-sm">
-                    <span class="flex items-center gap-2">
-                        <div class="w-5 h-5 bg-amber-500 rounded"></div> <span class="text-gray-700">Yours</span>
-                    </span>
-                    <span class="flex items-center gap-2">
-                        <div class="w-5 h-5 bg-gray-400 rounded"></div> <span class="text-gray-700">Sold</span>
-                    </span>
-                    <span class="flex items-center gap-2">
-                        <div class="w-5 h-5 bg-white border-2 border-teal-500 rounded"></div> <span class="text-gray-700">Available</span>
-                    </span>
+            <!-- VIP Games Tab -->
+            <div>
+                <h2 id="vipTitle" class="text-2xl font-bold text-amber-700 mb-4">💎 VIP Games</h2>
+                <div id="vipGamesList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <p class="text-center text-gray-600">Loading...</p>
                 </div>
-            </div>
-        </div>
-
-        <div id="winnerModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-            <div class="bg-white p-6 md:p-8 rounded-lg border-2 border-amber-500 max-w-2xl w-full max-h-screen overflow-y-auto">
-                <div id="winnerResults"></div>
-                <button onclick="closeWinnerModal()" class="mt-6 w-full bg-amber-500 text-white font-bold py-3 rounded hover:bg-amber-600">Close</button>
             </div>
         </div>
     </div>
@@ -248,373 +95,176 @@
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
-        let currentGame = null;
-        let currentGameType = 'junior';
         let userBalance = 0;
-        let myTickets = [];
-        let activeGameType = 'junior';
+        let currentLanguage = localStorage.getItem('lottobdLanguage') || 'en';
+        let currentGame = null;
+        let currentGameType = null;
 
+        const translations = {
+            en: {
+                balanceLabel: 'Balance',
+                profileBtn: 'Profile',
+                withdrawBtn: 'Withdraw',
+                howToPlayTitle: '❓ How to Play',
+                step1: '1️⃣ Choose Your Game',
+                step1Desc: 'Pick Junior (৳200) or VIP (৳1,000) game',
+                step2: '2️⃣ Buy Tickets',
+                step2Desc: 'Buy 1, 2, or 3 tickets. Get random numbers 1-10',
+                step3: '3️⃣ Wait for Draw',
+                step3Desc: 'When 10 tickets sold, winners are chosen automatically',
+                step4: '4️⃣ Win Prizes!',
+                step4Desc: '💰 Junior: ৳500/৳300/৳200 + 3×৳100',
+                step4Desc2: '💰 VIP: ৳3,000/৳2,000/৳1,000 + 4×৳500',
+                juniorTitle: '🎮 Junior Games',
+                vipTitle: '💎 VIP Games'
+            },
+            bn: {
+                balanceLabel: 'ব্যালেন্স',
+                profileBtn: 'প্রোফাইল',
+                withdrawBtn: 'উত্তোলন',
+                howToPlayTitle: '❓ কিভাবে খেলবেন',
+                step1: '1️⃣ আপনার গেম বেছে নিন',
+                step1Desc: 'জুনিয়র (৳200) বা ভিআইপি (৳1,000) গেম বেছে নিন',
+                step2: '2️⃣ টিকিট কিনুন',
+                step2Desc: '1, 2, বা 3 টি টিকিট কিনুন। 1-10 র্যান্ডম সংখ্যা পান',
+                step3: '3️⃣ ড্র এর জন্য অপেক্ষা করুন',
+                step3Desc: 'যখন 10 টি টিকিট বিক্রয় হয়, বিজয়ীরা স্বয়ংক্রিয়ভাবে নির্বাচিত হয়',
+                step4: '4️⃣ পুরস্কার জিতুন!',
+                step4Desc: '💰 জুনিয়র: ৳500/৳300/৳200 + 3×৳100',
+                step4Desc2: '💰 ভিআইপি: ৳3,000/৳2,000/৳1,000 + 4×৳500',
+                juniorTitle: '🎮 জুনিয়র গেম',
+                vipTitle: '💎 ভিআইপি গেম'
+            }
+        };
+
+        // Initialize
         supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
             if (!session) {
                 window.location.href = 'index.html';
                 return;
             }
+
             currentUser = session.user;
-            await loadUserData();
+            await loadUserBalance();
             await loadGames();
+            updateLanguage();
         });
 
-        async function loadUserData() {
-            const { data, error } = await supabaseClient
-                .from('users')
-                .select('*')
-                .eq('id', currentUser.id)
-                .single();
+        window.setLanguage = function(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('lottobdLanguage', lang);
+            updateLanguage();
+            loadGames();
+        };
 
-            if (error && error.code === 'PGRST116') {
-                await supabaseClient.from('users').insert({
-                    id: currentUser.id,
-                    email: currentUser.email,
-                    name: currentUser.user_metadata.full_name || currentUser.email.split('@')[0],
-                    balance: 0,
-                    total_earned: 0
-                });
-                userBalance = 0;
-            } else if (data) {
-                userBalance = data.balance;
-                document.getElementById('userName').textContent = `Hi, ${data.name}!`;
-            }
-            
-            document.getElementById('userBalance').textContent = `৳${userBalance}`;
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            document.getElementById('balanceLabel').textContent = t.balanceLabel;
+            document.getElementById('profileBtn').textContent = t.profileBtn;
+            document.getElementById('withdrawBtn').textContent = t.withdrawBtn;
+            document.getElementById('howToPlayTitle').textContent = t.howToPlayTitle;
+            document.getElementById('step1').textContent = t.step1;
+            document.getElementById('step1Desc').textContent = t.step1Desc;
+            document.getElementById('step2').textContent = t.step2;
+            document.getElementById('step2Desc').textContent = t.step2Desc;
+            document.getElementById('step3').textContent = t.step3;
+            document.getElementById('step3Desc').textContent = t.step3Desc;
+            document.getElementById('step4').textContent = t.step4;
+            document.getElementById('step4Desc').textContent = t.step4Desc;
+            document.getElementById('step4Desc2').textContent = t.step4Desc2;
+            document.getElementById('juniorTitle').textContent = t.juniorTitle;
+            document.getElementById('vipTitle').textContent = t.vipTitle;
+
+            document.getElementById('btnEn').classList.toggle('bg-blue-600', currentLanguage === 'en');
+            document.getElementById('btnEn').classList.toggle('bg-gray-400', currentLanguage !== 'en');
+            document.getElementById('btnBn').classList.toggle('bg-blue-600', currentLanguage === 'bn');
+            document.getElementById('btnBn').classList.toggle('bg-gray-400', currentLanguage !== 'bn');
         }
 
-        window.showGameType = function(type) {
-            activeGameType = type;
-            
-            if (type === 'junior') {
-                document.getElementById('juniorTabBtn').className = 'flex-1 bg-teal-600 text-white px-4 py-3 rounded font-bold text-sm md:text-base shadow-lg hover:bg-teal-700';
-                document.getElementById('vipTabBtn').className = 'flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded font-bold text-sm md:text-base hover:bg-gray-400';
-                document.getElementById('juniorGamesSection').classList.remove('hidden');
-                document.getElementById('vipGamesSection').classList.add('hidden');
-            } else {
-                document.getElementById('juniorTabBtn').className = 'flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded font-bold text-sm md:text-base hover:bg-gray-400';
-                document.getElementById('vipTabBtn').className = 'flex-1 bg-amber-500 text-white px-4 py-3 rounded font-bold text-sm md:text-base shadow-lg hover:bg-amber-600';
-                document.getElementById('juniorGamesSection').classList.add('hidden');
-                document.getElementById('vipGamesSection').classList.remove('hidden');
-            }
-            
-            document.getElementById('gameContainer').classList.add('hidden');
+        window.toggleHowToPlay = function() {
+            const content = document.getElementById('howToPlayContent');
+            content.classList.toggle('hidden');
         };
+
+        async function loadUserBalance() {
+            try {
+                const { data } = await supabaseClient
+                    .from('users')
+                    .select('balance')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (data) {
+                    userBalance = data.balance;
+                    document.getElementById('userBalance').textContent = userBalance;
+                }
+            } catch (error) {
+                console.error('Load balance error:', error);
+            }
+        }
 
         async function loadGames() {
-            // ONLY SHOW ACTIVE GAMES (NO HISTORY!)
-            const { data: juniorGames } = await supabaseClient
-                .from('games')
-                .select('*')
-                .eq('game_type', 'junior')
-                .eq('status', 'active')
-                .order('game_number', { ascending: true });
+            try {
+                const { data } = await supabaseClient
+                    .from('games')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('game_type', { ascending: true })
+                    .order('game_number', { ascending: true });
 
-            const juniorGamesDiv = document.getElementById('juniorGamesList');
-            
-            if (!juniorGames || juniorGames.length === 0) {
-                juniorGamesDiv.innerHTML = '<div class="col-span-full text-center text-teal-600 p-8">No active games.</div>';
-            } else {
-                juniorGamesDiv.innerHTML = '';
-                juniorGames.forEach(game => {
-                    const sold = game.tickets_sold || 0;
-                    const gameNum = String(game.game_number).padStart(2, '0');
-                    
-                    juniorGamesDiv.innerHTML += `
-                        <div class="bg-white p-4 rounded-lg border-2 border-teal-500 cursor-pointer hover:bg-teal-50 ${sold >= 10 ? 'opacity-50' : ''} shadow-lg" onclick="selectGame('${game.id}', 'junior')">
-                            <div class="text-center">
-                                <h3 class="text-3xl font-bold text-teal-700 mb-1">#${gameNum}</h3>
-                                <p class="text-xs text-teal-600 mb-2">${sold}/10</p>
-                                <div class="bg-teal-100 rounded-full h-2">
-                                    <div class="bg-teal-600 h-2 rounded-full" style="width: ${(sold/10)*100}%"></div>
-                                </div>
-                                ${sold < 10 ? '<p class="mt-2 text-teal-700 text-sm font-bold">৳200</p>' : '<p class="mt-2 text-red-600 text-sm">FULL</p>'}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            const { data: vipGames } = await supabaseClient
-                .from('games')
-                .select('*')
-                .eq('game_type', 'vip')
-                .eq('status', 'active')
-                .order('game_number', { ascending: true });
+                const juniorList = document.getElementById('juniorGamesList');
+                const vipList = document.getElementById('vipGamesList');
 
-            const vipGamesDiv = document.getElementById('vipGamesList');
-            
-            if (!vipGames || vipGames.length === 0) {
-                vipGamesDiv.innerHTML = '<div class="col-span-full text-center text-teal-600 p-8">No VIP games available.</div>';
-            } else {
-                vipGamesDiv.innerHTML = '';
-                vipGames.forEach(game => {
-                    const sold = game.tickets_sold || 0;
-                    const gameNum = String(game.game_number).padStart(2, '0');
-                    
-                    vipGamesDiv.innerHTML += `
-                        <div class="bg-white p-6 rounded-lg border-2 border-amber-500 cursor-pointer hover:bg-amber-50 ${sold >= 10 ? 'opacity-50' : ''} shadow-lg" onclick="selectGame('${game.id}', 'vip')">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <h3 class="text-3xl font-bold text-amber-600">💎 #${gameNum}</h3>
-                                </div>
-                                <span class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-xs">VIP</span>
-                            </div>
-                            <p class="text-sm text-gray-700 mb-2">Players: ${sold}/10</p>
-                            <div class="bg-amber-100 rounded-full h-3 mb-3">
-                                <div class="bg-amber-500 h-3 rounded-full" style="width: ${(sold/10)*100}%"></div>
-                            </div>
-                            ${sold < 10 ? '<p class="text-amber-600 text-center font-bold">৳1,000</p>' : '<p class="text-red-600 text-center font-bold">FULL</p>'}
-                        </div>
-                    `;
-                });
+                const juniorGames = data.filter(g => g.game_type === 'junior') || [];
+                const vipGames = data.filter(g => g.game_type === 'vip') || [];
+
+                juniorList.innerHTML = juniorGames.map(game => createGameCard(game)).join('');
+                vipList.innerHTML = vipGames.map(game => createGameCard(game)).join('');
+
+                if (juniorGames.length === 0) juniorList.innerHTML = '<p class="text-gray-600">No games</p>';
+                if (vipGames.length === 0) vipList.innerHTML = '<p class="text-gray-600">No games</p>';
+            } catch (error) {
+                console.error('Load games error:', error);
             }
         }
 
-        window.selectGame = async function(gameId, gameType) {
+        function createGameCard(game) {
+            const gameNum = String(game.game_number).padStart(2, '0');
+            const isJunior = game.game_type === 'junior';
+            const sold = game.tickets_sold || 0;
+            const percentFull = (sold / 10) * 100;
+            
+            const bgColor = isJunior ? 'bg-teal-50' : 'bg-amber-50';
+            const borderColor = isJunior ? 'border-teal-600' : 'border-amber-500';
+            const textColor = isJunior ? 'text-teal-700' : 'text-amber-700';
+            const barColor = isJunior ? 'bg-teal-600' : 'bg-amber-500';
+            const price = isJunior ? '200' : '1,000';
+
+            return `
+                <button onclick="selectGame('${game.id}', '${game.game_type}')" 
+                    class="${bgColor} p-4 rounded-lg border-2 ${borderColor} cursor-pointer hover:shadow-lg transition text-center">
+                    <p class="${textColor} font-bold text-lg">#${gameNum}</p>
+                    <p class="text-sm text-gray-600 mb-2">${sold}/10</p>
+                    <div class="w-full bg-gray-300 rounded-full h-2 mb-2">
+                        <div class="${barColor} h-2 rounded-full" style="width: ${percentFull}%"></div>
+                    </div>
+                    <p class="font-bold text-gray-800">৳${price}</p>
+                    ${sold >= 10 ? '<p class="text-red-500 text-xs font-bold">FULL</p>' : '<p class="text-green-600 text-xs">Available</p>'}
+                </button>
+            `;
+        }
+
+        window.selectGame = function(gameId, gameType) {
             currentGame = gameId;
             currentGameType = gameType;
-            
-            const { data } = await supabaseClient.from('games').select('*').eq('id', gameId).single();
-            
-            const gameHeader = document.getElementById('gameHeader');
-            const gameTypeBadge = document.getElementById('gameTypeBadge');
-            const gameNum = String(data.game_number).padStart(2, '0');
-            
-            if (gameType === 'vip') {
-                gameHeader.className = 'bg-white p-4 md:p-6 rounded-lg border-2 border-amber-500 mb-4 shadow-lg';
-                gameTypeBadge.className = 'px-3 py-1 rounded text-xs md:text-sm font-bold bg-amber-500 text-white';
-                gameTypeBadge.textContent = '💎 VIP';
-                document.getElementById('gameTitle').className = 'text-xl md:text-2xl font-bold text-amber-600';
-                document.getElementById('gameTitle').textContent = `#${gameNum}`;
-                document.getElementById('soldCount').textContent = `${data.tickets_sold || 0}/10`;
-                document.getElementById('ticketPrice').textContent = '৳1,000';
-                document.getElementById('prizePool').textContent = '৳8,000';
-                document.getElementById('pickNumbersText').textContent = 'Pick Numbers (Max 3)';
-                document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-amber-600 mb-3 md:mb-4';
-            } else {
-                gameHeader.className = 'bg-white p-4 md:p-6 rounded-lg border-2 border-teal-600 mb-4 shadow-lg';
-                gameTypeBadge.className = 'px-3 py-1 rounded text-xs md:text-sm font-bold bg-teal-600 text-white';
-                gameTypeBadge.textContent = 'Junior';
-                document.getElementById('gameTitle').className = 'text-xl md:text-2xl font-bold text-teal-700';
-                document.getElementById('gameTitle').textContent = `#${gameNum}`;
-                document.getElementById('soldCount').textContent = `${data.tickets_sold || 0}/10`;
-                document.getElementById('ticketPrice').textContent = '৳200';
-                document.getElementById('prizePool').textContent = '৳1,300';
-                document.getElementById('pickNumbersText').textContent = 'Pick Numbers (Max 3)';
-                document.getElementById('pickNumbersText').className = 'text-base md:text-lg font-bold text-teal-700 mb-3 md:mb-4';
-            }
-            
-            document.getElementById('gameContainer').classList.remove('hidden');
-            
-            await loadTickets();
-            window.scrollTo({ top: document.getElementById('gameContainer').offsetTop - 20, behavior: 'smooth' });
+            // Navigate to game details or show modal
+            alert('Game selected! (Implementation needed)');
         };
 
-        async function loadTickets() {
-            const { data } = await supabaseClient
-                .from('tickets')
-                .select('*')
-                .eq('game_id', currentGame);
-
-            const soldTickets = {};
-            myTickets = [];
-            
-            data?.forEach(ticket => {
-                soldTickets[ticket.ticket_number] = ticket.user_id;
-                if (ticket.user_id === currentUser.id) {
-                    myTickets.push(ticket.ticket_number);
-                }
-            });
-
-            document.getElementById('myTicketCount').textContent = `${myTickets.length}/3`;
-
-            const grid = document.getElementById('numbersGrid');
-            grid.innerHTML = '';
-            grid.className = 'grid grid-cols-5 md:grid-cols-10 gap-2';
-            
-            for (let i = 1; i <= 10; i++) {
-                const div = document.createElement('div');
-                div.className = 'ticket rounded border-2';
-                div.textContent = i;
-                
-                if (soldTickets[i]) {
-                    if (soldTickets[i] === currentUser.id) {
-                        div.className += ' ticket-mine';
-                    } else {
-                        div.className += ' ticket-sold bg-gray-300 border-gray-400 text-gray-500';
-                    }
-                } else {
-                    const borderColor = currentGameType === 'vip' ? 'border-amber-500 text-amber-600' : 'border-teal-500 text-teal-700';
-                    div.className += ` ticket-available bg-white ${borderColor}`;
-                    div.onclick = () => buyTicket(i);
-                }
-                
-                grid.appendChild(div);
-            }
-        }
-
-        async function buyTicket(number) {
-            const ticketPrice = currentGameType === 'vip' ? 1000 : 200;
-            
-            if (myTickets.length >= 3) {
-                alert('Maximum 3 tickets per game!');
-                return;
-            }
-            
-            if (userBalance < ticketPrice) {
-                alert(`Need ৳${ticketPrice}. Please add money.`);
-                return;
-            }
-
-            if (!confirm(`Buy #${number} for ৳${ticketPrice}?`)) return;
-
-            try {
-                await supabaseClient.from('users').update({ balance: userBalance - ticketPrice }).eq('id', currentUser.id);
-                await supabaseClient.from('tickets').insert({ game_id: currentGame, user_id: currentUser.id, ticket_number: number });
-
-                const { data: gameData } = await supabaseClient.from('games').select('tickets_sold').eq('id', currentGame).single();
-                const newCount = (gameData.tickets_sold || 0) + 1;
-                await supabaseClient.from('games').update({ tickets_sold: newCount }).eq('id', currentGame);
-                await supabaseClient.from('transactions').insert({ user_id: currentUser.id, type: 'ticket_purchase', amount: -ticketPrice, game_id: currentGame, ticket_number: number });
-
-                userBalance -= ticketPrice;
-                document.getElementById('userBalance').textContent = `৳${userBalance}`;
-                document.getElementById('soldCount').textContent = `${newCount}/10`;
-                
-                await loadTickets();
-                alert(`#${number} purchased! 🍀`);
-
-                if (newCount === 10) {
-                    setTimeout(async () => {
-                        alert(`🎰 FULL! Drawing winners...`);
-                        await autoPickWinners(currentGame, currentGameType);
-                    }, 2000);
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        async function autoPickWinners(gameId, gameType) {
-            try {
-                const { data: tickets } = await supabaseClient.from('tickets').select('*').eq('game_id', gameId);
-                if (tickets.length !== 10) return;
-
-                const shuffled = tickets.sort(() => Math.random() - 0.5);
-                let prizes, winnerCount;
-                
-                if (gameType === 'vip') {
-                    prizes = [3000, 2000, 1000, 500, 500, 500, 500];
-                    winnerCount = 7;
-                } else {
-                    prizes = [500, 300, 200, 100, 100, 100];
-                    winnerCount = 6;
-                }
-                
-                const winners = shuffled.slice(0, winnerCount);
-
-                for (let i = 0; i < winnerCount; i++) {
-                    const winner = winners[i];
-                    const prize = prizes[i];
-                    const { data: user } = await supabaseClient.from('users').select('balance, total_earned').eq('id', winner.user_id).single();
-                    await supabaseClient.from('users').update({ balance: user.balance + prize, total_earned: user.total_earned + prize }).eq('id', winner.user_id);
-                    await supabaseClient.from('transactions').insert({ user_id: winner.user_id, type: 'prize', amount: prize, game_id: gameId, ticket_number: winner.ticket_number });
-                }
-
-                await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
-                showWinnerResults(winners, prizes, gameType);
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        function showWinnerResults(winners, prizes, gameType) {
-            const modal = document.getElementById('winnerModal');
-            const resultsDiv = document.getElementById('winnerResults');
-            
-            let html = '<h3 class="text-2xl md:text-3xl font-bold text-amber-600 mb-4 text-center">🎉 WINNERS! 🎉</h3>';
-            
-            if (gameType === 'vip') {
-                const titles = ['🥇 1st - ৳3,000', '🥈 2nd - ৳2,000', '🥉 3rd - ৳1,000', '🎖️ 4th - ৳500', '🎖️ 5th - ৳500', '🎖️ 6th - ৳500', '🎖️ 7th - ৳500'];
-                winners.forEach((w, i) => {
-                    const isMe = w.user_id === currentUser.id;
-                    html += `<div class="bg-teal-50 p-3 rounded mb-2 border ${isMe ? 'border-2 border-amber-500' : 'border-teal-300'}">
-                        <p class="${isMe ? 'text-amber-600 font-bold text-lg' : 'text-gray-700'}">${titles[i]}: #${w.ticket_number} ${isMe ? '← YOU WON!' : ''}</p>
-                    </div>`;
-                });
-            } else {
-                const titles = ['🥇 1st - ৳500', '🥈 2nd - ৳300', '🥉 3rd - ৳200', '🎖️ 4th - ৳100', '🎖️ 5th - ৳100', '🎖️ 6th - ৳100'];
-                winners.forEach((w, i) => {
-                    const isMe = w.user_id === currentUser.id;
-                    html += `<div class="bg-teal-50 p-3 rounded mb-2 border ${isMe ? 'border-2 border-amber-500' : 'border-teal-300'}">
-                        <p class="${isMe ? 'text-amber-600 font-bold text-lg' : 'text-gray-700'}">${titles[i]}: #${w.ticket_number} ${isMe ? '← YOU WON!' : ''}</p>
-                    </div>`;
-                });
-            }
-            
-            html += '<p class="text-gray-600 text-center mt-4">Refreshing in 10 seconds...</p>';
-            resultsDiv.innerHTML = html;
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.add('hidden'); window.location.reload(); }, 10000);
-        }
-
-        window.togglePaymentInfo = function() {
-            const infoDiv = document.getElementById('paymentInfo');
-            const toggleBtn = document.getElementById('paymentToggleBtn');
-            
-            if (infoDiv.classList.contains('hidden')) {
-                infoDiv.classList.remove('hidden');
-                toggleBtn.textContent = 'Hide Numbers';
-            } else {
-                infoDiv.classList.add('hidden');
-                toggleBtn.textContent = 'Show Numbers';
-            }
-        };
-
-        window.copyNumber = function(number) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(number).then(() => {
-                    alert(`✅ Copied: ${number}\nPaste in bKash/Nagad app!`);
-                }).catch(() => {
-                    fallbackCopy(number);
-                });
-            } else {
-                fallbackCopy(number);
-            }
-        };
-
-        function fallbackCopy(number) {
-            const tempInput = document.createElement('input');
-            tempInput.value = number;
-            tempInput.style.position = 'absolute';
-            tempInput.style.left = '-9999px';
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            tempInput.setSelectionRange(0, 99999);
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            alert(`✅ Copied: ${number}\nPaste in bKash/Nagad app!`);
-        }
-
-        window.logout = async function() {
-            await supabaseClient.auth.signOut();
-            window.location.href = 'index.html';
-        };
-
-        window.closeWinnerModal = function() {
-            document.getElementById('winnerModal').classList.add('hidden');
-            window.location.reload();
-        };
-        window.toggleHowToPlay = function() {
-    const content = document.getElementById('howToPlayContent');
-    content.classList.toggle('hidden');
-};
+        setInterval(() => {
+            loadUserBalance();
+            loadGames();
+        }, 5000);
     </script>
 </body>
 </html>
