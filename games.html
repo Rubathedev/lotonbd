@@ -5,6 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Play Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn-press {
+            transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .btn-press:hover {
+            transform: scale(0.98);
+            filter: brightness(1.1) drop-shadow(0 0 8px rgba(0,0,0,0.2));
+        }
+        
+        .btn-press:active {
+            transform: scale(0.80) translateY(4px);
+            box-shadow: inset 0 6px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2) !important;
+            filter: brightness(0.9);
+        }
+        
+        .btn-press::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 70%);
+            border-radius: inherit;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        
+        .btn-press:active::before {
+            opacity: 1;
+            animation: pulse 0.4s ease-out;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body class="min-h-screen" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
     <div class="max-w-7xl mx-auto px-4">
@@ -17,8 +66,8 @@
                 
                 <div class="flex items-center gap-3 flex-wrap">
                     <div class="flex gap-1 bg-gray-200 p-1 rounded-lg">
-                        <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition">EN</button>
-                        <button onclick="setLanguage('bn')" id="btnBn" class="bg-gray-400 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-500 transition">বাং</button>
+                        <button onclick="setLanguage('en')" id="btnEn" class="btn-press bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700">EN</button>
+                        <button onclick="setLanguage('bn')" id="btnBn" class="btn-press bg-gray-400 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-500">বাং</button>
                     </div>
                 </div>
             </div>
@@ -29,15 +78,15 @@
                     <p class="text-2xl font-bold text-green-700">৳<span id="userBalance">0</span></p>
                 </div>
 
-                <a href="profile.html" class="bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white p-4 rounded-lg border-2 border-teal-700 font-bold text-center transition transform hover:scale-105 shadow-lg">
+                <a href="profile.html" class="btn-press bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white p-4 rounded-lg border-2 border-teal-700 font-bold text-center shadow-lg">
                     👤 <span id="profileBtn">Profile</span>
                 </a>
 
-                <a href="withdraw.html" class="bg-gradient-to-br from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white p-4 rounded-lg border-2 border-red-600 font-bold text-center transition transform hover:scale-105 shadow-lg">
+                <a href="withdraw.html" class="btn-press bg-gradient-to-br from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white p-4 rounded-lg border-2 border-red-600 font-bold text-center shadow-lg">
                     🏧 <span id="withdrawBtn">Withdraw</span>
                 </a>
 
-                <a href="winners.html" class="bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white p-4 rounded-lg border-2 border-pink-600 font-bold text-center transition transform hover:scale-105 shadow-lg">
+                <a href="winners.html" class="btn-press bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white p-4 rounded-lg border-2 border-pink-600 font-bold text-center shadow-lg">
                     🏆 <span id="winnersBtn">Winners</span>
                 </a>
             </div>
@@ -110,9 +159,9 @@
             <div class="mb-6">
                 <label id="quantityLabel" class="block text-gray-700 font-bold mb-3">How many tickets?</label>
                 <div class="flex gap-2">
-                    <button onclick="buyTickets(1)" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold transition">1</button>
-                    <button onclick="buyTickets(2)" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold transition">2</button>
-                    <button onclick="buyTickets(3)" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold transition">3</button>
+                    <button onclick="buyTickets(1)" class="btn-press flex-1 bg-teal-600 hover:bg-teal-700 text-white p-4 rounded-lg font-bold text-lg border-2 border-teal-700 shadow-lg">1</button>
+                    <button onclick="buyTickets(2)" class="btn-press flex-1 bg-teal-600 hover:bg-teal-700 text-white p-4 rounded-lg font-bold text-lg border-2 border-teal-700 shadow-lg">2</button>
+                    <button onclick="buyTickets(3)" class="btn-press flex-1 bg-teal-600 hover:bg-teal-700 text-white p-4 rounded-lg font-bold text-lg border-2 border-teal-700 shadow-lg">3</button>
                 </div>
             </div>
 
@@ -121,7 +170,7 @@
                 <p id="totalCost" class="text-2xl font-bold text-yellow-700">৳200</p>
             </div>
 
-            <button onclick="closeBuyModal()" class="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-bold">
+            <button onclick="closeBuyModal()" class="btn-press w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-bold border-2 border-gray-700">
                 ✕ <span id="cancelBtn">Cancel</span>
             </button>
         </div>
@@ -142,7 +191,7 @@
                 <div id="losersList" class="space-y-2"></div>
             </div>
 
-            <button onclick="closeResultsModal()" class="w-full bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-bold">
+            <button onclick="closeResultsModal()" class="btn-press w-full bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-bold border-2 border-teal-700">
                 ← Back to Games
             </button>
         </div>
@@ -330,7 +379,7 @@
 
             return `
                 <button onclick="selectGame('${game.id}', '${game.game_type}')" 
-                    class="bg-gradient-to-br ${bgColor} p-5 rounded-xl border-2 ${borderColor} cursor-pointer hover:shadow-2xl hover:scale-105 transition transform">
+                    class="btn-press bg-gradient-to-br ${bgColor} p-5 rounded-xl border-2 ${borderColor} cursor-pointer shadow-lg">
                     <p class="${textColor} font-bold text-xl mb-2">#${gameNum}</p>
                     <p class="text-sm text-gray-600 mb-3 font-semibold">${sold}/10</p>
                     <div class="w-full bg-gray-300 rounded-full h-3 mb-3">
