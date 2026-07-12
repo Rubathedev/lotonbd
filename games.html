@@ -10,14 +10,12 @@
     <div class="max-w-7xl mx-auto px-4">
         <!-- HEADER -->
         <div class="bg-white rounded-xl border-2 border-teal-600 shadow-2xl p-6 mb-8 mt-6">
-            <!-- Logo and Top Section -->
             <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
                 <a href="games.html" class="text-4xl font-bold text-teal-600 hover:text-teal-700 transition hover:scale-105">
                     🎫 LottoBD
                 </a>
                 
                 <div class="flex items-center gap-3 flex-wrap">
-                    <!-- Language Toggle -->
                     <div class="flex gap-1 bg-gray-200 p-1 rounded-lg">
                         <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition">EN</button>
                         <button onclick="setLanguage('bn')" id="btnBn" class="bg-gray-400 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-500 transition">বাং</button>
@@ -25,7 +23,6 @@
                 </div>
             </div>
 
-            <!-- Quick Stats & Nav -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-lg border-2 border-green-500">
                     <p id="balanceLabel" class="text-xs text-gray-600 font-bold">BALANCE</p>
@@ -100,6 +97,57 @@
         </div>
     </div>
 
+    <!-- BUY TICKETS MODAL -->
+    <div id="buyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl border-2 border-teal-600">
+            <h2 id="buyTitle" class="text-2xl font-bold text-teal-700 mb-4">Buy Tickets</h2>
+            
+            <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-lg border-2 border-green-500 mb-6">
+                <p id="priceLabel" class="text-sm text-gray-600">Price per ticket</p>
+                <p id="ticketPrice" class="text-3xl font-bold text-green-700">৳200</p>
+            </div>
+
+            <div class="mb-6">
+                <label id="quantityLabel" class="block text-gray-700 font-bold mb-3">How many tickets?</label>
+                <div class="flex gap-2">
+                    <button onclick="buyTickets(1)" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold transition">1</button>
+                    <button onclick="buyTickets(2)" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold transition">2</button>
+                    <button onclick="buyTickets(3)" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold transition">3</button>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 p-3 rounded-lg border-2 border-yellow-400 mb-6">
+                <p id="totalLabel" class="text-sm text-gray-600">Total Cost</p>
+                <p id="totalCost" class="text-2xl font-bold text-yellow-700">৳200</p>
+            </div>
+
+            <button onclick="closeBuyModal()" class="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-bold">
+                ✕ <span id="cancelBtn">Cancel</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- RESULTS MODAL -->
+    <div id="resultsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-8 max-w-2xl w-full shadow-2xl border-2 border-teal-600 max-h-96 overflow-y-auto">
+            <h2 id="resultsTitle" class="text-2xl font-bold text-teal-700 mb-4 text-center">🏆 Game Results</h2>
+            
+            <div class="mb-6">
+                <h3 id="winnersTitle" class="text-xl font-bold text-green-700 mb-3">🥇 WINNERS</h3>
+                <div id="winnersList" class="space-y-2 mb-4"></div>
+            </div>
+
+            <div class="mb-6">
+                <h3 id="othersTitle" class="text-xl font-bold text-gray-700 mb-3">📋 Other Players</h3>
+                <div id="losersList" class="space-y-2"></div>
+            </div>
+
+            <button onclick="closeResultsModal()" class="w-full bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-lg font-bold">
+                ← Back to Games
+            </button>
+        </div>
+    </div>
+
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -111,6 +159,8 @@
         let currentUser = null;
         let userBalance = 0;
         let currentLanguage = localStorage.getItem('lottobdLanguage') || 'en';
+        let currentGame = null;
+        let currentGameType = null;
 
         const translations = {
             en: {
@@ -128,7 +178,17 @@
                 step4: '4️⃣ Win Prizes',
                 step4Desc: 'Get real money instantly! 💰',
                 juniorTitle: '🎮 Junior Games',
-                vipTitle: '💎 VIP Games'
+                vipTitle: '💎 VIP Games',
+                buyTitle: 'Buy Tickets',
+                priceLabel: 'Price per ticket',
+                quantityLabel: 'How many tickets?',
+                totalLabel: 'Total Cost',
+                cancelBtn: 'Cancel',
+                resultsTitle: '🏆 Game Results',
+                winnersTitle: '🥇 WINNERS',
+                othersTitle: '📋 Other Players',
+                insufficientBalance: 'Insufficient balance!',
+                ticketsPurchased: 'Tickets purchased successfully!'
             },
             bn: {
                 balanceLabel: 'ব্যালেন্স',
@@ -145,7 +205,17 @@
                 step4: '4️⃣ পুরস্কার জিতুন',
                 step4Desc: 'তাৎক্ষণিক টাকা পান! 💰',
                 juniorTitle: '🎮 জুনিয়র গেম',
-                vipTitle: '💎 ভিআইপি গেম'
+                vipTitle: '💎 ভিআইপি গেম',
+                buyTitle: 'টিকিট কিনুন',
+                priceLabel: 'প্রতি টিকেটের দাম',
+                quantityLabel: 'কতটি টিকিট?',
+                totalLabel: 'মোট খরচ',
+                cancelBtn: 'বাতিল করুন',
+                resultsTitle: '🏆 গেমের ফলাফল',
+                winnersTitle: '🥇 বিজয়ীরা',
+                othersTitle: '📋 অন্যান্য খেলোয়াড়',
+                insufficientBalance: 'অপর্যাপ্ত ব্যালেন্স!',
+                ticketsPurchased: 'টিকিট সফলভাবে ক্রয় করা হয়েছে!'
             }
         };
 
@@ -186,6 +256,11 @@
             document.getElementById('step4Desc').textContent = t.step4Desc;
             document.getElementById('juniorTitle').textContent = t.juniorTitle;
             document.getElementById('vipTitle').textContent = t.vipTitle;
+            document.getElementById('buyTitle').textContent = t.buyTitle;
+            document.getElementById('priceLabel').textContent = t.priceLabel;
+            document.getElementById('quantityLabel').textContent = t.quantityLabel;
+            document.getElementById('totalLabel').textContent = t.totalLabel;
+            document.getElementById('cancelBtn').textContent = t.cancelBtn;
 
             document.getElementById('btnEn').classList.toggle('bg-blue-600', currentLanguage === 'en');
             document.getElementById('btnEn').classList.toggle('bg-gray-400', currentLanguage !== 'en');
@@ -268,8 +343,153 @@
         }
 
         window.selectGame = function(gameId, gameType) {
-            // Implementation for game selection
-            console.log('Game selected:', gameId, gameType);
+            currentGame = gameId;
+            currentGameType = gameType;
+            
+            const price = gameType === 'vip' ? 1000 : 200;
+            document.getElementById('ticketPrice').textContent = '৳' + price;
+            document.getElementById('totalCost').textContent = '৳' + price;
+            
+            document.getElementById('buyModal').classList.remove('hidden');
+        };
+
+        window.closeBuyModal = function() {
+            document.getElementById('buyModal').classList.add('hidden');
+            currentGame = null;
+            currentGameType = null;
+        };
+
+        window.buyTickets = async function(count) {
+            const ticketPrice = currentGameType === 'vip' ? 1000 : 200;
+            const totalPrice = ticketPrice * count;
+
+            if (userBalance < totalPrice) {
+                alert('❌ ' + translations[currentLanguage].insufficientBalance);
+                return;
+            }
+
+            try {
+                // Get available tickets
+                const { data: tickets } = await supabaseClient
+                    .from('tickets')
+                    .select('ticket_number')
+                    .eq('game_id', currentGame);
+
+                const soldNumbers = new Set(tickets.map(t => t.ticket_number));
+                const availableNumbers = [];
+                
+                for (let i = 1; i <= 10; i++) {
+                    if (!soldNumbers.has(i)) availableNumbers.push(i);
+                }
+
+                if (availableNumbers.length < count) {
+                    alert('❌ Not enough tickets available!');
+                    return;
+                }
+
+                // Buy tickets
+                for (let i = 0; i < count; i++) {
+                    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                    const ticketNum = availableNumbers.splice(randomIndex, 1)[0];
+
+                    await supabaseClient.from('tickets').insert({
+                        game_id: currentGame,
+                        user_id: currentUser.id,
+                        ticket_number: ticketNum
+                    });
+
+                    await supabaseClient.from('transactions').insert({
+                        user_id: currentUser.id,
+                        type: 'ticket_purchase',
+                        amount: -ticketPrice,
+                        game_id: currentGame,
+                        ticket_number: ticketNum
+                    });
+                }
+
+                // Update user balance
+                userBalance -= totalPrice;
+                await supabaseClient.from('users').update({ balance: userBalance }).eq('id', currentUser.id);
+                document.getElementById('userBalance').textContent = userBalance;
+
+                // Update game ticket count
+                const { data: gameData } = await supabaseClient.from('games').select('tickets_sold').eq('id', currentGame).single();
+                const newCount = (gameData.tickets_sold || 0) + count;
+                await supabaseClient.from('games').update({ tickets_sold: newCount }).eq('id', currentGame);
+
+                alert('✅ ' + translations[currentLanguage].ticketsPurchased);
+                closeBuyModal();
+
+                // If game is full (10 tickets), show results
+                if (newCount === 10) {
+                    setTimeout(() => {
+                        showGameResults(currentGame, currentGameType);
+                    }, 1000);
+                } else {
+                    loadGames();
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        };
+
+        window.showGameResults = async function(gameId, gameType) {
+            try {
+                const { data: winners } = await supabaseClient
+                    .from('transactions')
+                    .select('*, users(name, email)')
+                    .eq('game_id', gameId)
+                    .eq('type', 'prize');
+
+                const { data: tickets } = await supabaseClient
+                    .from('tickets')
+                    .select('*, users(name, email)')
+                    .eq('game_id', gameId);
+
+                document.getElementById('resultsTitle').textContent = `🏆 ${gameType === 'vip' ? '💎 VIP' : '🎮 Junior'} Game Results`;
+
+                const winnersList = document.getElementById('winnersList');
+                winnersList.innerHTML = '';
+                
+                if (winners && winners.length > 0) {
+                    winners.forEach((winner, index) => {
+                        const medals = ['🥇', '🥈', '🥉'];
+                        const medal = index < 3 ? medals[index] : '🎖️';
+                        winnersList.innerHTML += `
+                            <div class="bg-green-50 p-3 rounded border-l-4 border-green-500">
+                                <p class="font-bold">${medal} ${winner.users.name}</p>
+                                <p class="text-sm text-gray-600">৳${winner.amount}</p>
+                            </div>
+                        `;
+                    });
+                }
+
+                const losersList = document.getElementById('losersList');
+                losersList.innerHTML = '';
+                
+                const winnerIds = new Set(winners.map(w => w.user_id));
+                const losers = tickets.filter(t => !winnerIds.has(t.user_id));
+
+                if (losers && losers.length > 0) {
+                    losers.forEach(loser => {
+                        losersList.innerHTML += `
+                            <div class="bg-gray-50 p-3 rounded border-l-4 border-gray-400">
+                                <p class="font-bold text-sm">${loser.users.name}</p>
+                                <p class="text-xs text-gray-600">Ticket #${loser.ticket_number}</p>
+                            </div>
+                        `;
+                    });
+                }
+
+                document.getElementById('resultsModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Show results error:', error);
+            }
+        };
+
+        window.closeResultsModal = function() {
+            document.getElementById('resultsModal').classList.add('hidden');
+            location.reload();
         };
 
         setInterval(() => {
