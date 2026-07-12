@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LottoBD - Winners History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen" style="background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);">
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- HEADER -->
+        <div class="bg-white rounded-xl border-2 border-purple-600 shadow-2xl p-6 mb-8 mt-6">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <a href="games.html" class="text-4xl font-bold text-purple-600 hover:text-purple-700 transition">
+                    🏆 LottoBD Winners
+                </a>
+                
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Language Toggle -->
+                    <div class="flex gap-1 bg-gray-200 p-1 rounded-lg">
+                        <button onclick="setLanguage('en')" id="btnEn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700">EN</button>
+                        <button onclick="setLanguage('bn')" id="btnBn" class="bg-gray-400 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-500">বাং</button>
+                    </div>
+
+                    <a href="games.html" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 font-bold transition">← Back</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="bg-white rounded-xl border-2 border-purple-600 shadow-lg p-4 mb-8 flex flex-wrap gap-2">
+            <button onclick="filterWinners('all')" class="filter-btn active bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700">📋 All</button>
+            <button onclick="filterWinners('junior')" class="filter-btn bg-teal-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-teal-700">🎮 Junior</button>
+            <button onclick="filterWinners('vip')" class="filter-btn bg-amber-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-amber-600">💎 VIP</button>
+            <button onclick="filterWinners('mywinners')" class="filter-btn bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700">👤 My Wins</button>
+        </div>
+
+        <!-- WINNERS LIST -->
+        <div id="winnersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+            <p class="text-center text-gray-600 col-span-full py-12">Loading winners...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubmdubWJmYmticHpoc2Rwc21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzU5MDgsImV4cCI6MjA4ODA1MTkwOH0.vIYdJA3eKajAGQ9Om27P8RkqTIeWUlGx1B-npq3u6u0';
+        
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+        let allWinners = [];
+        let currentFilter = 'all';
+        let currentLanguage = localStorage.getItem('lottobdLanguage') || 'en';
+
+        const translations = {
+            en: {
+                allBtn: 'All',
+                juniorBtn: 'Junior',
+                vipBtn: 'VIP',
+                myWinsBtn: 'My Wins'
+            },
+            bn: {
+                allBtn: 'সব',
+                juniorBtn: 'জুনিয়র',
+                vipBtn: 'ভিআইপি',
+                myWinsBtn: 'আমার জয়'
+            }
+        };
+
+        // Initialize
+        supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = session.user;
+            await loadWinners();
+            updateLanguage();
+        });
+
+        window.setLanguage = function(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('lottobdLanguage', lang);
+            updateLanguage();
+        };
+
+        function updateLanguage() {
+            document.getElementById('btnEn').classList.toggle('bg-blue-600', currentLanguage === 'en');
+            document.getElementById('btnEn').classList.toggle('bg-gray-400', currentLanguage !== 'en');
+            document.getElementById('btnBn').classList.toggle('bg-blue-600', currentLanguage === 'bn');
+            document.getElementById('btnBn').classList.toggle('bg-gray-400', currentLanguage !== 'bn');
+        }
+
+        async function loadWinners() {
+            try {
+                const { data: winners } = await supabaseClient
+                    .from('transactions')
+                    .select('*, users(id, name, email), games(id, game_type, game_number, date)')
+                    .eq('type', 'prize')
+                    .order('created_at', { ascending: false });
+
+                allWinners = winners || [];
+                displayWinners(filterByType());
+            } catch (error) {
+                console.error('Load winners error:', error);
+            }
+        }
+
+        function filterByType() {
+            if (currentFilter === 'all') {
+                return allWinners;
+            } else if (currentFilter === 'junior') {
+                return allWinners.filter(w => w.games.game_type === 'junior');
+            } else if (currentFilter === 'vip') {
+                return allWinners.filter(w => w.games.game_type === 'vip');
+            } else if (currentFilter === 'mywinners') {
+                return allWinners.filter(w => w.user_id === currentUser.id);
+            }
+        }
+
+        function displayWinners(winners) {
+            const list = document.getElementById('winnersList');
+
+            if (winners.length === 0) {
+                list.innerHTML = '<div class="text-center col-span-full py-12"><p class="text-gray-600 text-lg">No winners yet</p></div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            winners.forEach((win, index) => {
+                const gameType = win.games.game_type === 'junior' ? '🎮 Junior' : '💎 VIP';
+                const date = new Date(win.games.date).toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric'
+                });
+
+                let medal = '🎖️';
+                if (win.games.game_type === 'junior') {
+                    if (win.amount === 500) medal = '🥇';
+                    else if (win.amount === 300) medal = '🥈';
+                    else if (win.amount === 200) medal = '🥉';
+                } else {
+                    if (win.amount === 3000) medal = '🥇';
+                    else if (win.amount === 2000) medal = '🥈';
+                    else if (win.amount === 1000) medal = '🥉';
+                }
+
+                const isMyWin = win.user_id === currentUser.id;
+                const bgClass = isMyWin ? 'from-yellow-100 to-orange-100 border-yellow-500' : 'from-purple-100 to-pink-100 border-purple-500';
+
+                list.innerHTML += `
+                    <div class="bg-gradient-to-br ${bgClass} p-6 rounded-xl border-2 shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                        <div class="flex items-start gap-4 mb-4">
+                            <span class="text-4xl">${medal}</span>
+                            <div class="flex-1">
+                                <p class="font-bold text-gray-800 text-lg">${win.users.name}</p>
+                                <p class="text-sm text-gray-600">${win.users.email}</p>
+                                ${isMyWin ? '<span class="inline-block bg-green-500 text-white px-2 py-1 rounded text-xs font-bold mt-1">YOU</span>' : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white bg-opacity-50 p-3 rounded-lg mb-3">
+                            <p class="text-sm text-gray-600">Prize Amount</p>
+                            <p class="text-2xl font-bold text-green-600">৳${win.amount}</p>
+                        </div>
+
+                        <div class="space-y-2 text-sm">
+                            <p class="text-gray-700"><span class="font-bold">Game:</span> ${gameType} #${String(win.games.game_number).padStart(2, '0')}</p>
+                            <p class="text-gray-700"><span class="font-bold">Ticket:</span> #${win.ticket_number}</p>
+                            <p class="text-gray-600">${date}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.filterWinners = function(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('opacity-100'));
+            event.target.classList.add('opacity-100');
+            displayWinners(filterByType());
+        };
+    </script>
+</body>
+</html>
