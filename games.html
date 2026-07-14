@@ -586,12 +586,16 @@
             }
 
             try {
-                // Get current game data
-                const { data: gameData } = await supabaseClient
-                    .from('games')
-                    .select('tickets_sold, status')
-                    .eq('id', currentGame)
-                    .single();
+                // Get game data AND player tickets in PARALLEL (faster!)
+                const [gameResult, myTicketsResult, allTicketsResult] = await Promise.all([
+                    supabaseClient.from('games').select('tickets_sold, status').eq('id', currentGame).single(),
+                    supabaseClient.from('tickets').select('id').eq('game_id', currentGame).eq('user_id', currentUser.id),
+                    supabaseClient.from('tickets').select('ticket_number').eq('game_id', currentGame)
+                ]);
+
+                const gameData = gameResult.data;
+                const myTickets = myTicketsResult.data || [];
+                const allTickets = allTicketsResult.data || [];
 
                 // Prevent buying when game is FULL
                 if (gameData.tickets_sold >= 10 || gameData.status === 'completed') {
@@ -600,23 +604,14 @@
                     return;
                 }
 
-                // FIX: CHECK HOW MANY TICKETS THIS PLAYER ALREADY HAS
-                const { data: myTickets } = await supabaseClient
-                    .from('tickets')
-                    .select('id')
-                    .eq('game_id', currentGame)
-                    .eq('user_id', currentUser.id);
-
-                const myTicketCount = myTickets ? myTickets.length : 0;
-
-                // CRITICAL: Prevent buying more than 3 TOTAL tickets
+                // Prevent buying more than 3 TOTAL tickets
+                const myTicketCount = myTickets.length;
                 if (myTicketCount >= 3) {
                     alert('❌ You already have 3 tickets in this game! Maximum is 3 per game.');
                     closeBuyModal();
                     return;
                 }
 
-                // Prevent buying if it would exceed 3 total
                 if (myTicketCount + count > 3) {
                     const remaining = 3 - myTicketCount;
                     alert(`❌ You already have ${myTicketCount} tickets. You can only buy ${remaining} more!`);
@@ -624,15 +619,9 @@
                     return;
                 }
 
-                // Get available tickets
-                const { data: tickets } = await supabaseClient
-                    .from('tickets')
-                    .select('ticket_number')
-                    .eq('game_id', currentGame);
-
-                const soldNumbers = new Set(tickets.map(t => t.ticket_number));
+                // Get available ticket numbers
+                const soldNumbers = new Set(allTickets.map(t => t.ticket_number));
                 const availableNumbers = [];
-                
                 for (let i = 1; i <= 10; i++) {
                     if (!soldNumbers.has(i)) availableNumbers.push(i);
                 }
@@ -642,20 +631,23 @@
                     return;
                 }
 
-                // Buy tickets and collect ticket numbers
+                // Prepare all ticket inserts and transactions in advance
+                const ticketInserts = [];
+                const transactionInserts = [];
                 const assignedNumbers = [];
+
                 for (let i = 0; i < count; i++) {
                     const randomIndex = Math.floor(Math.random() * availableNumbers.length);
                     const ticketNum = availableNumbers.splice(randomIndex, 1)[0];
                     assignedNumbers.push(ticketNum);
 
-                    await supabaseClient.from('tickets').insert({
+                    ticketInserts.push({
                         game_id: currentGame,
                         user_id: currentUser.id,
                         ticket_number: ticketNum
                     });
 
-                    await supabaseClient.from('transactions').insert({
+                    transactionInserts.push({
                         user_id: currentUser.id,
                         type: 'ticket_purchase',
                         amount: -ticketPrice,
@@ -664,28 +656,39 @@
                     });
                 }
 
-                // Update user balance
-                userBalance -= totalPrice;
-                await supabaseClient.from('users').update({ balance: userBalance }).eq('id', currentUser.id);
-                document.getElementById('userBalance').textContent = userBalance;
-
-                // Update game ticket count
-                const newCount = (gameData.tickets_sold || 0) + count;
-                await supabaseClient.from('games').update({ tickets_sold: newCount }).eq('id', currentGame);
-
-                // Show success with assigned ticket numbers
+                // SHOW CONFIRMATION IMMEDIATELY (don't wait for database)
                 const numbersDisplay = assignedNumbers.join(', ');
                 alert('✅ ' + translations[currentLanguage].ticketsPurchased + '\n\n🎫 Your Ticket Numbers:\n' + numbersDisplay);
                 closeBuyModal();
 
-                // Trigger results if game is NOW full
-                if (newCount === 10) {
-                    setTimeout(async () => {
-                        await selectWinnersAndDistributePrizes(currentGame, currentGameType);
-                    }, 2000);
-                } else {
-                    loadGames();
-                }
+                // Update balance and game IMMEDIATELY (optimistic update)
+                userBalance -= totalPrice;
+                document.getElementById('userBalance').textContent = userBalance;
+                const newCount = (gameData.tickets_sold || 0) + count;
+
+                // Run all database operations in PARALLEL (don't wait for each one)
+                Promise.all([
+                    // Insert all tickets at once
+                    supabaseClient.from('tickets').insert(ticketInserts),
+                    // Insert all transactions at once
+                    supabaseClient.from('transactions').insert(transactionInserts),
+                    // Update user balance
+                    supabaseClient.from('users').update({ balance: userBalance }).eq('id', currentUser.id),
+                    // Update game ticket count
+                    supabaseClient.from('games').update({ tickets_sold: newCount }).eq('id', currentGame)
+                ]).then(() => {
+                    // After all updates complete, reload
+                    if (newCount === 10) {
+                        setTimeout(async () => {
+                            await selectWinnersAndDistributePrizes(currentGame, currentGameType);
+                        }, 1500);
+                    } else {
+                        loadGames();
+                    }
+                }).catch(error => {
+                    console.error('Background update error:', error);
+                });
+
             } catch (error) {
                 alert('❌ Error: ' + error.message);
                 console.error('Buy tickets error:', error);
