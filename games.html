@@ -533,10 +533,15 @@
             const price = isJunior ? '200' : '1,000';
             const statusBg = sold >= 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
             const statusText = sold >= 10 ? 'FULL' : 'OPEN';
+            
+            // Disable if full
+            const isDisabled = sold >= 10;
+            const clickHandler = isDisabled ? 'onclick="alert(\'❌ This game is FULL! Results are being calculated...\')"' : `onclick="selectGame('${game.id}', '${game.game_type}')"`;
+            const opacityClass = isDisabled ? 'opacity-60 cursor-not-allowed' : '';
 
             return `
-                <button onclick="selectGame('${game.id}', '${game.game_type}')" 
-                    class="btn-press bg-gradient-to-br ${bgColor} p-5 rounded-xl border-2 ${borderColor} cursor-pointer shadow-lg">
+                <button ${clickHandler}
+                    class="btn-press bg-gradient-to-br ${bgColor} p-5 rounded-xl border-2 ${borderColor} cursor-pointer shadow-lg ${opacityClass}">
                     <p class="${textColor} font-bold text-xl mb-2">#${gameNum}</p>
                     <p class="text-sm text-gray-600 mb-3 font-semibold">${sold}/10</p>
                     <div class="w-full bg-gray-300 rounded-full h-3 mb-3">
@@ -566,6 +571,12 @@
         };
 
         window.buyTickets = async function(count) {
+            // FIX 1: Prevent buying more than 3 tickets
+            if (count > 3 || count < 1) {
+                alert('❌ You can only buy 1-3 tickets per game!');
+                return;
+            }
+
             const ticketPrice = currentGameType === 'vip' ? 1000 : 200;
             const totalPrice = ticketPrice * count;
 
@@ -575,6 +586,20 @@
             }
 
             try {
+                // Get current game data
+                const { data: gameData } = await supabaseClient
+                    .from('games')
+                    .select('tickets_sold, status')
+                    .eq('id', currentGame)
+                    .single();
+
+                // FIX 2: Prevent buying when game is FULL
+                if (gameData.tickets_sold >= 10 || gameData.status === 'completed') {
+                    alert('❌ This game is FULL! Results are being calculated...');
+                    closeBuyModal();
+                    return;
+                }
+
                 // Get available tickets
                 const { data: tickets } = await supabaseClient
                     .from('tickets')
@@ -589,7 +614,7 @@
                 }
 
                 if (availableNumbers.length < count) {
-                    alert('❌ Not enough tickets available!');
+                    alert('❌ Not enough tickets available! Only ' + availableNumbers.length + ' left.');
                     return;
                 }
 
@@ -621,7 +646,6 @@
                 document.getElementById('userBalance').textContent = userBalance;
 
                 // Update game ticket count
-                const { data: gameData } = await supabaseClient.from('games').select('tickets_sold').eq('id', currentGame).single();
                 const newCount = (gameData.tickets_sold || 0) + count;
                 await supabaseClient.from('games').update({ tickets_sold: newCount }).eq('id', currentGame);
 
@@ -630,16 +654,17 @@
                 alert('✅ ' + translations[currentLanguage].ticketsPurchased + '\n\n🎫 Your Ticket Numbers:\n' + numbersDisplay);
                 closeBuyModal();
 
-                // If game is full (10 tickets), trigger draw
+                // FIX 3: Trigger results if game is NOW full
                 if (newCount === 10) {
                     setTimeout(async () => {
                         await selectWinnersAndDistributePrizes(currentGame, currentGameType);
-                    }, 1500);
+                    }, 2000);
                 } else {
                     loadGames();
                 }
             } catch (error) {
                 alert('❌ Error: ' + error.message);
+                console.error('Buy tickets error:', error);
             }
         };
 
