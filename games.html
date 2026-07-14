@@ -656,38 +656,46 @@
                     });
                 }
 
-                // SHOW CONFIRMATION IMMEDIATELY (don't wait for database)
+                // Calculate new game count
+                const newCount = (gameData.tickets_sold || 0) + count;
+
+                // WAIT for ALL database operations to SUCCEED before showing confirmation
+                const [ticketsInsertResult, transactionsInsertResult, balanceUpdateResult, gameUpdateResult] = await Promise.all([
+                    supabaseClient.from('tickets').insert(ticketInserts),
+                    supabaseClient.from('transactions').insert(transactionInserts),
+                    supabaseClient.from('users').update({ balance: userBalance - totalPrice }).eq('id', currentUser.id),
+                    supabaseClient.from('games').update({ tickets_sold: newCount }).eq('id', currentGame)
+                ]);
+
+                // Check if all operations succeeded
+                if (ticketsInsertResult.error || transactionsInsertResult.error || balanceUpdateResult.error || gameUpdateResult.error) {
+                    console.error('Database errors:', {
+                        ticketsInsertResult: ticketsInsertResult.error,
+                        transactionsInsertResult: transactionsInsertResult.error,
+                        balanceUpdateResult: balanceUpdateResult.error,
+                        gameUpdateResult: gameUpdateResult.error
+                    });
+                    alert('❌ Error saving your purchase. Please try again.');
+                    return;
+                }
+
+                // NOW update UI after ALL database operations succeeded
+                userBalance -= totalPrice;
+                document.getElementById('userBalance').textContent = userBalance;
+
+                // SHOW CONFIRMATION ONLY AFTER ALL DATABASE UPDATES SUCCEEDED
                 const numbersDisplay = assignedNumbers.join(', ');
                 alert('✅ ' + translations[currentLanguage].ticketsPurchased + '\n\n🎫 Your Ticket Numbers:\n' + numbersDisplay);
                 closeBuyModal();
 
-                // Update balance and game IMMEDIATELY (optimistic update)
-                userBalance -= totalPrice;
-                document.getElementById('userBalance').textContent = userBalance;
-                const newCount = (gameData.tickets_sold || 0) + count;
-
-                // Run all database operations in PARALLEL (don't wait for each one)
-                Promise.all([
-                    // Insert all tickets at once
-                    supabaseClient.from('tickets').insert(ticketInserts),
-                    // Insert all transactions at once
-                    supabaseClient.from('transactions').insert(transactionInserts),
-                    // Update user balance
-                    supabaseClient.from('users').update({ balance: userBalance }).eq('id', currentUser.id),
-                    // Update game ticket count
-                    supabaseClient.from('games').update({ tickets_sold: newCount }).eq('id', currentGame)
-                ]).then(() => {
-                    // After all updates complete, reload
-                    if (newCount === 10) {
-                        setTimeout(async () => {
-                            await selectWinnersAndDistributePrizes(currentGame, currentGameType);
-                        }, 1500);
-                    } else {
-                        loadGames();
-                    }
-                }).catch(error => {
-                    console.error('Background update error:', error);
-                });
+                // Reload games
+                if (newCount === 10) {
+                    setTimeout(async () => {
+                        await selectWinnersAndDistributePrizes(currentGame, currentGameType);
+                    }, 1500);
+                } else {
+                    loadGames();
+                }
 
             } catch (error) {
                 alert('❌ Error: ' + error.message);
