@@ -571,7 +571,7 @@
         };
 
         window.buyTickets = async function(count) {
-            // FIX 1: Prevent buying more than 3 tickets
+            // Validate count
             if (count > 3 || count < 1) {
                 alert('❌ You can only buy 1-3 tickets per game!');
                 return;
@@ -593,9 +593,33 @@
                     .eq('id', currentGame)
                     .single();
 
-                // FIX 2: Prevent buying when game is FULL
+                // Prevent buying when game is FULL
                 if (gameData.tickets_sold >= 10 || gameData.status === 'completed') {
                     alert('❌ This game is FULL! Results are being calculated...');
+                    closeBuyModal();
+                    return;
+                }
+
+                // FIX: CHECK HOW MANY TICKETS THIS PLAYER ALREADY HAS
+                const { data: myTickets } = await supabaseClient
+                    .from('tickets')
+                    .select('id')
+                    .eq('game_id', currentGame)
+                    .eq('user_id', currentUser.id);
+
+                const myTicketCount = myTickets ? myTickets.length : 0;
+
+                // CRITICAL: Prevent buying more than 3 TOTAL tickets
+                if (myTicketCount >= 3) {
+                    alert('❌ You already have 3 tickets in this game! Maximum is 3 per game.');
+                    closeBuyModal();
+                    return;
+                }
+
+                // Prevent buying if it would exceed 3 total
+                if (myTicketCount + count > 3) {
+                    const remaining = 3 - myTicketCount;
+                    alert(`❌ You already have ${myTicketCount} tickets. You can only buy ${remaining} more!`);
                     closeBuyModal();
                     return;
                 }
@@ -654,7 +678,7 @@
                 alert('✅ ' + translations[currentLanguage].ticketsPurchased + '\n\n🎫 Your Ticket Numbers:\n' + numbersDisplay);
                 closeBuyModal();
 
-                // FIX 3: Trigger results if game is NOW full
+                // Trigger results if game is NOW full
                 if (newCount === 10) {
                     setTimeout(async () => {
                         await selectWinnersAndDistributePrizes(currentGame, currentGameType);
