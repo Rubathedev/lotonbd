@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Play Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script>
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "5943cc8d-4fbb-4588-9055-84e111bb749a", // YOUR APP ID - ALREADY SET! ✅
+                allowLocalhostAsSecureOrigin: true,
+            });
+        });
+    </script>
     <style>
         .btn-press {
             transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -135,7 +145,6 @@
                     <h3 class="text-xl font-bold text-blue-700 mb-4">💳 How to Add Money to Play</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <!-- bKash -->
                         <div class="bg-white p-4 rounded-lg border-2 border-red-400">
                             <p class="font-bold text-red-600 text-lg mb-2">📱 bKash</p>
                             <p class="text-gray-700 font-bold text-2xl mb-2">01939870830</p>
@@ -144,7 +153,6 @@
                             <p class="text-xs text-gray-500 mt-2">Send money → We add to your account</p>
                         </div>
                         
-                        <!-- Nagad -->
                         <div class="bg-white p-4 rounded-lg border-2 border-orange-400">
                             <p class="font-bold text-orange-600 text-lg mb-2">📱 Nagad</p>
                             <p class="text-gray-700 font-bold text-2xl mb-2">01939870830</p>
@@ -267,6 +275,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- GAMES SECTION -->
         <div id="gamesContent" class="space-y-8 pb-12">
             <!-- Junior Games -->
             <div>
@@ -357,8 +367,8 @@
 
         // Prize structure
         const PRIZES = {
-            junior: [500, 300, 200, 100, 100, 100],  // 6 winners
-            vip: [3000, 2000, 1000, 500, 500, 500, 500]  // 7 winners
+            junior: [500, 300, 200, 100, 100, 100],
+            vip: [3000, 2000, 1000, 500, 500, 500, 500]
         };
 
         const translations = {
@@ -429,6 +439,7 @@
             await loadUserBalance();
             await loadGames();
             updateLanguage();
+            requestNotificationPermission();
         });
 
         window.setLanguage = function(lang) {
@@ -534,7 +545,6 @@
             const statusBg = sold >= 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
             const statusText = sold >= 10 ? 'FULL' : 'OPEN';
             
-            // Disable if full
             const isDisabled = sold >= 10;
             const clickHandler = isDisabled ? 'onclick="alert(\'❌ This game is FULL! Results are being calculated...\')"' : `onclick="selectGame('${game.id}', '${game.game_type}')"`;
             const opacityClass = isDisabled ? 'opacity-60 cursor-not-allowed' : '';
@@ -571,7 +581,6 @@
         };
 
         window.buyTickets = async function(count) {
-            // Validate count
             if (count > 3 || count < 1) {
                 alert('❌ You can only buy 1-3 tickets per game!');
                 return;
@@ -586,7 +595,6 @@
             }
 
             try {
-                // Get game data AND player tickets in PARALLEL (faster!)
                 const [gameResult, myTicketsResult, allTicketsResult] = await Promise.all([
                     supabaseClient.from('games').select('tickets_sold, status').eq('id', currentGame).single(),
                     supabaseClient.from('tickets').select('id').eq('game_id', currentGame).eq('user_id', currentUser.id),
@@ -597,14 +605,12 @@
                 const myTickets = myTicketsResult.data || [];
                 const allTickets = allTicketsResult.data || [];
 
-                // Prevent buying when game is FULL
                 if (gameData.tickets_sold >= 10 || gameData.status === 'completed') {
                     alert('❌ This game is FULL! Results are being calculated...');
                     closeBuyModal();
                     return;
                 }
 
-                // Prevent buying more than 3 TOTAL tickets
                 const myTicketCount = myTickets.length;
                 if (myTicketCount >= 3) {
                     alert('❌ You already have 3 tickets in this game! Maximum is 3 per game.');
@@ -619,7 +625,6 @@
                     return;
                 }
 
-                // Get available ticket numbers
                 const soldNumbers = new Set(allTickets.map(t => t.ticket_number));
                 const availableNumbers = [];
                 for (let i = 1; i <= 10; i++) {
@@ -631,7 +636,6 @@
                     return;
                 }
 
-                // Prepare all ticket inserts and transactions in advance
                 const ticketInserts = [];
                 const transactionInserts = [];
                 const assignedNumbers = [];
@@ -656,10 +660,8 @@
                     });
                 }
 
-                // Calculate new game count
                 const newCount = (gameData.tickets_sold || 0) + count;
 
-                // WAIT for ALL database operations to SUCCEED before showing confirmation
                 const [ticketsInsertResult, transactionsInsertResult, balanceUpdateResult, gameUpdateResult] = await Promise.all([
                     supabaseClient.from('tickets').insert(ticketInserts),
                     supabaseClient.from('transactions').insert(transactionInserts),
@@ -667,7 +669,6 @@
                     supabaseClient.from('games').update({ tickets_sold: newCount }).eq('id', currentGame)
                 ]);
 
-                // Check if all operations succeeded
                 if (ticketsInsertResult.error || transactionsInsertResult.error || balanceUpdateResult.error || gameUpdateResult.error) {
                     console.error('Database errors:', {
                         ticketsInsertResult: ticketsInsertResult.error,
@@ -679,24 +680,20 @@
                     return;
                 }
 
-                // NOW update UI after ALL database operations succeeded
                 userBalance -= totalPrice;
                 document.getElementById('userBalance').textContent = userBalance;
 
-                // SHOW CONFIRMATION ONLY AFTER ALL DATABASE UPDATES SUCCEEDED
                 const numbersDisplay = assignedNumbers.join(', ');
                 alert('✅ ' + translations[currentLanguage].ticketsPurchased + '\n\n🎫 Your Ticket Numbers:\n' + numbersDisplay);
                 closeBuyModal();
 
-                // Reload games
                 if (newCount === 10) {
                     setTimeout(async () => {
                         await selectWinnersAndDistributePrizes(currentGame, currentGameType);
-                    }, 1500);
+                    }, 2000);
                 } else {
                     loadGames();
                 }
-
             } catch (error) {
                 alert('❌ Error: ' + error.message);
                 console.error('Buy tickets error:', error);
@@ -705,7 +702,6 @@
 
         window.selectWinnersAndDistributePrizes = async function(gameId, gameType) {
             try {
-                // Get all tickets for this game
                 const { data: allTickets } = await supabaseClient
                     .from('tickets')
                     .select('*, users(id, name, email)')
@@ -716,20 +712,16 @@
                     return;
                 }
 
-                // Get prize structure
                 const prizes = PRIZES[gameType];
                 const numWinners = prizes.length;
 
-                // Shuffle and select winners
                 const shuffled = [...allTickets].sort(() => Math.random() - 0.5);
                 const winners = shuffled.slice(0, numWinners);
 
-                // Distribute prizes
                 for (let i = 0; i < winners.length; i++) {
                     const winner = winners[i];
                     const prizeAmount = prizes[i];
 
-                    // Update user balance
                     const { data: userData } = await supabaseClient
                         .from('users')
                         .select('balance, total_earned')
@@ -741,7 +733,6 @@
                         total_earned: (userData.total_earned || 0) + prizeAmount
                     }).eq('id', winner.user_id);
 
-                    // Record prize transaction
                     await supabaseClient.from('transactions').insert({
                         user_id: winner.user_id,
                         type: 'prize',
@@ -749,18 +740,88 @@
                         game_id: gameId,
                         ticket_number: winner.ticket_number
                     });
+
+                    const medals = ['🥇', '🥈', '🥉'];
+                    const medal = i < 3 ? medals[i] : '🎖️';
+                    sendWinNotification(winner.users.name, prizeAmount, medal, gameType);
                 }
 
-                // Mark game as completed
+                const winnerIds = new Set(winners.map(w => w.user_id));
+                allTickets.forEach(ticket => {
+                    if (!winnerIds.has(ticket.user_id)) {
+                        sendGameCompleteNotification(ticket.users.name, gameType);
+                    }
+                });
+
                 await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
 
-                // Show results
                 showGameResults(gameId, gameType, winners, allTickets);
             } catch (error) {
                 console.error('Draw error:', error);
                 alert('❌ Error during draw: ' + error.message);
             }
         };
+
+        function sendWinNotification(playerName, prizeAmount, medal, gameType) {
+            const gameLabel = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
+            
+            if ("Notification" in window) {
+                new Notification('🎉 Congratulations!', {
+                    body: `${medal} You won ৳${prizeAmount} in ${gameLabel} Game!`,
+                    icon: '🏆',
+                    tag: 'win-notification'
+                });
+            }
+
+            if (window.OneSignal) {
+                OneSignal.push(function() {
+                    OneSignal.sendSelfNotification({
+                        headings: { "en": "🎉 Congratulations!" },
+                        contents: { "en": `${medal} You won ৳${prizeAmount} in ${gameLabel} Game!` },
+                        bigPicture: "https://via.placeholder.com/256/FFD700/000000?text=Winner",
+                        ios_attachments: { "image": "https://via.placeholder.com/256/FFD700/000000?text=Winner" }
+                    });
+                });
+            }
+        }
+
+        function sendGameCompleteNotification(playerName, gameType) {
+            const gameLabel = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
+            
+            if ("Notification" in window) {
+                new Notification('🎮 Game Complete!', {
+                    body: `${gameLabel} Game has finished! Check results now.`,
+                    icon: '🎯',
+                    tag: 'game-complete-notification'
+                });
+            }
+
+            if (window.OneSignal) {
+                OneSignal.push(function() {
+                    OneSignal.sendSelfNotification({
+                        headings: { "en": "🎮 Game Complete!" },
+                        contents: { "en": `${gameLabel} Game has finished! Check results now.` },
+                        bigPicture: "https://via.placeholder.com/256/4CAF50/FFFFFF?text=Results"
+                    });
+                });
+            }
+        }
+
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        console.log("✅ Notifications enabled!");
+                    }
+                });
+            }
+
+            if (window.OneSignal) {
+                OneSignal.push(function() {
+                    OneSignal.showSlidedownPrompt();
+                });
+            }
+        }
 
         window.showGameResults = function(gameId, gameType, winners, allTickets) {
             const gameNum = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
