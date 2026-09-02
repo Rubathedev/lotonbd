@@ -5,16 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LottoBD - Play Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
-    <script>
-        window.OneSignal = window.OneSignal || [];
-        OneSignal.push(function() {
-            OneSignal.init({
-                appId: "5943cc8d-4fbb-4588-9055-84e111bb749a", // YOUR APP ID - ALREADY SET! ✅
-                allowLocalhostAsSecureOrigin: true,
-            });
-        });
-    </script>
     <style>
         .btn-press {
             transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -765,22 +755,12 @@
         function sendWinNotification(playerName, prizeAmount, medal, gameType) {
             const gameLabel = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
             
-            if ("Notification" in window) {
+            // Browser notification only (for now)
+            if ("Notification" in window && Notification.permission === "granted") {
                 new Notification('🎉 Congratulations!', {
                     body: `${medal} You won ৳${prizeAmount} in ${gameLabel} Game!`,
                     icon: '🏆',
                     tag: 'win-notification'
-                });
-            }
-
-            if (window.OneSignal) {
-                OneSignal.push(function() {
-                    OneSignal.sendSelfNotification({
-                        headings: { "en": "🎉 Congratulations!" },
-                        contents: { "en": `${medal} You won ৳${prizeAmount} in ${gameLabel} Game!` },
-                        bigPicture: "https://via.placeholder.com/256/FFD700/000000?text=Winner",
-                        ios_attachments: { "image": "https://via.placeholder.com/256/FFD700/000000?text=Winner" }
-                    });
                 });
             }
         }
@@ -788,38 +768,20 @@
         function sendGameCompleteNotification(playerName, gameType) {
             const gameLabel = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
             
-            if ("Notification" in window) {
+            // Browser notification only (for now)
+            if ("Notification" in window && Notification.permission === "granted") {
                 new Notification('🎮 Game Complete!', {
                     body: `${gameLabel} Game has finished! Check results now.`,
                     icon: '🎯',
                     tag: 'game-complete-notification'
                 });
             }
-
-            if (window.OneSignal) {
-                OneSignal.push(function() {
-                    OneSignal.sendSelfNotification({
-                        headings: { "en": "🎮 Game Complete!" },
-                        contents: { "en": `${gameLabel} Game has finished! Check results now.` },
-                        bigPicture: "https://via.placeholder.com/256/4CAF50/FFFFFF?text=Results"
-                    });
-                });
-            }
         }
 
         function requestNotificationPermission() {
+            // Request browser notification permission
             if ("Notification" in window && Notification.permission === "default") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        console.log("✅ Notifications enabled!");
-                    }
-                });
-            }
-
-            if (window.OneSignal) {
-                OneSignal.push(function() {
-                    OneSignal.showSlidedownPrompt();
-                });
+                Notification.requestPermission();
             }
         }
 
