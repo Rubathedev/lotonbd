@@ -651,6 +651,8 @@
                 const shuffled = [...allTickets].sort(() => Math.random() - 0.5);
                 const winners = shuffled.slice(0, prizes.length);
 
+                const gameLabel = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
+
                 for (let i = 0; i < winners.length; i++) {
                     const winner = winners[i];
                     const prizeAmount = prizes[i];
@@ -669,7 +671,32 @@
                         game_id: gameId,
                         ticket_number: winner.ticket_number
                     });
+
+                    // Send win notification
+                    const medals = ['🥇', '🥈', '🥉', '🎖️', '🎖️', '🎖️', '🎖️'];
+                    const medal = medals[i] || '🎖️';
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        new Notification('🎉 Congratulations!', {
+                            body: `${medal} You won ৳${prizeAmount} in ${gameLabel} Game!`,
+                            icon: '🏆',
+                            tag: 'win-notification'
+                        });
+                    }
                 }
+
+                // Send game complete notification to non-winners
+                const winnerIds = new Set(winners.map(w => w.user_id));
+                allTickets.forEach(ticket => {
+                    if (!winnerIds.has(ticket.user_id)) {
+                        if ("Notification" in window && Notification.permission === "granted") {
+                            new Notification('🎮 Game Complete!', {
+                                body: `${gameLabel} Game has finished! Check results now.`,
+                                icon: '🎯',
+                                tag: 'game-complete-notification'
+                            });
+                        }
+                    }
+                });
 
                 await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
                 showGameResults(gameType, winners, allTickets);
