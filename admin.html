@@ -90,26 +90,21 @@
             </div>
         </div>
 
-        <!-- ACTIVE GAMES SECTION -->
+        <!-- ALL USERS SECTION -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-2 border-indigo-600">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-6">👥 All Users/Players</h2>
+            
+            <div id="usersList" class="space-y-2">
+                <p class="text-center text-gray-600">Loading...</p>
+            </div>
+        </div>
+
+        <!-- ACTIVE GAMES SECTION - LIST VIEW -->
         <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-2 border-blue-600">
             <h2 class="text-2xl font-bold text-blue-700 mb-6">🎮 Active Games</h2>
             
-            <div class="space-y-4">
-                <!-- Junior Games -->
-                <div>
-                    <h3 class="text-xl font-bold text-teal-700 mb-3">Junior Games (৳200)</h3>
-                    <div id="juniorGamesList" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                        <p class="col-span-full text-center text-gray-600">Loading...</p>
-                    </div>
-                </div>
-
-                <!-- VIP Games -->
-                <div class="mt-6">
-                    <h3 class="text-xl font-bold text-amber-700 mb-3">VIP Games (৳1,000)</h3>
-                    <div id="vipGamesList" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                        <p class="col-span-full text-center text-gray-600">Loading...</p>
-                    </div>
-                </div>
+            <div id="activeGamesList" class="space-y-2">
+                <p class="text-center text-gray-600">Loading...</p>
             </div>
         </div>
 
@@ -159,11 +154,31 @@
 
         async function loadAllUsers() {
             try {
-                const { data } = await supabaseClient.from('users').select('id, email, name, balance');
+                const { data } = await supabaseClient.from('users').select('id, email, name, balance').order('created_at', { ascending: false });
                 allUsers = data || [];
+                displayUsers();
             } catch (error) {
                 console.error('Load users error:', error);
             }
+        }
+
+        function displayUsers() {
+            const list = document.getElementById('usersList');
+            
+            if (allUsers.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-600">No users yet</p>';
+                return;
+            }
+
+            list.innerHTML = allUsers.map(user => `
+                <div class="bg-indigo-50 p-4 rounded-lg border-2 border-indigo-400 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-lg">${user.name || 'No Name'}</p>
+                        <p class="text-sm text-gray-600">${user.email}</p>
+                    </div>
+                    <p class="text-2xl font-bold text-indigo-700">৳${user.balance || 0}</p>
+                </div>
+            `).join('');
         }
 
         window.searchUsers = function() {
@@ -253,37 +268,39 @@
                     .order('game_type')
                     .order('game_number');
 
-                const juniorList = document.getElementById('juniorGamesList');
-                const vipList = document.getElementById('vipGamesList');
+                const activeList = document.getElementById('activeGamesList');
                 const completedList = document.getElementById('completedGamesList');
 
-                const juniorActive = data.filter(g => g.game_type === 'junior' && g.status === 'active') || [];
-                const vipActive = data.filter(g => g.game_type === 'vip' && g.status === 'active') || [];
+                const active = data.filter(g => g.status === 'active') || [];
                 const completed = data.filter(g => g.status === 'completed') || [];
 
-                juniorList.innerHTML = juniorActive.length ? juniorActive.map(createGameCard).join('') : '<p class="col-span-full text-center">No active junior games</p>';
-                vipList.innerHTML = vipActive.length ? vipActive.map(createGameCard).join('') : '<p class="col-span-full text-center">No active VIP games</p>';
+                activeList.innerHTML = active.length ? active.map(createActiveGameItem).join('') : '<p class="text-center text-gray-600">No active games</p>';
                 completedList.innerHTML = completed.length ? completed.map(createCompletedListItem).join('') : '<p class="text-center text-gray-600">No completed games</p>';
             } catch (error) {
                 console.error('Load games error:', error);
             }
         }
 
-        function createGameCard(game) {
+        function createActiveGameItem(game) {
             const gameNum = String(game.game_number).padStart(2, '0');
+            const gameType = game.game_type === 'vip' ? '💎 VIP (৳1,000)' : '🎮 Junior (৳200)';
             const sold = game.tickets_sold || 0;
             const percentFull = (sold / 10) * 100;
 
             return `
-                <div class="bg-gradient-to-br from-teal-100 to-cyan-100 p-4 rounded-lg border-2 border-teal-600 shadow-lg">
-                    <p class="text-teal-700 font-bold text-lg mb-2">#${gameNum}</p>
-                    <p class="text-sm text-gray-600 mb-2">${sold}/10</p>
-                    <div class="w-full bg-gray-300 rounded-full h-2 mb-2">
-                        <div class="bg-teal-600 h-2 rounded-full" style="width: ${percentFull}%"></div>
+                <div class="bg-blue-50 p-4 rounded-lg border-2 border-blue-400">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <p class="font-bold text-lg">#${gameNum} - ${gameType}</p>
+                            <p class="text-sm text-gray-600">${sold}/10 players</p>
+                        </div>
+                        <button onclick="deleteGame('${game.id}')" class="btn-press bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded font-bold text-sm">
+                            🗑️ Delete
+                        </button>
                     </div>
-                    <button onclick="deleteGame('${game.id}')" class="btn-press w-full bg-red-500 hover:bg-red-600 text-white text-xs py-1 rounded font-bold">
-                        🗑️ Delete
-                    </button>
+                    <div class="w-full bg-gray-300 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: ${percentFull}%"></div>
+                    </div>
                 </div>
             `;
         }
@@ -298,7 +315,7 @@
                         <p class="font-bold text-lg">#${gameNum} - ${gameType}</p>
                         <p class="text-sm text-gray-600">Completed</p>
                     </div>
-                    <p class="text-green-700 font-bold">✅</p>
+                    <p class="text-green-700 font-bold text-lg">✅</p>
                 </div>
             `;
         }
