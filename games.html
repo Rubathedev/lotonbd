@@ -406,6 +406,27 @@
                 return;
             }
 
+            // Request notification permission
+            if ("Notification" in window && Notification.permission === "default") {
+                try {
+                    await Notification.requestPermission();
+                    console.log('📢 Notification permission:', Notification.permission);
+                } catch (error) {
+                    console.log('⚠️ Notification permission error:', error);
+                }
+            }
+
+            // Register Service Worker for background notifications
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.register('data:text/javascript,self.addEventListener("push",e=>{const d=e.data.json();self.registration.showNotification(d.title,d.options)})').then(() => {
+                        console.log('✅ Service Worker ready for notifications');
+                    });
+                } catch (err) {
+                    console.log('ℹ️ SW info:', err.message);
+                }
+            }
+
             currentUser = session.user;
             // Admin can also play to test notifications
             console.log('User logged in:', currentUser.email);
@@ -487,15 +508,98 @@
 
         async function loadGames() {
             try {
-                const { data } = await supabaseClient.from('games').select('*').eq('status', 'active').order('game_type').order('game_number');
+                // Load ACTIVE games
+                const { data: activeData } = await supabaseClient.from('games').select('*').eq('status', 'active').order('game_type').order('game_number');
                 const juniorList = document.getElementById('juniorGamesList');
                 const vipList = document.getElementById('vipGamesList');
-                const juniorGames = data.filter(g => g.game_type === 'junior') || [];
-                const vipGames = data.filter(g => g.game_type === 'vip') || [];
-                juniorList.innerHTML = juniorGames.length ? juniorGames.map(createGameCard).join('') : '<p class="col-span-full text-center text-gray-600 text-sm">No games</p>';
-                vipList.innerHTML = vipGames.length ? vipGames.map(createGameCard).join('') : '<p class="col-span-full text-center text-gray-600 text-sm">No games</p>';
+                const juniorGames = activeData.filter(g => g.game_type === 'junior') || [];
+                const vipGames = activeData.filter(g => g.game_type === 'vip') || [];
+                juniorList.innerHTML = juniorGames.length ? juniorGames.map(createGameCard).join('') : '<p class="col-span-full text-center text-gray-600 text-sm">No active games</p>';
+                vipList.innerHTML = vipGames.length ? vipGames.map(createGameCard).join('') : '<p class="col-span-full text-center text-gray-600 text-sm">No active games</p>';
+                
+                // Check for completed games and show results
+                checkCompletedGames();
             } catch (error) {
                 console.error('Load games error:', error);
+            }
+        }
+
+        // Track shown notifications to prevent duplicates
+        const shownNotifications = new Set();
+
+        async function checkCompletedGames() {
+            try {
+                // Get all completed games
+                const { data: completedGames } = await supabaseClient.from('games').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(10);
+                
+                if (!completedGames || completedGames.length === 0) {
+                    console.log('ℹ️ No completed games');
+                    return;
+                }
+
+                console.log(`📊 Checking ${completedGames.length} completed games`);
+
+                for (const game of completedGames) {
+                    const notificationKey = `notif-${game.id}-${currentUser.id}`;
+                    
+                    // Skip if already notified
+                    if (shownNotifications.has(notificationKey)) {
+                        console.log(`⏭️ Already notified for game ${game.game_number}`);
+                        continue;
+                    }
+                    
+                    // Check if user bought tickets in this game
+                    const { data: userTickets } = await supabaseClient.from('tickets').select('id').eq('game_id', game.id).eq('user_id', currentUser.id);
+                    
+                    if (userTickets && userTickets.length > 0) {
+                        // User has tickets in this game, check if they won
+                        const { data: userPrizes } = await supabaseClient.from('transactions').select('amount').eq('game_id', game.id).eq('user_id', currentUser.id).eq('type', 'prize');
+                        
+                        if (userPrizes && userPrizes.length > 0) {
+                            // User WON! Show notification
+                            const totalWon = userPrizes.reduce((sum, p) => sum + p.amount, 0);
+                            showCompletedGameNotification(game, totalWon, true);
+                        } else {
+                            // User did NOT win
+                            showCompletedGameNotification(game, 0, false);
+                        }
+                        
+                        // Mark as shown
+                        shownNotifications.add(notificationKey);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking completed games:', error);
+            }
+        }
+
+        function showCompletedGameNotification(game, winAmount, didWin) {
+            const gameLabel = game.game_type === 'vip' ? '💎 VIP' : '🎮 Junior';
+            
+            if (didWin) {
+                console.log(`🎉 WINNER! ${gameLabel} Game #${game.game_number}: YOU WON ৳${winAmount}!`);
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification(`🎉 ${gameLabel} Game Won!`, {
+                        body: `Congratulations! You WON ৳${winAmount}! Game #${game.game_number}`,
+                        icon: '🏆',
+                        tag: `result-${game.id}`,
+                        badge: '🎫'
+                    });
+                } else {
+                    console.log('⚠️ Notification permission not granted - notification not sent');
+                }
+            } else {
+                console.log(`Game #${game.game_number} finished - You didn't win this time`);
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification(`${gameLabel} Game #${game.game_number} Complete`, {
+                        body: `The drawing is complete! Better luck next time! 💪`,
+                        icon: '🎯',
+                        tag: `result-${game.id}`,
+                        badge: '🎫'
+                    });
+                } else {
+                    console.log('⚠️ Notification permission not granted - notification not sent');
+                }
             }
         }
 
@@ -672,7 +776,15 @@
                 closeBuyModal();
 
                 if (newCount === 10) {
-                    setTimeout(() => selectWinnersAndDistributePrizes(currentGame, currentGameType), 2000);
+                    console.log('🎉 Game is FULL! Starting prize draw in 2 seconds...');
+                    // Draw immediately without waiting for user to close modal
+                    setTimeout(async () => {
+                        console.log('⏰ Prize draw time!');
+                        await selectWinnersAndDistributePrizes(currentGame, currentGameType);
+                        // Reload for this user and all other users
+                        loadUserBalance();
+                        loadGames();
+                    }, 1000);
                 } else {
                     loadGames();
                 }
@@ -683,8 +795,23 @@
 
         window.selectWinnersAndDistributePrizes = async function(gameId, gameType) {
             try {
-                const { data: allTickets } = await supabaseClient.from('tickets').select('*, users(id, name, email)').eq('game_id', gameId);
-                if (!allTickets || allTickets.length === 0) return;
+                console.log('🎯 Starting prize distribution for game:', gameId, 'type:', gameType);
+                
+                const { data: allTickets, error: ticketError } = await supabaseClient.from('tickets').select('*, users(id, name, email)').eq('game_id', gameId);
+                
+                if (ticketError) {
+                    console.error('❌ Ticket fetch error:', ticketError);
+                    alert('❌ Error loading tickets!');
+                    return;
+                }
+                
+                if (!allTickets || allTickets.length === 0) {
+                    console.error('❌ No tickets found!');
+                    alert('❌ No tickets found!');
+                    return;
+                }
+
+                console.log('✅ Found', allTickets.length, 'tickets');
 
                 const prizes = PRIZES[gameType];
                 const shuffled = [...allTickets].sort(() => Math.random() - 0.5);
@@ -692,24 +819,41 @@
 
                 const gameLabel = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
 
+                console.log('🏆 Selected', winners.length, 'winners');
+
                 for (let i = 0; i < winners.length; i++) {
                     const winner = winners[i];
                     const prizeAmount = prizes[i];
 
-                    const { data: userData } = await supabaseClient.from('users').select('balance, total_earned').eq('id', winner.user_id).single();
+                    console.log(`Prize ${i + 1}: ${winner.users.name} wins ৳${prizeAmount}`);
 
-                    await supabaseClient.from('users').update({
+                    const { data: userData, error: userError } = await supabaseClient.from('users').select('balance, total_earned').eq('id', winner.user_id).single();
+
+                    if (userError) {
+                        console.error('❌ User fetch error:', userError);
+                        continue;
+                    }
+
+                    const { error: updateError } = await supabaseClient.from('users').update({
                         balance: (userData.balance || 0) + prizeAmount,
                         total_earned: (userData.total_earned || 0) + prizeAmount
                     }).eq('id', winner.user_id);
 
-                    await supabaseClient.from('transactions').insert({
+                    if (updateError) {
+                        console.error('❌ Balance update error:', updateError);
+                    }
+
+                    const { error: transError } = await supabaseClient.from('transactions').insert({
                         user_id: winner.user_id,
                         type: 'prize',
                         amount: prizeAmount,
                         game_id: gameId,
                         ticket_number: winner.ticket_number
                     });
+
+                    if (transError) {
+                        console.error('❌ Transaction insert error:', transError);
+                    }
 
                     // Send win notification
                     const medals = ['🥇', '🥈', '🥉', '🎖️', '🎖️', '🎖️', '🎖️'];
@@ -720,6 +864,9 @@
                             icon: '🏆',
                             tag: 'win-notification'
                         });
+                        console.log('📢 Notification sent to winner');
+                    } else {
+                        console.log('⚠️ Notification permission not granted');
                     }
                 }
 
@@ -737,20 +884,37 @@
                     }
                 });
 
-                await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
+                const { error: gameError } = await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
+                if (gameError) {
+                    console.error('❌ Game update error:', gameError);
+                }
+
+                console.log('✅ Prize distribution complete!');
                 showGameResults(gameType, winners, allTickets);
+                
+                // Auto-reload after 5 seconds if user doesn't close modal
+                setTimeout(() => {
+                    console.log('🔄 Auto-reloading games after prize distribution');
+                    loadUserBalance();
+                    loadGames();
+                }, 5000);
+                
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Error:', error);
+                alert('❌ Error distributing prizes: ' + error.message);
             }
         };
 
         window.showGameResults = function(gameType, winners, allTickets) {
+            console.log('📊 Showing results for', gameType, 'game with', winners.length, 'winners');
+            
             const winnersList = document.getElementById('winnersList');
             winnersList.innerHTML = '';
             const medals = ['🥇', '🥈', '🥉', '🎖️', '🎖️', '🎖️', '🎖️'];
             const prizes = PRIZES[gameType];
 
             winners.forEach((winner, index) => {
+                console.log(`  ${medals[index]} Winner:`, winner.users.name, '- ৳' + prizes[index]);
                 winnersList.innerHTML += `
                     <div class="bg-green-100 p-3 sm:p-4 rounded-lg border-2 border-green-500">
                         <p class="font-bold text-sm sm:text-base">${medals[index]} ${winner.users.name}</p>
@@ -764,13 +928,21 @@
             const winnerIds = new Set(winners.map(w => w.user_id));
             const losers = allTickets.filter(t => !winnerIds.has(t.user_id));
 
+            console.log(`  ${losers.length} non-winners`);
             losersList.innerHTML = losers.map(loser => `
                 <div class="bg-gray-100 p-2 sm:p-3 rounded border-l-4 border-gray-400">
                     <p class="font-bold text-xs sm:text-sm">${loser.users.name}</p>
                 </div>
             `).join('');
 
-            document.getElementById('resultsModal').classList.remove('hidden');
+            const resultsModal = document.getElementById('resultsModal');
+            console.log('📌 Results modal element found?', !!resultsModal);
+            console.log('📌 Modal hidden class before:', resultsModal.className);
+            
+            resultsModal.classList.remove('hidden');
+            
+            console.log('📌 Modal hidden class after:', resultsModal.className);
+            console.log('✅ Results modal displayed!');
         };
 
         window.closeResultsModal = function() {
