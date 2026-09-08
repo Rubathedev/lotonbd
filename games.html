@@ -34,6 +34,9 @@
                         <button onclick="setLanguage('en')" id="btnEn" class="btn-press bg-blue-600 text-white px-2 sm:px-4 py-2 rounded font-bold text-xs sm:text-sm">EN</button>
                         <button onclick="setLanguage('bn')" id="btnBn" class="btn-press bg-gray-400 text-white px-2 sm:px-4 py-2 rounded font-bold text-xs sm:text-sm">বাং</button>
                     </div>
+                    <p id="notificationStatus" class="text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 whitespace-nowrap">
+                        📢 Notifications...
+                    </p>
                 </div>
             </div>
 
@@ -289,6 +292,38 @@
         </div>
     </div>
 
+    <!-- LOADING MODAL FOR PRIZE DRAW -->
+    <div id="drawingModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 sm:p-10 max-w-md w-full shadow-2xl text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold text-teal-700 mb-6">🎰 Drawing Winners...</h2>
+            
+            <!-- Spinning animation -->
+            <div class="flex justify-center mb-8">
+                <div class="w-20 h-20 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
+            </div>
+            
+            <p class="text-xl sm:text-2xl font-bold text-gray-700 mb-4">Please Wait! ⏳</p>
+            <p class="text-gray-600 text-lg">Selecting lucky winners...</p>
+            
+            <div class="mt-8 space-y-2 text-left">
+                <div class="flex items-center text-sm sm:text-base">
+                    <span class="text-teal-600 font-bold mr-3">✓</span>
+                    <span>Shuffling tickets...</span>
+                </div>
+                <div class="flex items-center text-sm sm:text-base">
+                    <span class="text-teal-600 font-bold mr-3">✓</span>
+                    <span>Picking winners...</span>
+                </div>
+                <div class="flex items-center text-sm sm:text-base">
+                    <span class="text-teal-600 font-bold mr-3">✓</span>
+                    <span>Sending rewards...</span>
+                </div>
+            </div>
+            
+            <p class="text-xs text-gray-500 mt-8">This usually takes 2-3 seconds...</p>
+        </div>
+    </div>
+
     <!-- RESULTS MODAL -->
     <div id="resultsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
         <div class="bg-white rounded-xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border-2 border-teal-600 max-h-96 overflow-y-auto">
@@ -406,24 +441,59 @@
                 return;
             }
 
-            // Request notification permission
-            if ("Notification" in window && Notification.permission === "default") {
+            // ALWAYS request notification permission - every session!
+            if ("Notification" in window) {
+                console.log('📢 Current notification permission:', Notification.permission);
+                
+                // Show current status
+                if (Notification.permission === "granted") {
+                    document.getElementById('notificationStatus').textContent = '✅ Notifications ON';
+                    document.getElementById('notificationStatus').className = 'text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-full bg-green-100 text-green-700 whitespace-nowrap';
+                } else if (Notification.permission === "denied") {
+                    document.getElementById('notificationStatus').textContent = '❌ Notifications OFF';
+                    document.getElementById('notificationStatus').className = 'text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-full bg-red-100 text-red-700 whitespace-nowrap';
+                }
+                
+                // Always try to request (won't re-ask if already granted)
                 try {
-                    await Notification.requestPermission();
-                    console.log('📢 Notification permission:', Notification.permission);
+                    const permission = await Notification.requestPermission();
+                    console.log('📢 Notification permission result:', permission);
+                    
+                    if (permission === "granted") {
+                        console.log('✅ Notifications ENABLED for this user');
+                        document.getElementById('notificationStatus').textContent = '✅ Notifications ON';
+                        document.getElementById('notificationStatus').className = 'text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-full bg-green-100 text-green-700 whitespace-nowrap';
+                        
+                        // Show test notification
+                        new Notification('🎫 LottoBD Active', {
+                            body: 'You will receive notifications when games are drawn!',
+                            icon: '🎫',
+                            tag: 'welcome-notification'
+                        });
+                    } else if (permission === "denied") {
+                        console.log('❌ Notifications BLOCKED - User denied permission');
+                        document.getElementById('notificationStatus').textContent = '❌ Notifications OFF';
+                        document.getElementById('notificationStatus').className = 'text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-full bg-red-100 text-red-700 whitespace-nowrap cursor-pointer';
+                        alert('⚠️ Notifications are disabled. Please enable them in browser settings to get game results!');
+                    }
                 } catch (error) {
-                    console.log('⚠️ Notification permission error:', error);
+                    console.log('⚠️ Permission request error:', error);
                 }
             }
 
-            // Register Service Worker for background notifications
+            // Register Service Worker with notification support
             if ('serviceWorker' in navigator) {
                 try {
-                    await navigator.serviceWorker.register('data:text/javascript,self.addEventListener("push",e=>{const d=e.data.json();self.registration.showNotification(d.title,d.options)})').then(() => {
-                        console.log('✅ Service Worker ready for notifications');
-                    });
+                    const registration = await navigator.serviceWorker.register('notification-service.js');
+                    console.log('✅ Service Worker registered successfully');
+                    
+                    // Check for updates periodically
+                    setInterval(() => {
+                        registration.update();
+                    }, 60000);
                 } catch (err) {
-                    console.log('ℹ️ SW info:', err.message);
+                    console.log('ℹ️ Service Worker registration info:', err.message);
+                    // Fallback - still works without SW, just no background notifications
                 }
             }
 
@@ -506,6 +576,8 @@
             }
         }
 
+        let lastGameCount = 0;
+        
         async function loadGames() {
             try {
                 // Load ACTIVE games
@@ -514,6 +586,26 @@
                 const vipList = document.getElementById('vipGamesList');
                 const juniorGames = activeData.filter(g => g.game_type === 'junior') || [];
                 const vipGames = activeData.filter(g => g.game_type === 'vip') || [];
+                
+                const totalGames = juniorGames.length + vipGames.length;
+                
+                // Notify if NEW games appeared
+                if (lastGameCount > 0 && totalGames > lastGameCount) {
+                    const newGameCount = totalGames - lastGameCount;
+                    console.log(`🎮 ${newGameCount} new game(s) available!`);
+                    
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        new Notification(`🎮 New Game Available!`, {
+                            body: `${newGameCount} new game(s) just opened! Come play now!`,
+                            icon: '🎫',
+                            badge: '🎮',
+                            tag: 'new-game-notification'
+                        });
+                    }
+                }
+                
+                lastGameCount = totalGames;
+                
                 juniorList.innerHTML = juniorGames.length ? juniorGames.map(createGameCard).join('') : '<p class="col-span-full text-center text-gray-600 text-sm">No active games</p>';
                 vipList.innerHTML = vipGames.length ? vipGames.map(createGameCard).join('') : '<p class="col-span-full text-center text-gray-600 text-sm">No active games</p>';
                 
@@ -576,29 +668,48 @@
         function showCompletedGameNotification(game, winAmount, didWin) {
             const gameLabel = game.game_type === 'vip' ? '💎 VIP' : '🎮 Junior';
             
+            console.log(`\n🔔 NOTIFICATION CHECK:`);
+            console.log(`   Game: ${gameLabel} #${game.game_number}`);
+            console.log(`   User Won: ${didWin ? 'YES ৳' + winAmount : 'NO'}`);
+            console.log(`   Notification available: ${"Notification" in window}`);
+            console.log(`   Permission: ${Notification.permission}`);
+            
             if (didWin) {
-                console.log(`🎉 WINNER! ${gameLabel} Game #${game.game_number}: YOU WON ৳${winAmount}!`);
+                console.log(`🎉 WINNER ALERT: You WON ৳${winAmount}!`);
                 if ("Notification" in window && Notification.permission === "granted") {
-                    new Notification(`🎉 ${gameLabel} Game Won!`, {
-                        body: `Congratulations! You WON ৳${winAmount}! Game #${game.game_number}`,
-                        icon: '🏆',
-                        tag: `result-${game.id}`,
-                        badge: '🎫'
-                    });
+                    try {
+                        const notif = new Notification(`🎉 You WON ৳${winAmount}!`, {
+                            body: `${gameLabel} Game #${game.game_number} - Congratulations!`,
+                            icon: '🏆',
+                            badge: '🎫',
+                            tag: `result-${game.id}`,
+                            requireInteraction: true,
+                            vibrate: [200, 100, 200]
+                        });
+                        console.log('✅ Win notification sent successfully');
+                    } catch (error) {
+                        console.error('❌ Win notification error:', error);
+                    }
                 } else {
-                    console.log('⚠️ Notification permission not granted - notification not sent');
+                    console.warn('⚠️ Cannot send notification:', Notification.permission !== "granted" ? 'Permission not granted' : 'Notification API unavailable');
                 }
             } else {
-                console.log(`Game #${game.game_number} finished - You didn't win this time`);
+                console.log(`Game #${game.game_number} finished - No win`);
                 if ("Notification" in window && Notification.permission === "granted") {
-                    new Notification(`${gameLabel} Game #${game.game_number} Complete`, {
-                        body: `The drawing is complete! Better luck next time! 💪`,
-                        icon: '🎯',
-                        tag: `result-${game.id}`,
-                        badge: '🎫'
-                    });
+                    try {
+                        const notif = new Notification(`${gameLabel} Game #${game.game_number} Complete`, {
+                            body: `The drawing is complete. Better luck next time! 💪`,
+                            icon: '🎯',
+                            badge: '🎫',
+                            tag: `result-${game.id}`,
+                            requireInteraction: false
+                        });
+                        console.log('✅ No-win notification sent successfully');
+                    } catch (error) {
+                        console.error('❌ No-win notification error:', error);
+                    }
                 } else {
-                    console.log('⚠️ Notification permission not granted - notification not sent');
+                    console.warn('⚠️ Cannot send notification:', Notification.permission !== "granted" ? 'Permission not granted' : 'Notification API unavailable');
                 }
             }
         }
@@ -777,10 +888,15 @@
 
                 if (newCount === 10) {
                     console.log('🎉 Game is FULL! Starting prize draw in 2 seconds...');
+                    // Show loading/drawing modal
+                    document.getElementById('drawingModal').classList.remove('hidden');
+                    
                     // Draw immediately without waiting for user to close modal
                     setTimeout(async () => {
                         console.log('⏰ Prize draw time!');
                         await selectWinnersAndDistributePrizes(currentGame, currentGameType);
+                        // Hide drawing modal
+                        document.getElementById('drawingModal').classList.add('hidden');
                         // Reload for this user and all other users
                         loadUserBalance();
                         loadGames();
