@@ -647,13 +647,27 @@
 
         async function loadUserBalance() {
             try {
-                const { data } = await supabaseClient.from('users').select('balance').eq('id', currentUser.id).single();
-                if (data) {
-                    userBalance = data.balance;
+                const { data, error } = await supabaseClient.from('users').select('balance').eq('id', currentUser.id).single();
+                
+                if (error) {
+                    console.error('❌ Balance fetch error:', error);
+                    document.getElementById('userBalance').textContent = '0';
+                    return;
+                }
+                
+                if (data && typeof data.balance === 'number') {
+                    userBalance = data.balance || 0;
                     document.getElementById('userBalance').textContent = userBalance;
+                    console.log('✅ Balance loaded:', userBalance);
+                } else {
+                    console.warn('⚠️ No balance data found');
+                    userBalance = 0;
+                    document.getElementById('userBalance').textContent = '0';
                 }
             } catch (error) {
-                console.error('Load balance error:', error);
+                console.error('❌ Load balance error:', error);
+                userBalance = 0;
+                document.getElementById('userBalance').textContent = '0';
             }
         }
 
@@ -662,11 +676,19 @@
         async function loadGames() {
             try {
                 // Load ACTIVE games
-                const { data: activeData } = await supabaseClient.from('games').select('*').eq('status', 'active').order('game_type').order('game_number');
+                const { data: activeData, error: gamesError } = await supabaseClient.from('games').select('*').eq('status', 'active').order('game_type').order('game_number');
+                
+                if (gamesError) {
+                    console.error('❌ Games fetch error:', gamesError);
+                    document.getElementById('juniorGamesList').innerHTML = '<p class="col-span-full text-center text-red-600">Error loading games</p>';
+                    document.getElementById('vipGamesList').innerHTML = '<p class="col-span-full text-center text-red-600">Error loading games</p>';
+                    return;
+                }
+                
                 const juniorList = document.getElementById('juniorGamesList');
                 const vipList = document.getElementById('vipGamesList');
-                const juniorGames = activeData.filter(g => g.game_type === 'junior') || [];
-                const vipGames = activeData.filter(g => g.game_type === 'vip') || [];
+                const juniorGames = (activeData || []).filter(g => g.game_type === 'junior');
+                const vipGames = (activeData || []).filter(g => g.game_type === 'vip');
                 
                 const totalGames = juniorGames.length + vipGames.length;
                 
@@ -692,10 +714,12 @@
                 juniorList.innerHTML = juniorGames.length ? juniorGames.map(createGameCard).join('') : '<p class="col-span-full text-center text-gray-600 text-sm">No active games</p>';
                 vipList.innerHTML = vipGames.length ? vipGames.map(createGameCard).join('') : '<p class="col-span-full text-center text-gray-600 text-sm">No active games</p>';
                 
-                // Check for completed games and show results
-                checkCompletedGames();
+                // Check for completed games and show results (non-blocking)
+                checkCompletedGames().catch(err => console.log('Check completed games error:', err.message));
             } catch (error) {
                 console.error('Load games error:', error);
+                document.getElementById('juniorGamesList').innerHTML = '<p class="col-span-full text-center text-red-600">Error: ' + error.message + '</p>';
+                document.getElementById('vipGamesList').innerHTML = '<p class="col-span-full text-center text-red-600">Error: ' + error.message + '</p>';
             }
         }
 
@@ -758,7 +782,12 @@
         async function checkCompletedGames() {
             try {
                 // Get all completed games
-                const { data: completedGames } = await supabaseClient.from('games').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(10);
+                const { data: completedGames, error: gamesError } = await supabaseClient.from('games').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(10);
+                
+                if (gamesError) {
+                    console.error('❌ Error fetching completed games:', gamesError);
+                    return;
+                }
                 
                 if (!completedGames || completedGames.length === 0) {
                     console.log('ℹ️ No completed games');
@@ -1083,8 +1112,6 @@
                 const prizes = PRIZES[gameType];
                 const shuffled = [...allTickets].sort(() => Math.random() - 0.5);
                 const winners = shuffled.slice(0, prizes.length);
-
-                const gameLabel = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
 
                 console.log('🏆 Selected', winners.length, 'winners');
 
