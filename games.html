@@ -534,17 +534,12 @@
                         
                         // Test notification
                         setTimeout(() => {
-                            try {
-                                new Notification('🎫 LottoBD Activated!', {
-                                    body: 'Notifications are working! You will get alerts when games are drawn.',
-                                    icon: '🎫',
-                                    tag: 'test-notification',
-                                    requireInteraction: false
-                                });
-                                console.log('✅ TEST notification sent');
-                            } catch (err) {
-                                console.error('❌ TEST notification failed:', err);
-                            }
+                            sendNotification('🎫 LottoBD Activated!', {
+                                body: 'Notifications are working! You will get alerts when games are drawn.',
+                                icon: '🎫',
+                                tag: 'test-notification',
+                                requireInteraction: false
+                            });
                         }, 500);
                     } else if (permission === "denied") {
                         console.log('❌ NOTIFICATIONS BLOCKED!');
@@ -680,28 +675,16 @@
                     const newGameCount = totalGames - lastGameCount;
                     console.log(`🎮 ${newGameCount} new game(s) available!`);
                     
-                    let gameNotifSent = false;
-                    
-                    if ("Notification" in window && Notification.permission === "granted") {
-                        try {
-                            new Notification(`🎮 New Game Available!`, {
-                                body: `${newGameCount} new game(s) just opened! Come play now!`,
-                                icon: '🎫',
-                                badge: '🎮',
-                                tag: 'new-game-notification'
-                            });
-                            console.log('✅ New game browser notification sent');
-                            gameNotifSent = true;
-                        } catch (error) {
-                            console.error('❌ New game notification error:', error);
+                    sendNotification(`🎮 New Game Available!`, {
+                        body: `${newGameCount} new game(s) just opened! Come play now!`,
+                        icon: '🎫',
+                        badge: '🎮',
+                        tag: 'new-game-notification'
+                    }).then(sent => {
+                        if (!sent) {
+                            showInAppNotification(`🎮 New Game!`, `${newGameCount} new game(s) available!`, '🎮');
                         }
-                    }
-                    
-                    // Fallback for mobile
-                    if (!gameNotifSent) {
-                        console.log('📱 Showing IN-APP new game notification');
-                        showInAppNotification(`🎮 New Game!`, `${newGameCount} new game(s) available!`, '🎮');
-                    }
+                    });
                 }
                 
                 lastGameCount = totalGames;
@@ -716,7 +699,35 @@
             }
         }
 
-        // In-app notification handler (for mobile fallback)
+        // Proper mobile-safe notification function
+        async function sendNotification(title, options = {}) {
+            try {
+                // Try Service Worker method (mobile-safe)
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    const registration = await navigator.serviceWorker.ready;
+                    await registration.showNotification(title, {
+                        icon: options.icon || '🎫',
+                        badge: options.badge || '🎫',
+                        tag: options.tag || 'lottobdNotification',
+                        requireInteraction: options.requireInteraction !== false,
+                        vibrate: options.vibrate || [200, 100, 200],
+                        ...options
+                    });
+                    console.log('✅ Service Worker notification sent:', title);
+                    return true;
+                }
+                // Fallback to direct Notification (desktop only)
+                else if (Notification.permission === "granted") {
+                    new Notification(title, options);
+                    console.log('✅ Direct notification sent:', title);
+                    return true;
+                }
+            } catch (error) {
+                console.error('❌ Notification error:', error.message);
+                return false;
+            }
+            return false;
+        }
         window.showInAppNotification = function(title, body, icon) {
             const notifEl = document.getElementById('inAppNotification');
             document.getElementById('inAppTitle').textContent = icon + ' ' + title;
@@ -793,75 +804,55 @@
         function showCompletedGameNotification(game, winAmount, didWin) {
             const gameLabel = game.game_type === 'vip' ? '💎 VIP' : '🎮 Junior';
             
-            console.log(`\n🔔 NOTIFICATION CHECK:`);
+            console.log(`\n🔔 GAME RESULT:`);
             console.log(`   Game: ${gameLabel} #${game.game_number}`);
-            console.log(`   User Won: ${didWin ? 'YES ৳' + winAmount : 'NO'}`);
-            console.log(`   Notification available: ${"Notification" in window}`);
-            console.log(`   Permission: ${Notification.permission}`);
-            
-            let notificationSent = false;
+            console.log(`   Result: ${didWin ? '✅ YOU WON ৳' + winAmount : '❌ NO WIN'}`);
             
             if (didWin) {
-                console.log(`🎉 WINNER ALERT: You WON ৳${winAmount}!`);
                 const title = `🎉 You WON ৳${winAmount}!`;
                 const body = `${gameLabel} Game #${game.game_number} - Congratulations!`;
                 
-                // Try browser notification first
-                if ("Notification" in window && Notification.permission === "granted") {
-                    try {
-                        new Notification(title, {
-                            body: body,
-                            icon: '🏆',
-                            badge: '🎫',
-                            tag: `result-${game.id}`,
-                            requireInteraction: true,
-                            vibrate: [200, 100, 200]
-                        });
-                        console.log('✅ Browser notification sent');
-                        notificationSent = true;
-                    } catch (error) {
-                        console.error('❌ Browser notification error:', error);
-                    }
-                }
+                console.log(`🎉 WINNER: ${title}`);
                 
-                // Fallback: show in-app notification
-                if (!notificationSent || Notification.permission !== "granted") {
-                    console.log('📱 Showing IN-APP notification (fallback)');
-                    showInAppNotification(title, body, '🎉');
-                    notificationSent = true;
-                }
+                // Try Service Worker notification (mobile-safe)
+                sendNotification(title, {
+                    body: body,
+                    icon: '🏆',
+                    badge: '🎫',
+                    tag: `result-${game.id}`,
+                    requireInteraction: true,
+                    vibrate: [200, 100, 200]
+                }).then(sent => {
+                    if (sent) {
+                        console.log('✅ Notification successfully sent');
+                    } else {
+                        console.log('📱 Using in-app notification fallback');
+                        showInAppNotification(title, body, '🎉');
+                    }
+                });
                 
             } else {
-                console.log(`Game #${game.game_number} finished - No win`);
                 const title = `${gameLabel} Game #${game.game_number} Complete`;
                 const body = `The drawing is complete. Better luck next time! 💪`;
                 
-                // Try browser notification first
-                if ("Notification" in window && Notification.permission === "granted") {
-                    try {
-                        new Notification(title, {
-                            body: body,
-                            icon: '🎯',
-                            badge: '🎫',
-                            tag: `result-${game.id}`,
-                            requireInteraction: false
-                        });
-                        console.log('✅ Browser notification sent');
-                        notificationSent = true;
-                    } catch (error) {
-                        console.error('❌ Browser notification error:', error);
-                    }
-                }
+                console.log(`Game finished - no win`);
                 
-                // Fallback: show in-app notification
-                if (!notificationSent || Notification.permission !== "granted") {
-                    console.log('📱 Showing IN-APP notification (fallback)');
-                    showInAppNotification(title, body, '🎮');
-                    notificationSent = true;
-                }
+                // Try Service Worker notification (mobile-safe)
+                sendNotification(title, {
+                    body: body,
+                    icon: '🎯',
+                    badge: '🎫',
+                    tag: `result-${game.id}`,
+                    requireInteraction: false
+                }).then(sent => {
+                    if (sent) {
+                        console.log('✅ Notification successfully sent');
+                    } else {
+                        console.log('📱 Using in-app notification fallback');
+                        showInAppNotification(title, body, '🎮');
+                    }
+                });
             }
-            
-            console.log('Result: ' + (notificationSent ? '✅ Notification shown' : '❌ Failed to show notification'));
         }
 
         function createGameCard(game) {
@@ -1063,6 +1054,16 @@
             try {
                 console.log('🎯 Starting prize distribution for game:', gameId, 'type:', gameType);
                 
+                // Fetch game data
+                const { data: gameData, error: gameError } = await supabaseClient.from('games').select('*').eq('id', gameId).single();
+                if (gameError || !gameData) {
+                    console.error('❌ Game fetch error:', gameError);
+                    return;
+                }
+                
+                const gameLabel = gameType === 'vip' ? '💎 VIP' : '🎮 Junior';
+                const gameNum = String(gameData.game_number).padStart(2, '0');
+                
                 const { data: allTickets, error: ticketError } = await supabaseClient.from('tickets').select('*, users(id, name, email)').eq('game_id', gameId);
                 
                 if (ticketError) {
@@ -1121,42 +1122,67 @@
                         console.error('❌ Transaction insert error:', transError);
                     }
 
-                    // Send win notification
+                    // Send win notification (non-blocking)
                     const medals = ['🥇', '🥈', '🥉', '🎖️', '🎖️', '🎖️', '🎖️'];
                     const medal = medals[i] || '🎖️';
-                    if ("Notification" in window && Notification.permission === "granted") {
-                        new Notification('🎉 Congratulations!', {
-                            body: `${medal} You won ৳${prizeAmount} in ${gameLabel} Game!`,
+                    
+                    try {
+                        sendNotification(`${medal} You won ৳${prizeAmount}!`, {
+                            body: `${gameLabel} Game #${gameNum}`,
                             icon: '🏆',
-                            tag: 'win-notification'
-                        });
-                        console.log('📢 Notification sent to winner');
-                    } else {
-                        console.log('⚠️ Notification permission not granted');
+                            badge: '🎫',
+                            tag: `result-${gameId}-${winner.user_id}`,
+                            requireInteraction: true
+                        }).catch(err => console.log('Notification skipped:', err.message));
+                    } catch (notifError) {
+                        console.log('⚠️ Notification error (non-blocking):', notifError.message);
+                        // Continue - don't break prize distribution
                     }
                 }
 
-                // Send game complete notification to non-winners
+                // Send game complete notification to non-winners (non-blocking)
                 const winnerIds = new Set(winners.map(w => w.user_id));
                 allTickets.forEach(ticket => {
                     if (!winnerIds.has(ticket.user_id)) {
-                        if ("Notification" in window && Notification.permission === "granted") {
-                            new Notification('🎮 Game Complete!', {
-                                body: `${gameLabel} Game has finished! Check results now.`,
+                        try {
+                            sendNotification(`🎮 ${gameLabel} Complete!`, {
+                                body: `Game #${gameNum} drawing finished. Better luck next time!`,
                                 icon: '🎯',
-                                tag: 'game-complete-notification'
-                            });
+                                badge: '🎫',
+                                tag: `no-win-${gameId}-${ticket.user_id}`,
+                                requireInteraction: false
+                            }).catch(err => console.log('No-win notification skipped:', err.message));
+                        } catch (notifError) {
+                            console.log('⚠️ No-win notification error (non-blocking):', notifError.message);
                         }
                     }
                 });
 
-                const { error: gameError } = await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
-                if (gameError) {
-                    console.error('❌ Game update error:', gameError);
+                const { error: gameError2 } = await supabaseClient.from('games').update({ status: 'completed' }).eq('id', gameId);
+                if (gameError2) {
+                    console.error('❌ Game update error:', gameError2);
                 }
 
                 console.log('✅ Prize distribution complete!');
-                showGameResults(gameType, winners, allTickets);
+                
+                // Show winning notification in-app as backup
+                const firstWinner = winners[0];
+                if (firstWinner && gameType) {
+                    const firstPrize = PRIZES[gameType][0];
+                    showInAppNotification(
+                        `🎉 ${gameLabel} #${gameNum}!`,
+                        `${firstWinner.users.name} won ৳${firstPrize}!`,
+                        '🎉'
+                    );
+                }
+                
+                // Always show results, even if notifications failed
+                try {
+                    showGameResults(gameType, winners, allTickets);
+                } catch (error) {
+                    console.error('❌ Results display error:', error);
+                    alert('✅ Prizes distributed! Check your balance.');
+                }
                 
                 // Auto-reload after 5 seconds if user doesn't close modal
                 setTimeout(() => {
@@ -1166,8 +1192,13 @@
                 }, 5000);
                 
             } catch (error) {
-                console.error('❌ Error:', error);
-                alert('❌ Error distributing prizes: ' + error.message);
+                console.error('❌ Critical Error:', error.message);
+                console.error('Stack:', error.stack);
+                // Even on critical error, try to reload
+                showInAppNotification('⚠️ Error', 'Prize distribution encountered an issue. Please refresh.', '⚠️');
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
             }
         };
 
