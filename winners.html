@@ -36,12 +36,10 @@
 
         <!-- DATE SELECTOR -->
         <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8 border-2 border-teal-600">
-            <h2 class="text-xl font-bold text-teal-700 mb-4">📅 Select Date</h2>
+            <h2 class="text-lg sm:text-xl font-bold text-teal-700 mb-4">📅 Select Date to View Winners</h2>
             
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <div>
-                    <input type="date" id="filterDate" class="w-full p-3 border-2 border-teal-600 rounded-lg font-bold text-sm">
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                <input type="date" id="filterDate" class="p-3 border-2 border-teal-600 rounded-lg font-bold text-sm">
                 <button onclick="filterByDate()" class="btn-press bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold border-2 border-teal-700">
                     🔍 Filter
                 </button>
@@ -51,14 +49,16 @@
             </div>
 
             <!-- Date Suggestions -->
-            <div id="dateSuggestions" class="flex gap-2 flex-wrap">
-                <!-- Populated by JavaScript -->
+            <div>
+                <p class="text-sm font-bold text-gray-700 mb-3">📌 Dates with winners:</p>
+                <div id="dateSuggestions" class="flex gap-2 flex-wrap">
+                    <p class="text-gray-600 text-sm">Loading dates...</p>
+                </div>
             </div>
         </div>
 
         <!-- WINNERS LIST BY DATE -->
         <div id="winnersList" class="space-y-4 sm:space-y-6">
-            <!-- Populated by JavaScript -->
             <p class="text-center text-gray-600 py-8">Loading winners...</p>
         </div>
     </div>
@@ -72,6 +72,7 @@
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let allWinners = [];
+        let availableDates = [];
         let selectedDate = null;
 
         // Initialize
@@ -82,33 +83,54 @@
             }
             
             await loadAllWinners();
-            generateDateSuggestions();
         });
 
         async function loadAllWinners() {
             try {
+                console.log('🔍 Loading winners from Supabase...');
+                
                 // Get all completed games
-                const { data: games } = await supabaseClient
+                const { data: games, error: gamesError } = await supabaseClient
                     .from('games')
                     .select('*')
                     .eq('status', 'completed')
                     .order('created_at', { ascending: false });
 
+                if (gamesError) {
+                    console.error('❌ Games error:', gamesError);
+                    showError('Error loading games: ' + gamesError.message);
+                    return;
+                }
+
+                console.log('✅ Found', games.length, 'completed games');
+
                 allWinners = [];
 
                 // For each game, get winners
                 for (const game of games || []) {
-                    const { data: transactions } = await supabaseClient
+                    const { data: transactions, error: transError } = await supabaseClient
                         .from('transactions')
                         .select('*, users(name, email)')
                         .eq('game_id', game.id)
                         .eq('type', 'prize');
 
+                    if (transError) {
+                        console.error('❌ Transaction error for game', game.id, ':', transError);
+                        continue;
+                    }
+
                     if (transactions && transactions.length > 0) {
+                        console.log('✅ Game #' + game.game_number + ' has', transactions.length, 'winners');
+                        
                         for (const trans of transactions) {
                             allWinners.push({
-                                date: new Date(game.created_at).toLocaleDateString('en-CA'), // YYYY-MM-DD format
-                                dateDisplay: new Date(game.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                                date: new Date(game.created_at).toLocaleDateString('en-CA'),
+                                dateDisplay: new Date(game.created_at).toLocaleDateString('en-US', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                }),
                                 gameName: game.game_type === 'vip' ? '💎 VIP' : '🎮 Junior',
                                 gameNumber: String(game.game_number).padStart(2, '0'),
                                 gameId: game.id,
@@ -121,22 +143,49 @@
                     }
                 }
 
-                console.log('✅ Loaded', allWinners.length, 'winners');
+                console.log('✅ Total winners loaded:', allWinners.length);
+
+                if (allWinners.length === 0) {
+                    showError('No winners found yet. Games need to be completed first!');
+                    generateDateSuggestions();
+                    return;
+                }
+
+                generateDateSuggestions();
                 displayAllWinners();
             } catch (error) {
-                console.error('Error loading winners:', error);
-                document.getElementById('winnersList').innerHTML = '<p class="text-center text-red-600">Error loading winners</p>';
+                console.error('❌ Error loading winners:', error);
+                showError('Error: ' + error.message);
             }
+        }
+
+        function showError(message) {
+            document.getElementById('winnersList').innerHTML = `
+                <div class="bg-red-50 p-6 rounded-xl border-2 border-red-500 text-center">
+                    <p class="text-red-700 font-bold">⚠️ ${message}</p>
+                </div>
+            `;
         }
 
         function generateDateSuggestions() {
             const dates = [...new Set(allWinners.map(w => w.date))].sort().reverse();
+            availableDates = dates;
             const container = document.getElementById('dateSuggestions');
             
-            container.innerHTML = dates.slice(0, 7).map(date => {
+            if (dates.length === 0) {
+                container.innerHTML = '<p class="text-gray-600 text-sm">No dates with winners yet</p>';
+                return;
+            }
+
+            container.innerHTML = dates.map(date => {
                 const dateObj = new Date(date + 'T00:00:00');
                 const display = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                return `<button onclick="selectDate('${date}')" class="btn-press px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-sm border-2 border-teal-700">${display}</button>`;
+                const winCount = allWinners.filter(w => w.date === date).length;
+                return `
+                    <button onclick="selectDate('${date}')" class="btn-press px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-sm border-2 border-teal-700">
+                        ${display} (${winCount})
+                    </button>
+                `;
             }).join('');
         }
 
@@ -158,12 +207,13 @@
 
         window.showAllDates = function() {
             selectedDate = null;
+            document.getElementById('filterDate').value = '';
             displayAllWinners();
         };
 
         function displayAllWinners() {
             if (allWinners.length === 0) {
-                document.getElementById('winnersList').innerHTML = '<p class="text-center text-gray-600 py-8">No winners yet</p>';
+                showError('No winners found yet. Games need to be completed first!');
                 return;
             }
 
@@ -189,7 +239,28 @@
             const winners = allWinners.filter(w => w.date === date);
 
             if (winners.length === 0) {
-                document.getElementById('winnersList').innerHTML = `<p class="text-center text-gray-600 py-8">No winners on ${new Date(date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>`;
+                const dateObj = new Date(date + 'T00:00:00');
+                const dateStr = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                
+                let html = `
+                    <div class="bg-blue-50 p-6 rounded-xl border-2 border-blue-500 text-center">
+                        <p class="text-blue-700 font-bold mb-4">ℹ️ No winners on ${dateStr}</p>
+                        <p class="text-sm text-gray-600 mb-4">Try one of these dates:</p>
+                        <div class="flex gap-2 flex-wrap justify-center">
+                `;
+                
+                availableDates.slice(0, 5).forEach(d => {
+                    const obj = new Date(d + 'T00:00:00');
+                    const disp = obj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    html += `<button onclick="selectDate('${d}')" class="btn-press px-3 py-2 bg-teal-600 text-white rounded-lg font-bold text-sm border-2 border-teal-700">${disp}</button>`;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('winnersList').innerHTML = html;
                 return;
             }
 
@@ -197,31 +268,31 @@
         }
 
         function createDateSection(date, winners) {
-            const dateObj = new Date(date + 'T00:00:00');
-            const dateDisplay = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const dateDisplay = winners[0].dateDisplay;
             const gameCount = new Set(winners.map(w => w.gameId)).size;
 
             return `
                 <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 border-2 border-teal-600">
-                    <h3 class="text-lg sm:text-xl font-bold text-teal-700 mb-4">📅 ${dateDisplay}</h3>
-                    <p class="text-sm text-gray-600 mb-4">🎮 ${gameCount} game(s) | 🏆 ${winners.length} winner(s)</p>
+                    <h3 class="text-lg sm:text-xl font-bold text-teal-700 mb-2">📅 ${dateDisplay}</h3>
+                    <p class="text-sm text-gray-600 mb-4">🎮 ${gameCount} game(s) • 🏆 ${winners.length} winner(s)</p>
                     
                     <div class="space-y-3">
                         ${winners.map((winner, idx) => `
-                            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border-l-4 border-yellow-500 flex justify-between items-start">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <span class="text-xl font-bold">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '🎖️'}</span>
-                                        <div>
-                                            <p class="font-bold text-sm sm:text-base">${winner.winnerName}</p>
-                                            <p class="text-xs text-gray-600">${winner.winnerEmail}</p>
+                            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="text-2xl">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '🎖️'}</span>
+                                            <div>
+                                                <p class="font-bold text-sm sm:text-base">${winner.winnerName}</p>
+                                                <p class="text-xs text-gray-600">${winner.winnerEmail}</p>
+                                            </div>
                                         </div>
+                                        <p class="text-xs text-gray-600 ml-12">${winner.gameName} Game #${winner.gameNumber}</p>
                                     </div>
-                                    <p class="text-xs text-gray-600 ml-10">${winner.gameName} Game #${winner.gameNumber}</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-2xl sm:text-3xl font-bold text-green-700">৳${winner.amount}</p>
-                                    <p class="text-xs text-gray-600 mt-1">WON</p>
+                                    <div class="text-right">
+                                        <p class="text-2xl sm:text-3xl font-bold text-green-700">৳${winner.amount}</p>
+                                    </div>
                                 </div>
                             </div>
                         `).join('')}
