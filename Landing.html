@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LottoBD - আপনার স্বপ্নের পথ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn-press {
+            transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .btn-press:hover {
+            transform: scale(0.98);
+            filter: brightness(1.1);
+        }
+        
+        .btn-press:active {
+            transform: scale(0.85) translateY(2px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-teal-50 via-cyan-50 to-blue-50 min-h-screen">
+    <!-- NAVBAR -->
+    <div class="bg-white shadow-md border-b-2 border-teal-600">
+        <div class="max-w-6xl mx-auto px-4 py-4 sm:py-6 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-3xl">🎫</span>
+                <h1 class="text-2xl sm:text-3xl font-bold gradient-text">LottoBD</h1>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="showLogin()" class="btn-press bg-teal-600 hover:bg-teal-700 text-white px-4 sm:px-6 py-2 rounded-lg font-bold border-2 border-teal-700 text-sm">
+                    লগইন
+                </button>
+                <button onclick="showRegister()" class="btn-press bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 rounded-lg font-bold border-2 border-green-700 text-sm">
+                    যোগ দিন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN HERO SECTION -->
+    <div class="max-w-6xl mx-auto px-4 py-12 sm:py-20">
+        <!-- HERO TEXT -->
+        <div class="text-center mb-16 fade-in">
+            <h2 class="text-4xl sm:text-6xl font-bold text-teal-700 mb-6">
+                💰 অর্থের পথে<br>সফলতার যাত্রা
+            </h2>
+            <p class="text-lg sm:text-2xl text-gray-700 mb-8 leading-relaxed">
+                প্রতিদিন নতুন সুযোগ, প্রতিদিন জেতার আশা!<br>
+                আমাদের সাথে যুক্ত হন এবং আপনার ভাগ্য পরিবর্তন করুন।
+            </p>
+        </div>
+
+        <!-- MONEY FLOW PATH -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-16 fade-in">
+            <!-- STEP 1 -->
+            <div class="bg-white rounded-xl p-6 sm:p-8 border-2 border-teal-600 shadow-lg text-center hover:shadow-xl transition">
+                <div class="text-5xl mb-4">🤝</div>
+                <h3 class="text-xl font-bold text-teal-700 mb-3">যোগ দিন</h3>
+                <p class="text-gray-600 text-sm">সহজেই রেজিস্টার করুন এবং আপনার অ্যাকাউন্ট তৈরি করুন</p>
+            </div>
+
+            <!-- ARROW -->
+            <div class="hidden md:flex items-center justify-center text-3xl text-teal-600 font-bold">→</div>
+
+            <!-- STEP 2 -->
+            <div class="bg-white rounded-xl p-6 sm:p-8 border-2 border-amber-600 shadow-lg text-center hover:shadow-xl transition">
+                <div class="text-5xl mb-4">💳</div>
+                <h3 class="text-xl font-bold text-amber-700 mb-3">টাকা যোগ করুন</h3>
+                <p class="text-gray-600 text-sm">bKash, Nagad, Rocket দিয়ে সহজে টাকা জমা করুন</p>
+            </div>
+
+            <!-- ARROW -->
+            <div class="hidden md:flex items-center justify-center text-3xl text-teal-600 font-bold">→</div>
+
+            <!-- STEP 3 -->
+            <div class="bg-white rounded-xl p-6 sm:p-8 border-2 border-purple-600 shadow-lg text-center hover:shadow-xl transition">
+                <div class="text-5xl mb-4">🎮</div>
+                <h3 class="text-xl font-bold text-purple-700 mb-3">খেলুন</h3>
+                <p class="text-gray-600 text-sm">জুনিয়র বা ভিআইপি গেম বেছে নিন এবং টিকিট কিনুন</p>
+            </div>
+
+            <!-- ARROW -->
+            <div class="hidden md:flex items-center justify-center text-3xl text-teal-600 font-bold">→</div>
+
+            <!-- STEP 4 -->
+            <div class="bg-white rounded-xl p-6 sm:p-8 border-2 border-green-600 shadow-lg text-center hover:shadow-xl transition">
+                <div class="text-5xl mb-4">🏆</div>
+                <h3 class="text-xl font-bold text-green-700 mb-3">জিতুন!</h3>
+                <p class="text-gray-600 text-sm">ভাগ্যবান বিজয়ীদের মধ্যে থাকুন এবং আয় করুন</p>
+            </div>
+        </div>
+
+        <!-- GAME TYPES -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 fade-in">
+            <!-- JUNIOR GAME -->
+            <div class="bg-gradient-to-br from-teal-100 to-cyan-100 rounded-xl p-8 border-2 border-teal-600 shadow-lg">
+                <h3 class="text-3xl font-bold text-teal-700 mb-4">🎮 জুনিয়র গেম</h3>
+                <div class="space-y-3">
+                    <p class="text-lg"><strong>টিকিট মূল্য:</strong> <span class="text-teal-700 font-bold">৳200</span></p>
+                    <p class="text-lg"><strong>পুল:</strong> <span class="text-teal-700 font-bold">৳2,000</span> (10 জন খেলোয়াড়)</p>
+                    <p class="text-lg"><strong>সর্বোচ্চ পুরস্কার:</strong> <span class="text-teal-700 font-bold">৳500</span></p>
+                    <div class="bg-white p-4 rounded-lg border-2 border-teal-600 mt-4">
+                        <p class="font-bold text-teal-700 mb-2">🏆 পুরস্কার বিতরণ:</p>
+                        <p class="text-sm text-gray-700">🥇 1st: ৳500 | 🥈 2nd: ৳300 | 🥉 3rd: ৳200 | 🎖️ 4-6th: ৳100</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIP GAME -->
+            <div class="bg-gradient-to-br from-amber-100 to-yellow-100 rounded-xl p-8 border-2 border-amber-600 shadow-lg">
+                <h3 class="text-3xl font-bold text-amber-700 mb-4">💎 ভিআইপি গেম</h3>
+                <div class="space-y-3">
+                    <p class="text-lg"><strong>টিকিট মূল্য:</strong> <span class="text-amber-700 font-bold">৳1,000</span></p>
+                    <p class="text-lg"><strong>পুল:</strong> <span class="text-amber-700 font-bold">৳10,000</span> (10 জন খেলোয়াড়)</p>
+                    <p class="text-lg"><strong>সর্বোচ্চ পুরস্কার:</strong> <span class="text-amber-700 font-bold">৳3,000</span></p>
+                    <div class="bg-white p-4 rounded-lg border-2 border-amber-600 mt-4">
+                        <p class="font-bold text-amber-700 mb-2">🏆 পুরস্কার বিতরণ:</p>
+                        <p class="text-sm text-gray-700">🥇 1st: ৳3,000 | 🥈 2nd: ৳2,000 | 🥉 3rd: ৳1,000 | 🎖️ 4-7th: ৳500</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WHY CHOOSE US -->
+        <div class="bg-white rounded-xl p-8 sm:p-12 border-2 border-teal-600 shadow-lg mb-16 fade-in">
+            <h3 class="text-3xl sm:text-4xl font-bold text-teal-700 mb-8 text-center">কেন আমাদের বেছে নেবেন?</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="flex gap-4">
+                    <span class="text-3xl">✅</span>
+                    <div>
+                        <p class="font-bold text-lg text-teal-700 mb-2">সম্পূর্ণ নিরাপদ</p>
+                        <p class="text-gray-700">আপনার অর্থ এবং ডেটা সম্পূর্ণ সুরক্ষিত</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <span class="text-3xl">⚡</span>
+                    <div>
+                        <p class="font-bold text-lg text-teal-700 mb-2">তাৎক্ষণিক ফলাফল</p>
+                        <p class="text-gray-700">প্রতিদিন নতুন বিজয়ী, লাইভ নোটিফিকেশন</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <span class="text-3xl">💰</span>
+                    <div>
+                        <p class="font-bold text-lg text-teal-700 mb-2">সহজ উত্তোলন</p>
+                        <p class="text-gray-700">জিতা টাকা যেকোনো সময় বের করে নিন</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <span class="text-3xl">🎁</span>
+                    <div>
+                        <p class="font-bold text-lg text-teal-700 mb-2">বোনাস অফার</p>
+                        <p class="text-gray-700">নতুন সদস্যদের জন্য বিশেষ বোনাস</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA BUTTONS -->
+        <div class="text-center fade-in mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-teal-700 mb-8">এখনই শুরু করুন!</h2>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="showRegister()" class="btn-press bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold border-2 border-green-700 text-lg">
+                    🚀 বিনামূল্যে যোগ দিন
+                </button>
+                <button onclick="showLogin()" class="btn-press bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-xl font-bold border-2 border-teal-700 text-lg">
+                    📱 লগইন করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-2 border-teal-600">
+            <h2 class="text-2xl font-bold text-teal-700 mb-6">লগইন করুন</h2>
+            
+            <div class="space-y-4">
+                <input type="email" placeholder="আপনার ইমেইল" id="loginEmail" class="w-full p-3 border-2 border-teal-600 rounded-lg font-bold text-sm" />
+                <input type="password" placeholder="পাসওয়ার্ড" id="loginPassword" class="w-full p-3 border-2 border-teal-600 rounded-lg font-bold text-sm" />
+                
+                <button onclick="handleLogin()" class="btn-press w-full bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold border-2 border-teal-700">
+                    লগইন
+                </button>
+                
+                <button onclick="closeLogin()" class="btn-press w-full bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-lg font-bold border-2 border-gray-700">
+                    বন্ধ করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER MODAL -->
+    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-2 border-green-600 my-8">
+            <h2 class="text-2xl font-bold text-green-700 mb-6">নতুন অ্যাকাউন্ট তৈরি করুন</h2>
+            
+            <div class="space-y-4">
+                <input type="text" placeholder="আপনার নাম" id="registerName" class="w-full p-3 border-2 border-green-600 rounded-lg font-bold text-sm" />
+                <input type="email" placeholder="আপনার ইমেইল" id="registerEmail" class="w-full p-3 border-2 border-green-600 rounded-lg font-bold text-sm" />
+                <input type="password" placeholder="পাসওয়ার্ড" id="registerPassword" class="w-full p-3 border-2 border-green-600 rounded-lg font-bold text-sm" />
+                <input type="password" placeholder="পাসওয়ার্ড নিশ্চিত করুন" id="registerPasswordConfirm" class="w-full p-3 border-2 border-green-600 rounded-lg font-bold text-sm" />
+                
+                <button onclick="handleRegister()" class="btn-press w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg font-bold border-2 border-green-700">
+                    যোগ দিন
+                </button>
+                
+                <button onclick="closeRegister()" class="btn-press w-full bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-lg font-bold border-2 border-gray-700">
+                    বন্ধ করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubmdubWJmYmticHpoc2Rwc21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzU5MDgsImV4cCI6MjA4ODA1MTkwOH0.vIYdJA3eKajAGQ9Om27P8RkqTIeWUlGx1B-npq3u6u0';
+        
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Check if already logged in
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                window.location.href = 'games.html';
+            }
+        });
+
+        window.showLogin = function() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        };
+
+        window.closeLogin = function() {
+            document.getElementById('loginModal').classList.add('hidden');
+        };
+
+        window.showRegister = function() {
+            document.getElementById('registerModal').classList.remove('hidden');
+        };
+
+        window.closeRegister = function() {
+            document.getElementById('registerModal').classList.add('hidden');
+        };
+
+        window.handleLogin = async function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('সব তথ্য পূরণ করুন');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    alert('লগইন ব্যর্থ: ' + error.message);
+                    return;
+                }
+                window.location.href = 'games.html';
+            } catch (err) {
+                alert('ত্রুটি: ' + err.message);
+            }
+        };
+
+        window.handleRegister = async function() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            if (!name || !email || !password || !passwordConfirm) {
+                alert('সব তথ্য পূরণ করুন');
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                alert('পাসওয়ার্ড মিল খায় না');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) {
+                    alert('রেজিস্ট্রেশন ব্যর্থ: ' + error.message);
+                    return;
+                }
+
+                // Create user profile
+                const { error: insertError } = await supabaseClient.from('users').insert({
+                    id: data.user.id,
+                    email: email,
+                    name: name,
+                    balance: 0
+                });
+
+                if (insertError) {
+                    alert('প্রোফাইল তৈরি ব্যর্থ: ' + insertError.message);
+                    return;
+                }
+
+                alert('✅ সফলভাবে রেজিস্ট্রার করেছেন! এখন লগইন করুন।');
+                document.getElementById('registerModal').classList.add('hidden');
+                document.getElementById('registerEmail').value = email;
+                document.getElementById('loginModal').classList.remove('hidden');
+            } catch (err) {
+                alert('ত্রুটি: ' + err.message);
+            }
+        };
+    </script>
+</body>
+</html>
