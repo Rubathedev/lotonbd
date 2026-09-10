@@ -228,38 +228,60 @@
             }
 
             try {
-                // Check if game already exists
-                const { data: existingGame } = await supabaseClient
-                    .from('games')
-                    .select('id')
-                    .eq('game_number', gameNumber)
-                    .eq('game_type', gameType)
-                    .single();
-
-                if (existingGame) {
-                    alert('❌ Game #' + gameNumber + ' already exists!');
+                const count = parseInt(gameNumber) || 1;
+                
+                if (count < 1 || count > 10) {
+                    alert('Enter a number between 1-10');
                     return;
                 }
 
-                // Create single game
-                const { data, error } = await supabaseClient
+                console.log(`📋 Creating ${count} ${gameType} game(s)...`);
+
+                // Get today's date
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayISO = today.toISOString();
+
+                // Get highest game number for this type TODAY
+                const { data: todayGames } = await supabaseClient
                     .from('games')
-                    .insert({
-                        game_number: gameNumber,
+                    .select('game_number')
+                    .eq('game_type', gameType)
+                    .gte('created_at', todayISO)
+                    .order('game_number', { ascending: false })
+                    .limit(1);
+
+                let nextGameNumber = 1;
+                if (todayGames && todayGames.length > 0) {
+                    nextGameNumber = todayGames[0].game_number + 1;
+                }
+
+                console.log(`🎮 Starting game number: ${nextGameNumber}`);
+
+                // Create multiple games
+                const gamesToInsert = [];
+                for (let i = 0; i < count; i++) {
+                    gamesToInsert.push({
+                        game_number: nextGameNumber + i,
                         game_type: gameType,
                         status: 'active',
-                        tickets_sold: 0,
-                        date: new Date().toISOString()
+                        tickets_sold: 0
                     });
+                }
+
+                const { data, error } = await supabaseClient
+                    .from('games')
+                    .insert(gamesToInsert);
 
                 if (error) {
                     alert('❌ Error: ' + error.message);
                     return;
                 }
 
-                alert('✅ Game #' + gameNumber + ' created successfully!');
+                alert(`✅ Created ${count} ${gameType} game(s)!\nGame #${nextGameNumber} to #${nextGameNumber + count - 1}`);
                 document.getElementById('gameNumber').value = '';
                 loadGames();
+            
             } catch (error) {
                 alert('❌ Error: ' + error.message);
             }
@@ -277,10 +299,19 @@
                 const completedList = document.getElementById('completedGamesList');
 
                 const active = data.filter(g => g.status === 'active') || [];
-                const completed = data.filter(g => g.status === 'completed') || [];
+                
+                // Get today's date at midnight
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Filter: only completed games from TODAY
+                const completed = (data || []).filter(g => 
+                    g.status === 'completed' && 
+                    new Date(g.created_at) >= today
+                ) || [];
 
                 activeList.innerHTML = active.length ? active.map(createActiveGameItem).join('') : '<p class="text-center text-gray-600">No active games</p>';
-                completedList.innerHTML = completed.length ? completed.map(createCompletedListItem).join('') : '<p class="text-center text-gray-600">No completed games</p>';
+                completedList.innerHTML = completed.length ? completed.map(createCompletedListItem).join('') : '<p class="text-center text-gray-600">No completed games today</p>';
             } catch (error) {
                 console.error('Load games error:', error);
             }
