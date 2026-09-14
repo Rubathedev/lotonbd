@@ -55,25 +55,49 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-                <div class="bg-green-100 p-3 sm:p-4 rounded-lg border-2 border-green-500">
+            <!-- MOBILE/DESKTOP BUTTONS -->
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+                <!-- BALANCE (always visible) -->
+                <div class="bg-green-100 px-4 py-3 rounded-lg border-2 border-green-500">
                     <p class="text-xs font-bold text-gray-700">BALANCE</p>
-                    <p class="text-2xl sm:text-3xl font-bold text-green-700">৳<span id="userBalance">0</span></p>
+                    <p class="text-xl sm:text-2xl font-bold text-green-700">৳<span id="userBalance">0</span></p>
                 </div>
 
-                <a href="profile.html" class="btn-press bg-teal-600 hover:bg-teal-700 text-white p-3 sm:p-4 rounded-lg font-bold text-center border-2 border-teal-700 text-xs sm:text-base">
-                    👤 <span id="profileBtn">Profile</span>
-                </a>
+                <!-- HAMBURGER MENU (mobile only) -->
+                <button onclick="toggleMenu()" id="hamburgerBtn" class="sm:hidden btn-press bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold border-2 border-teal-700 text-2xl">
+                    ☰
+                </button>
 
-                <a href="withdraw.html" class="btn-press bg-teal-600 hover:bg-teal-700 text-white p-3 sm:p-4 rounded-lg font-bold text-center border-2 border-teal-700 text-xs sm:text-base">
-                    🏧 <span id="withdrawBtn">Withdraw</span>
-                </a>
+                <!-- DESKTOP BUTTONS (hidden on mobile) -->
+                <div class="hidden sm:flex gap-2 sm:gap-4">
+                    <a href="profile.html" class="btn-press bg-teal-600 hover:bg-teal-700 text-white px-4 py-3 rounded-lg font-bold text-center border-2 border-teal-700 text-sm">
+                        👤 <span id="profileBtn">Profile</span>
+                    </a>
+                    <a href="withdraw.html" class="btn-press bg-teal-600 hover:bg-teal-700 text-white px-4 py-3 rounded-lg font-bold text-center border-2 border-teal-700 text-sm">
+                        🏧 <span id="withdrawBtn">Withdraw</span>
+                    </a>
+                    <a href="winners.html" class="btn-press bg-teal-600 hover:bg-teal-700 text-white px-4 py-3 rounded-lg font-bold text-center border-2 border-teal-700 text-sm">
+                        🏆 <span id="winnersBtn">Winners</span>
+                    </a>
+                    <a href="referral.html" class="btn-press bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-bold text-center border-2 border-purple-700 text-sm">
+                        💰 <span id="referralBtn">Referral</span>
+                    </a>
+                </div>
+            </div>
 
-                <a href="winners.html" class="btn-press bg-teal-600 hover:bg-teal-700 text-white p-3 sm:p-4 rounded-lg font-bold text-center border-2 border-teal-700 text-xs sm:text-base">
-                    🏆 <span id="winnersBtn">Winners</span>
+            <!-- MOBILE MENU (hidden by default) -->
+            <div id="mobileMenu" class="hidden sm:hidden mb-4 bg-white rounded-xl shadow-md border-2 border-teal-600 overflow-hidden">
+                <a href="profile.html" class="btn-press block w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-3 font-bold text-center border-b border-teal-700">
+                    👤 <span id="profileBtnMobile">Profile</span>
                 </a>
-                <a href="referral.html" class="btn-press bg-purple-600 hover:bg-purple-700 text-white p-3 sm:p-4 rounded-lg font-bold text-center border-2 border-purple-700 text-xs sm:text-base">
-                    💰 <span id="referralBtn">Referral</span>
+                <a href="withdraw.html" class="btn-press block w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-3 font-bold text-center border-b border-teal-700">
+                    🏧 <span id="withdrawBtnMobile">Withdraw</span>
+                </a>
+                <a href="winners.html" class="btn-press block w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-3 font-bold text-center border-b border-teal-700">
+                    🏆 <span id="winnersBtnMobile">Winners</span>
+                </a>
+                <a href="referral.html" class="btn-press block w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 font-bold text-center">
+                    💰 <span id="referralBtnMobile">Referral</span>
                 </a>
             </div>
         </div>
@@ -592,6 +616,11 @@
             updateLanguage();
         });
 
+        window.toggleMenu = function() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        };
+
         window.setLanguage = function(lang) {
             currentLanguage = lang;
             localStorage.setItem('lottobdLanguage', lang);
@@ -603,6 +632,14 @@
             document.getElementById('profileBtn').textContent = t.profileBtn;
             document.getElementById('withdrawBtn').textContent = t.withdrawBtn;
             document.getElementById('winnersBtn').textContent = t.winnersBtn;
+            document.getElementById('referralBtn').textContent = t.referralBtn;
+            
+            // Update mobile menu buttons too
+            document.getElementById('profileBtnMobile').textContent = t.profileBtn;
+            document.getElementById('withdrawBtnMobile').textContent = t.withdrawBtn;
+            document.getElementById('winnersBtnMobile').textContent = t.winnersBtn;
+            document.getElementById('referralBtnMobile').textContent = t.referralBtn;
+            
             document.getElementById('howToPlayTitle').textContent = t.howToPlayTitle;
             document.getElementById('step1').textContent = t.step1;
             document.getElementById('step1Desc').textContent = t.step1Desc;
