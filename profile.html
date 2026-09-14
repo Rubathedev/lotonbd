@@ -91,13 +91,6 @@
             </a>
         </div>
 
-        <!-- Transaction History -->
-        <div class="bg-white p-6 rounded-lg border-2 border-teal-600 shadow-lg">
-            <h2 id="historyTitle" class="text-xl font-bold text-teal-700 mb-4">📊 Transaction History</h2>
-            <div id="transactionsList" class="space-y-3">
-                <p class="text-gray-600 text-center py-8">Loading...</p>
-            </div>
-        </div>
 
         <!-- Logout Button -->
         <button onclick="logout()" class="w-full mt-6 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded font-bold text-lg">
@@ -126,7 +119,6 @@
                 earnedLabel: 'Total Earned',
                 withdrawBtn: 'Withdraw Money',
                 winnersBtn: 'Winners History',
-                historyTitle: '📊 Transaction History',
                 logoutBtn: 'Logout',
                 editHint: '✏️ Click to edit',
                 prize: 'Prize Won',
@@ -142,7 +134,6 @@
                 earnedLabel: 'মোট আয়',
                 withdrawBtn: 'টাকা তুলুন',
                 winnersBtn: 'বিজয়ীদের ইতিহাস',
-                historyTitle: '📊 লেনদেনের ইতিহাস',
                 logoutBtn: 'লগ আউট',
                 editHint: '✏️ সম্পাদনা করতে ক্লিক করুন',
                 prize: 'পুরস্কার জিতেছেন',
@@ -162,14 +153,12 @@
             currentUser = session.user;
             updateLanguage();
             await loadUserProfile();
-            await loadTransactions();
         });
 
         window.setLanguage = function(lang) {
             currentLanguage = lang;
             localStorage.setItem('lottobdLanguage', lang);
             updateLanguage();
-            loadTransactions();
         };
 
         function updateLanguage() {
@@ -181,7 +170,6 @@
             document.getElementById('earnedLabel').textContent = t.earnedLabel;
             document.getElementById('withdrawBtn').textContent = t.withdrawBtn;
             document.getElementById('winnersBtn').textContent = t.winnersBtn;
-            document.getElementById('historyTitle').textContent = t.historyTitle;
             document.getElementById('logoutBtn').textContent = t.logoutBtn;
             document.getElementById('editHint').textContent = t.editHint;
 
@@ -213,57 +201,6 @@
             } catch (error) {
                 console.error('Load profile error:', error);
                 document.getElementById('emailValue').textContent = currentUser.email || '-';
-            }
-        }
-
-        async function loadTransactions() {
-            try {
-                const { data } = await supabaseClient
-                    .from('transactions')
-                    .select('*')
-                    .eq('user_id', currentUser.id)
-                    .order('created_at', { ascending: false })
-                    .limit(20);
-
-                const t = translations[currentLanguage];
-                const list = document.getElementById('transactionsList');
-
-                if (!data || data.length === 0) {
-                    list.innerHTML = '<p class="text-gray-600 text-center py-8">No transactions</p>';
-                    return;
-                }
-
-                list.innerHTML = '';
-                data.forEach(trans => {
-                    const date = new Date(trans.created_at).toLocaleDateString('en-GB', { 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric'
-                    });
-
-                    const typeMap = {
-                        'prize': t.prize,
-                        'topup': t.topup,
-                        'ticket_purchase': t.ticket_purchase,
-                        'withdrawal': t.withdrawal
-                    };
-
-                    const typeLabel = typeMap[trans.type] || trans.type;
-                    const amountColor = trans.amount > 0 ? 'text-green-600' : 'text-red-600';
-                    const amountSign = trans.amount > 0 ? '+' : '';
-
-                    list.innerHTML += `
-                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-4 rounded border-2 border-teal-400 flex justify-between items-center">
-                            <div>
-                                <p class="font-bold text-gray-800">${typeLabel}</p>
-                                <p class="text-sm text-gray-600">${date}</p>
-                            </div>
-                            <p class="font-bold text-lg ${amountColor}">৳${amountSign}${Math.abs(trans.amount)}</p>
-                        </div>
-                    `;
-                });
-            } catch (error) {
-                console.error('Load transactions error:', error);
             }
         }
 
