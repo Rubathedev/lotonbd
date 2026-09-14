@@ -212,14 +212,18 @@
                 <button onclick="handleLogin()" class="btn-press w-full bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg font-bold border-2 border-teal-700">
                     লগইন
                 </button>
+
+                <div class="text-center py-3 border-t-2 border-gray-300">
+                    <button onclick="showForgotPassword()" class="text-orange-600 hover:text-orange-700 font-bold text-sm underline">
+                        🔑 পাসওয়ার্ড ভুলে গেছেন?
+                    </button>
+                </div>
                 
                 <button onclick="closeLogin()" class="btn-press w-full bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-lg font-bold border-2 border-gray-700">
                     বন্ধ করুন
                 </button>
-                
-                <p class="text-center text-sm text-teal-600 mt-3">
-                    <button onclick="showForgotPassword()" class="underline hover:text-teal-700 font-bold">🔑 পাসওয়ার্ড ভুলে গেছেন?</button>
-                </p>
+
+                <p class="text-center text-sm text-gray-600 mt-3">নতুন সদস্য? <button onclick="switchToRegister()" class="text-green-600 hover:text-green-700 font-bold underline">এখানে যোগ দিন</button></p>
             </div>
         </div>
     </div>
@@ -282,12 +286,30 @@
             }
         });
 
+        let referralCode = null;
+
+        // Check for referral code in URL
+        window.addEventListener('load', function() {
+            const params = new URLSearchParams(window.location.search);
+            referralCode = params.get('ref');
+            
+            if (referralCode) {
+                console.log('✅ Referral code found:', referralCode);
+                // Could show a special message here
+            }
+        });
+
         window.showLogin = function() {
             document.getElementById('loginModal').classList.remove('hidden');
         };
 
         window.closeLogin = function() {
             document.getElementById('loginModal').classList.add('hidden');
+        };
+
+        window.switchToRegister = function() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('registerModal').classList.remove('hidden');
         };
 
         window.showRegister = function() {
@@ -378,12 +400,18 @@
                     return;
                 }
 
-                // Create user profile
+                // Generate unique referral code
+                const refCode = 'REF_' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+                // Create user profile with referral code
                 const { error: insertError } = await supabaseClient.from('users').insert({
                     id: data.user.id,
                     email: email,
                     name: name,
-                    balance: 0
+                    balance: 0,
+                    referral_code: refCode,
+                    referred_by: referralCode || null,
+                    referral_bonus: 0
                 });
 
                 if (insertError) {
@@ -391,7 +419,14 @@
                     return;
                 }
 
-                alert('✅ সফলভাবে রেজিস্ট্রার করেছেন! এখন লগইন করুন।');
+                // Log referral for admin to verify
+                if (referralCode) {
+                    console.log(`✅ New user referred by: ${referralCode}`);
+                    alert(`✅ সফলভাবে রেজিস্ট্রার করেছেন!\n\n(আপনাকে রেফার করেছেন: ${referralCode})\n\nএখন লগইন করুন।`);
+                } else {
+                    alert('✅ সফলভাবে রেজিস্ট্রার করেছেন! এখন লগইন করুন।');
+                }
+                
                 document.getElementById('registerModal').classList.add('hidden');
                 document.getElementById('registerEmail').value = email;
                 document.getElementById('loginModal').classList.remove('hidden');
