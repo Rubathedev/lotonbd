@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LottoBD - Referral Program</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn-press {
+            transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .btn-press:hover {
+            transform: scale(0.98);
+            filter: brightness(1.1);
+        }
+        
+        .btn-press:active {
+            transform: scale(0.85) translateY(2px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-teal-50 to-cyan-50 min-h-screen">
+    <div class="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
+        <!-- HEADER -->
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8 mt-4 sm:mt-6 border-2 border-teal-600">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-2xl sm:text-4xl font-bold text-teal-600" id="title">💰 Referral Program</h1>
+                <div class="flex gap-2">
+                    <button onclick="toggleLanguage()" class="btn-press bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg font-bold border-2 border-gray-700 text-xs sm:text-sm">
+                        EN / বাং
+                    </button>
+                    <a href="games.html" class="btn-press bg-teal-600 hover:bg-teal-700 text-white px-3 sm:px-4 py-2 rounded-lg font-bold border-2 border-teal-700 text-sm">
+                        ← Back
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- YOUR REFERRAL CODE -->
+        <div class="bg-white rounded-xl shadow-md p-6 sm:p-8 mb-6 border-2 border-green-600">
+            <h2 class="text-2xl font-bold text-green-700 mb-6" id="codeTitle">🎁 Your Referral Code</h2>
+            
+            <div class="bg-green-50 p-6 rounded-lg border-2 border-green-600 mb-4">
+                <p class="text-gray-600 text-sm mb-2" id="codeLabel">Your unique referral code:</p>
+                <div class="flex gap-2">
+                    <input type="text" id="referralCode" readonly class="flex-1 p-3 bg-white border-2 border-green-600 rounded-lg font-bold text-lg text-center" />
+                    <button onclick="copyCode()" class="btn-press bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-bold border-2 border-green-700" id="copyCodeBtn">
+                        📋 Copy
+                    </button>
+                </div>
+            </div>
+
+            <!-- REFERRAL LINK -->
+            <div class="bg-blue-50 p-6 rounded-lg border-2 border-blue-600">
+                <p class="text-gray-600 text-sm mb-2" id="linkLabel">Share this link with friends:</p>
+                <div class="flex gap-2 flex-wrap">
+                    <input type="text" id="referralLink" readonly class="flex-1 p-3 bg-white border-2 border-blue-600 rounded-lg font-bold text-sm" />
+                    <button onclick="copyLink()" class="btn-press bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold border-2 border-blue-700" id="copyLinkBtn">
+                        🔗 Copy Link
+                    </button>
+                    <button onclick="shareLink()" class="btn-press bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-bold border-2 border-purple-700" id="shareLinkBtn">
+                        📤 Share
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BONUS STATS -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <!-- PEOPLE REFERRED -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-2 border-purple-600">
+                <h3 class="text-lg font-bold text-purple-700 mb-2" id="referredLabel">👥 People Referred</h3>
+                <p class="text-4xl font-bold text-purple-600" id="referredCount">0</p>
+            </div>
+
+            <!-- TOTAL BONUS -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-2 border-green-600">
+                <h3 class="text-lg font-bold text-green-700 mb-2" id="bonusLabel">💵 Total Bonus Earned</h3>
+                <p class="text-4xl font-bold text-green-600">৳<span id="bonusEarned">0</span></p>
+            </div>
+
+            <!-- PER REFERRAL -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-2 border-orange-600">
+                <h3 class="text-lg font-bold text-orange-700 mb-2" id="perLabel">🎁 Per Referral</h3>
+                <p class="text-4xl font-bold text-orange-600">৳50</p>
+            </div>
+        </div>
+
+        <!-- HOW IT WORKS -->
+        <div class="bg-white rounded-xl shadow-md p-6 sm:p-8 border-2 border-teal-600 mb-6">
+            <h2 class="text-2xl font-bold text-teal-700 mb-6" id="howTitle">📖 How It Works</h2>
+            
+            <div class="space-y-4">
+                <div class="flex gap-4">
+                    <span class="text-3xl">1️⃣</span>
+                    <div>
+                        <p class="font-bold text-lg text-teal-700" id="step1">Share Your Referral Link</p>
+                        <p class="text-gray-700" id="step1Desc">Send the link above to your friends or family</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <span class="text-3xl">2️⃣</span>
+                    <div>
+                        <p class="font-bold text-lg text-teal-700" id="step2">They Sign Up</p>
+                        <p class="text-gray-700" id="step2Desc">They click your link and create a new account</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <span class="text-3xl">3️⃣</span>
+                    <div>
+                        <p class="font-bold text-lg text-teal-700" id="step3">They Add Money</p>
+                        <p class="text-gray-700" id="step3Desc">They deposit money into their account (minimum ৳100)</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <span class="text-3xl">✨</span>
+                    <div>
+                        <p class="font-bold text-lg text-green-700" id="step4">You Get ৳50 Bonus!</p>
+                        <p class="text-gray-700" id="step4Desc">Instantly added to your account balance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REFERRAL HISTORY -->
+        <div class="bg-white rounded-xl shadow-md p-6 sm:p-8 border-2 border-teal-600">
+            <h2 class="text-2xl font-bold text-teal-700 mb-6" id="historyTitle">📋 Your Referrals</h2>
+            <div id="referralsList" class="space-y-3">
+                <p class="text-center text-gray-600 py-8" id="loadingText">Loading referrals...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://pnngnmbfbkbpzhsdpsmj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubmdubWJmYmticHpoc2Rwc21qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzU5MDgsImV4cCI6MjA4ODA1MTkwOH0.vIYdJA3eKajAGQ9Om27P8RkqTIeWUlGx1B-npq3u6u0';
+        
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+        let currentLanguage = localStorage.getItem('lottobdLanguage') || 'en';
+
+        const translations = {
+            en: {
+                title: '💰 Referral Program',
+                codeTitle: '🎁 Your Referral Code',
+                codeLabel: 'Your unique referral code:',
+                copyCodeBtn: '📋 Copy',
+                linkLabel: 'Share this link with friends:',
+                copyLinkBtn: '🔗 Copy Link',
+                shareLinkBtn: '📤 Share',
+                referredLabel: '👥 People Referred',
+                bonusLabel: '💵 Total Bonus Earned',
+                perLabel: '🎁 Per Referral',
+                howTitle: '📖 How It Works',
+                step1: 'Share Your Referral Link',
+                step1Desc: 'Send the link above to your friends or family',
+                step2: 'They Sign Up',
+                step2Desc: 'They click your link and create a new account',
+                step3: 'They Add Money',
+                step3Desc: 'They deposit money into their account (minimum ৳100)',
+                step4: 'You Get ৳50 Bonus!',
+                step4Desc: 'Instantly added to your account balance',
+                historyTitle: '📋 Your Referrals',
+                loadingText: 'Loading referrals...',
+                noReferrals: 'No referrals yet. Start sharing your link! 🔗',
+                joined: 'Joined:',
+                balance: 'Balance:'
+            },
+            bn: {
+                title: '💰 রেফারেল প্রোগ্রাম',
+                codeTitle: '🎁 আপনার রেফারেল কোড',
+                codeLabel: 'আপনার অনন্য রেফারেল কোড:',
+                copyCodeBtn: '📋 কপি করুন',
+                linkLabel: 'বন্ধুদের সাথে এই লিঙ্ক শেয়ার করুন:',
+                copyLinkBtn: '🔗 লিঙ্ক কপি করুন',
+                shareLinkBtn: '📤 শেয়ার করুন',
+                referredLabel: '👥 রেফার করা মানুষ',
+                bonusLabel: '💵 মোট বোনাস অর্জন',
+                perLabel: '🎁 প্রতি রেফারেল',
+                howTitle: '📖 কীভাবে কাজ করে',
+                step1: 'আপনার রেফারেল লিঙ্ক শেয়ার করুন',
+                step1Desc: 'উপরের লিঙ্ক আপনার বন্ধু বা পরিবারের কাছে পাঠান',
+                step2: 'তারা সাইন আপ করুন',
+                step2Desc: 'তারা আপনার লিঙ্ক ক্লিক করে নতুন অ্যাকাউন্ট তৈরি করুন',
+                step3: 'তারা টাকা যোগ করুন',
+                step3Desc: 'তারা তাদের অ্যাকাউন্টে টাকা জমা করুন (ন্যূনতম ৳100)',
+                step4: 'আপনি ৳50 বোনাস পান!',
+                step4Desc: 'তাৎক্ষণিকভাবে আপনার অ্যাকাউন্ট ব্যালেন্সে যোগ করা হয়েছে',
+                historyTitle: '📋 আপনার রেফারেলগুলি',
+                loadingText: 'রেফারেলগুলি লোড করা হচ্ছে...',
+                noReferrals: 'এখনও কোনও রেফারেল নেই। আপনার লিঙ্ক শেয়ার করা শুরু করুন! 🔗',
+                joined: 'যোগদান:',
+                balance: 'ব্যালেন্স:'
+            }
+        };
+
+        function updateTexts() {
+            const t = translations[currentLanguage];
+            document.getElementById('title').textContent = t.title;
+            document.getElementById('codeTitle').textContent = t.codeTitle;
+            document.getElementById('codeLabel').textContent = t.codeLabel;
+            document.getElementById('copyCodeBtn').textContent = t.copyCodeBtn;
+            document.getElementById('linkLabel').textContent = t.linkLabel;
+            document.getElementById('copyLinkBtn').textContent = t.copyLinkBtn;
+            document.getElementById('shareLinkBtn').textContent = t.shareLinkBtn;
+            document.getElementById('referredLabel').textContent = t.referredLabel;
+            document.getElementById('bonusLabel').textContent = t.bonusLabel;
+            document.getElementById('perLabel').textContent = t.perLabel;
+            document.getElementById('howTitle').textContent = t.howTitle;
+            document.getElementById('step1').textContent = t.step1;
+            document.getElementById('step1Desc').textContent = t.step1Desc;
+            document.getElementById('step2').textContent = t.step2;
+            document.getElementById('step2Desc').textContent = t.step2Desc;
+            document.getElementById('step3').textContent = t.step3;
+            document.getElementById('step3Desc').textContent = t.step3Desc;
+            document.getElementById('step4').textContent = t.step4;
+            document.getElementById('step4Desc').textContent = t.step4Desc;
+            document.getElementById('historyTitle').textContent = t.historyTitle;
+        }
+
+        window.toggleLanguage = function() {
+            currentLanguage = currentLanguage === 'en' ? 'bn' : 'en';
+            localStorage.setItem('lottobdLanguage', currentLanguage);
+            updateTexts();
+        };
+
+        // Initialize
+        supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUser = session.user;
+            updateTexts();
+            await loadReferralData();
+        });
+
+        async function loadReferralData() {
+            try {
+                const { data: userData } = await supabaseClient
+                    .from('users')
+                    .select('referral_code, referral_bonus')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (userData) {
+                    document.getElementById('referralCode').value = userData.referral_code || 'N/A';
+                    document.getElementById('bonusEarned').textContent = userData.referral_bonus || '0';
+                    
+                    const link = window.location.origin + '/landing.html?ref=' + userData.referral_code;
+                    document.getElementById('referralLink').value = link;
+                }
+
+                const { data: referredUsers } = await supabaseClient
+                    .from('users')
+                    .select('id, name, email, balance, created_at')
+                    .eq('referred_by', userData.referral_code);
+
+                document.getElementById('referredCount').textContent = (referredUsers || []).length;
+
+                const referralsList = document.getElementById('referralsList');
+                const t = translations[currentLanguage];
+                
+                if (referredUsers && referredUsers.length > 0) {
+                    referralsList.innerHTML = referredUsers.map(user => `
+                        <div class="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border-l-4 border-green-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-bold text-lg">${user.name}</p>
+                                    <p class="text-sm text-gray-600">${user.email}</p>
+                                    <p class="text-xs text-gray-500 mt-1">${t.joined} ${new Date(user.created_at).toLocaleDateString()}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-600">${t.balance}</p>
+                                    <p class="text-xl font-bold text-green-700">৳${user.balance}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    referralsList.innerHTML = `<p class="text-center text-gray-600 py-8">${t.noReferrals}</p>`;
+                }
+            } catch (error) {
+                console.error('Error loading referral data:', error);
+            }
+        }
+
+        window.copyCode = function() {
+            navigator.clipboard.writeText(document.getElementById('referralCode').value);
+            alert('✅ Referral code copied!');
+        };
+
+        window.copyLink = function() {
+            navigator.clipboard.writeText(document.getElementById('referralLink').value);
+            alert('✅ Referral link copied!');
+        };
+
+        window.shareLink = function() {
+            const link = document.getElementById('referralLink').value;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join LottoBD with my referral!',
+                    text: 'Earn money playing lottery games! 🎮',
+                    url: link
+                });
+            } else {
+                navigator.clipboard.writeText(link);
+                alert('✅ Link copied! Share it with your friends.');
+            }
+        };
+    </script>
+</body>
+</html>
