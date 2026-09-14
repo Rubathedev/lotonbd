@@ -70,68 +70,68 @@
     <div class="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
         <!-- HEADER -->
         <div class="card p-4 sm:p-6 mb-6 sm:mb-8 mt-4 sm:mt-6">
-            <div class="flex justify-between items-center mb-4 sm:mb-6">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl">🎫</span>
+            <div class="flex justify-between items-start mb-5 sm:mb-6">
+                <div class="flex items-center gap-3 flex-1">
+                    <span class="text-5xl sm:text-6xl">🎫</span>
                     <div>
-                        <h1 class="text-2xl sm:text-3xl font-bold text-teal-600">LottoBD</h1>
-                        <p class="text-xs text-gray-500">Bangladesh Lottery</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-teal-700 leading-tight">LottoBD</h1>
+                        <p class="text-xs sm:text-sm text-gray-500 font-medium">Bangladesh Lottery</p>
                     </div>
                 </div>
                 
-                <div class="flex gap-2">
-                    <div class="flex gap-1 bg-gray-100 p-1 rounded-xl">
-                        <button onclick="setLanguage('en')" id="btnEn" class="btn-press bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg font-bold text-xs sm:text-sm">EN</button>
-                        <button onclick="setLanguage('bn')" id="btnBn" class="btn-press bg-gray-400 text-white px-3 sm:px-4 py-2 rounded-lg font-bold text-xs sm:text-sm">বাং</button>
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 items-end sm:items-center">
+                    <div class="flex gap-1 bg-gradient-to-r from-gray-100 to-gray-50 p-1 rounded-lg border border-gray-200">
+                        <button onclick="setLanguage('en')" id="btnEn" class="btn-press bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-md font-bold text-xs sm:text-sm transition-all">EN</button>
+                        <button onclick="setLanguage('bn')" id="btnBn" class="btn-press bg-gray-300 text-gray-800 px-3 sm:px-4 py-2 rounded-md font-bold text-xs sm:text-sm hover:bg-gray-400 transition-all">বাং</button>
                     </div>
-                    <button onclick="showNotificationHelp()" id="notificationStatus" class="btn-press text-xs sm:text-sm font-bold px-2 sm:px-3 py-2 rounded-full bg-green-100 text-green-700 whitespace-nowrap hover:bg-green-200">
-                        ✅ Notify ON
+                    <button onclick="showNotificationHelp()" id="notificationStatus" class="btn-press text-xs sm:text-sm font-bold px-2 sm:px-3 py-2 rounded-full bg-green-100 text-green-700 whitespace-nowrap hover:bg-green-200 transition-all">
+                        ✅ Notify
                     </button>
                 </div>
             </div>
 
             <!-- MOBILE/DESKTOP BUTTONS -->
-            <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div class="flex items-center justify-between gap-4">
                 <!-- BALANCE (always visible) -->
-                <div class="bg-gradient-to-br from-green-50 to-emerald-50 px-4 py-3 rounded-xl border border-green-200">
-                    <p class="text-xs font-bold text-gray-700">BALANCE</p>
-                    <p class="text-2xl sm:text-3xl font-bold text-green-700">৳<span id="userBalance">0</span></p>
+                <div class="flex-1 bg-gradient-to-br from-green-50 to-emerald-50 px-5 py-4 rounded-xl border border-green-200 shadow-sm">
+                    <p class="text-xs font-bold text-gray-600 uppercase tracking-wide">Balance</p>
+                    <p class="text-3xl sm:text-4xl font-black text-green-700 mt-1">৳<span id="userBalance">0</span></p>
                 </div>
 
                 <!-- HAMBURGER MENU (mobile only) -->
-                <button onclick="toggleMenu()" id="hamburgerBtn" class="sm:hidden btn-press gradient-teal text-white p-3 rounded-xl font-bold text-2xl">
+                <button onclick="toggleMenu()" id="hamburgerBtn" class="sm:hidden btn-press gradient-teal text-white p-4 rounded-2xl font-bold text-2xl hover:shadow-lg transition-all">
                     ☰
                 </button>
 
                 <!-- DESKTOP BUTTONS (hidden on mobile) -->
-                <div class="hidden sm:flex gap-2 sm:gap-3">
-                    <a href="profile.html" class="btn-press gradient-teal text-white px-4 py-3 rounded-lg font-bold text-center text-sm">
+                <div class="hidden sm:flex gap-2 lg:gap-3">
+                    <a href="profile.html" class="btn-press gradient-teal text-white px-4 py-3 rounded-lg font-bold text-center text-sm hover:shadow-lg transition-all">
                         👤 <span id="profileBtn">Profile</span>
                     </a>
-                    <a href="withdraw.html" class="btn-press gradient-teal text-white px-4 py-3 rounded-lg font-bold text-center text-sm">
+                    <a href="withdraw.html" class="btn-press gradient-teal text-white px-4 py-3 rounded-lg font-bold text-center text-sm hover:shadow-lg transition-all">
                         🏧 <span id="withdrawBtn">Withdraw</span>
                     </a>
-                    <a href="winners.html" class="btn-press gradient-teal text-white px-4 py-3 rounded-lg font-bold text-center text-sm">
+                    <a href="winners.html" class="btn-press gradient-teal text-white px-4 py-3 rounded-lg font-bold text-center text-sm hover:shadow-lg transition-all">
                         🏆 <span id="winnersBtn">Winners</span>
                     </a>
-                    <a href="referral.html" class="btn-press gradient-purple text-white px-4 py-3 rounded-lg font-bold text-center text-sm">
+                    <a href="referral.html" class="btn-press gradient-purple text-white px-4 py-3 rounded-lg font-bold text-center text-sm hover:shadow-lg transition-all">
                         💰 <span id="referralBtn">Referral</span>
                     </a>
                 </div>
             </div>
 
             <!-- MOBILE MENU (hidden by default) -->
-            <div id="mobileMenu" class="hidden sm:hidden card overflow-hidden">
-                <a href="profile.html" class="btn-press block w-full gradient-teal text-white px-4 py-3 font-bold text-center border-b border-teal-200">
+            <div id="mobileMenu" class="hidden sm:hidden mt-4 card overflow-hidden">
+                <a href="profile.html" class="btn-press block w-full gradient-teal text-white px-4 py-4 font-bold text-center border-b border-teal-200 hover:opacity-90 transition-all">
                     👤 <span id="profileBtnMobile">Profile</span>
                 </a>
-                <a href="withdraw.html" class="btn-press block w-full gradient-teal text-white px-4 py-3 font-bold text-center border-b border-teal-200">
+                <a href="withdraw.html" class="btn-press block w-full gradient-teal text-white px-4 py-4 font-bold text-center border-b border-teal-200 hover:opacity-90 transition-all">
                     🏧 <span id="withdrawBtnMobile">Withdraw</span>
                 </a>
-                <a href="winners.html" class="btn-press block w-full gradient-teal text-white px-4 py-3 font-bold text-center border-b border-teal-200">
+                <a href="winners.html" class="btn-press block w-full gradient-teal text-white px-4 py-4 font-bold text-center border-b border-teal-200 hover:opacity-90 transition-all">
                     🏆 <span id="winnersBtnMobile">Winners</span>
                 </a>
-                <a href="referral.html" class="btn-press block w-full gradient-purple text-white px-4 py-3 font-bold text-center">
+                <a href="referral.html" class="btn-press block w-full gradient-purple text-white px-4 py-4 font-bold text-center hover:opacity-90 transition-all">
                     💰 <span id="referralBtnMobile">Referral</span>
                 </a>
             </div>
