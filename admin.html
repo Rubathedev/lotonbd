@@ -125,6 +125,19 @@
                 <p class="text-center text-gray-600">Loading...</p>
             </div>
         </div>
+
+        <!-- REFERRAL MANAGEMENT -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-2 border-purple-600">
+            <h2 class="text-2xl font-bold text-purple-700 mb-6">💰 Referral Management</h2>
+            
+            <div class="mb-6">
+                <input type="text" placeholder="Search by email or name..." id="referralSearch" class="w-full p-3 border-2 border-purple-600 rounded-lg font-bold text-sm" oninput="searchReferrals()" />
+            </div>
+
+            <div id="referralsList" class="space-y-3">
+                <p class="text-center text-gray-600">Loading referrals...</p>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -512,6 +525,139 @@
             await supabaseClient.auth.signOut();
             window.location.href = 'index.html';
         };
+
+        // REFERRAL MANAGEMENT
+        let allReferrals = [];
+
+        async function loadReferrals() {
+            try {
+                // Get all users with referral codes
+                const { data: users } = await supabaseClient
+                    .from('users')
+                    .select('id, name, email, referral_code, referral_bonus, balance')
+                    .order('name');
+
+                allReferrals = [];
+
+                // For each user, count how many they referred
+                for (const user of users || []) {
+                    const { data: referred } = await supabaseClient
+                        .from('users')
+                        .select('id')
+                        .eq('referred_by', user.referral_code);
+
+                    allReferrals.push({
+                        ...user,
+                        referral_count: (referred || []).length
+                    });
+                }
+
+                displayReferrals(allReferrals);
+            } catch (error) {
+                console.error('Load referrals error:', error);
+            }
+        }
+
+        function displayReferrals(referrals) {
+            const list = document.getElementById('referralsList');
+            
+            if (!referrals || referrals.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-600">No users found</p>';
+                return;
+            }
+
+            list.innerHTML = referrals.map(user => `
+                <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-400">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <p class="font-bold text-lg">${user.name}</p>
+                            <p class="text-sm text-gray-600">${user.email}</p>
+                            <p class="text-xs text-gray-500 mt-1">Code: <strong>${user.referral_code}</strong></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-bold text-purple-700">${user.referral_count}</p>
+                            <p class="text-xs text-gray-600">referred</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg mb-3 border border-gray-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-bold">Balance: <span class="text-green-700">৳${user.balance}</span></span>
+                            <span class="text-sm font-bold">Bonus Total: <span class="text-blue-700">৳${user.referral_bonus || 0}</span></span>
+                        </div>
+                    </div>
+
+                    ${user.referral_count > 0 ? `
+                        <button onclick="giveReferralBonus('${user.id}', '${user.name}')" class="btn-press w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded font-bold text-sm border-2 border-green-700">
+                            💰 Give ৳50 Bonus
+                        </button>
+                    ` : `
+                        <p class="text-center text-gray-500 text-sm italic">No referrals yet</p>
+                    `}
+                </div>
+            `).join('');
+        }
+
+        window.searchReferrals = function() {
+            const search = document.getElementById('referralSearch').value.toLowerCase();
+            const filtered = allReferrals.filter(user => 
+                user.name.toLowerCase().includes(search) || 
+                user.email.toLowerCase().includes(search) ||
+                user.referral_code.toLowerCase().includes(search)
+            );
+            displayReferrals(filtered);
+        };
+
+        window.giveReferralBonus = async function(userId, userName) {
+            if (!confirm(`✅ Give ৳50 bonus to ${userName}?`)) return;
+
+            try {
+                // Get user's current balance
+                const { data: user } = await supabaseClient
+                    .from('users')
+                    .select('balance, referral_bonus')
+                    .eq('id', userId)
+                    .single();
+
+                if (!user) {
+                    alert('❌ User not found');
+                    return;
+                }
+
+                // Add 50 TK
+                const newBalance = user.balance + 50;
+                const newBonus = (user.referral_bonus || 0) + 50;
+
+                // Update balance and bonus
+                const { error } = await supabaseClient
+                    .from('users')
+                    .update({ balance: newBalance, referral_bonus: newBonus })
+                    .eq('id', userId);
+
+                if (error) {
+                    alert('❌ Error: ' + error.message);
+                    return;
+                }
+
+                // Record transaction
+                await supabaseClient
+                    .from('transactions')
+                    .insert({
+                        user_id: userId,
+                        type: 'referral_bonus',
+                        amount: 50,
+                        created_at: new Date().toISOString()
+                    });
+
+                alert('✅ ৳50 bonus given to ' + userName);
+                loadReferrals();
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        };
+
+        // Load referrals on page load
+        loadReferrals();
     </script>
 </body>
 </html>
